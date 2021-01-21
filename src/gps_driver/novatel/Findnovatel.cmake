@@ -1,0 +1,13 @@
+find_path(NOVATEL_INCLUDE_DIRS novatel/novatel.h /usr/include "$ENV{NAMER_ROOT}")
+
+find_library(NOVATEL_LIBRARIES novatel /usr/lib "$ENV{NAMER_ROOT}")
+
+set(NOVATEL_FOUND TRUE)
+
+if (NOT NOVATEL_INCLUDE_DIRS)
+    set(NOVATEL_FOUND FALSE)
+endif (NOT NOVATEL_INCLUDE_DIRS)
+
+if (NOT NOVATEL_LIBRARIES)
+    set(NOVATEL_FOUND FALSE)
+endif (NOT NOVATEL_LIBRARIES)

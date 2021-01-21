@@ -1,0 +1,37 @@
+<!-- -->
+<launch>
+	
+	<arg name="IMU" default="false"/>
+	<!-- Start the novatel node -->
+	<node pkg="novatel" type="novatel_node" name="novatel_node">
+		<param name="port" value="/dev/ttyS1" />
+		<param name="baudrate" value="115200" />
+		
+		<param name="nav_sat_fix_topic" value="/gps_fix" />
+		<param name="bestutm_topic" value="/best_utm" />
+		<param name="inspvax_topic" value = "/gps"/>
+		
+		<param name="is_lltoutm"   value="true"/>
+		<param name="ll2utm_topic" value="/ll2utm_odom"/>
+		
+		<param name="log_commands" value="inspvaxb ontime 0.05; bestutmb ontime 0.5" />
+		
+		<!-- <param name="configure_port" value="COM2,9600,RTCM,NONE" /> -->
+		<!-- <param name="log_commands" value="BESTUTMB ONTIME 1.0; BESTVELB ONTIME 1.0" /> -->
+		
+	</node>
+	
+	<group if="$(arg IMU)">
+		<node pkg="novatel" type="novatel_node" name="imu_node" output="screen">
+			<param name="port" value="/dev/ttyS2" />
+			<param name="baudrate" value="115200" />
+		
+			<param name="log_commands" value="corrimudatasb ontime 0.05" />
+		
+		</node>
+	</group>
+	
+	
+	
+</launch>
+
