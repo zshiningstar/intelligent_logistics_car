@@ -24,10 +24,11 @@ public:
 	~PathTracking();
 	bool init(ros::NodeHandle nh,ros::NodeHandle nh_private);
 	void run();
-	void avoiding_flag_callback(const std_msgs::Float32::ConstPtr& msg);
+	void avoiding_flag_callback(const std_msgs::Float32::ConstPtr& msg);            // 订阅offset
 	void pub_car_goal_callback(const ros::TimerEvent&);                             // 定时发布车辆目标状态信息（转角和速度）
 	void gps_odom_callback(const nav_msgs::Odometry::ConstPtr& msg);                // 订阅GPS发布过来的消息（包括车辆自身的航向角、车辆自身的utm_x/utm_y/yaw）
 	void is_object_callback(const std_msgs::Float32::ConstPtr& msg);   // 判断5m内是否有障碍物闯入
+//	void offset_callback(const std_msgs::Float32::ConstPtr& msg);      
 	
 	void car_state_callback(const logistics_msgs::RealState::ConstPtr& msg);
 	
@@ -42,7 +43,7 @@ private:
 	ros::Subscriber sub_car_state;
 	ros::Timer timer_;
 	ros::Subscriber sub_is_object; //是否有障碍物闯入5m之内
-	
+	ros::Subscriber sub_is_offset; //订阅offset
 	ros::Publisher pub_car_goal;
 	
 	boost::shared_ptr<boost::thread> rosSpin_thread_ptr_;
@@ -58,7 +59,9 @@ private:
 	float track_speed_;
 	float object_data;
 	
+	
 	bool vehicle_speed_status_;
+	bool is_offset_;
 	
 	float vehicle_speed_;
 	float current_roadwheelAngle_;
@@ -107,15 +110,23 @@ PathTracking::~PathTracking()
 {
 }
 
-
 /*------------------节点初始化--------------------*/
 
+/*
+ *@param  is_offset_ : 是否接收offset
+ *@param  is_offset  : offset的值
+ *
+ */
+ 
 bool PathTracking::init(ros::NodeHandle nh,ros::NodeHandle nh_private)
 {
 	std::string odom_topic = nh_private.param<std::string>("odom_topic","/odom");   
 	sub_utm_odom  = nh.subscribe(odom_topic, 5,&PathTracking::gps_odom_callback,this);     // 订阅来自GPS节点的消息，以获取车辆自身状态信息
 	std::string is_object = nh_private.param<std::string>("is_object","/is_object");  
 	sub_is_object = nh.subscribe(is_object,10,&PathTracking::is_object_callback, this);
+	
+	std::string is_offset = nh_private.param<std::string>("is_offset","/is_offset");  
+	sub_is_offset = nh.subscribe(is_object,10,&PathTracking::avoiding_flag_callback, this);
 	
 	std::string car_state = nh_private.param<std::string>("car_state","/car_state");  
 	sub_car_state = nh.subscribe(car_state,10,&PathTracking::car_state_callback, this);     // 订阅来自stm32向上位机的车辆反馈信息
@@ -132,6 +143,8 @@ bool PathTracking::init(ros::NodeHandle nh,ros::NodeHandle nh_private)
 	
 	nh_private.param<float>("min_foresight_distance",min_foresight_distance_,3.0);            // 最小前视距离为5米
 	nh_private.param<float>("max_side_accel",max_side_accel_,1.5);
+	
+	nh_private.param<bool>("is_offset_",is_offset_,false);                                     // 
 	
 	if(path_points_file_.empty())
 	{
@@ -216,6 +229,8 @@ void PathTracking::run()
 	std::cout << target_point_index_ << " / "  << path_points_.size() << std::endl;
 	while(ros::ok() /*&& target_point_index_ < path_points_.size()-2*/)       //(减去2是啥意思)
 	{
+		if( avoiding_offset_ != 0.0)
+		        target_point_ = pointOffset(path_points_[target_point_index_],avoiding_offset_);
 		try
 		{
 			lateral_err_ = calculateDis2path(current_point_.x,current_point_.y,path_points_,
@@ -284,17 +299,15 @@ void PathTracking::run()
 		float max_curvature = maxCurvatureInRange(path_points_, nearest_point_index_, index);
 		float max_speed = generateMaxTolarateSpeedByCurvature(max_curvature, max_side_accel_);
 		
-//		std::cout << 11111111 << std::endl;
-		
 //		car_goal.goal_speed = track_speed_ > max_speed ? max_speed : track_speed_;
-                if(object_data != 0)
-                {
+                while(object_data != 0)
+                {       
+                        while(track_speed_ > 0)
+                                car_goal.goal_speed = track_speed_--;
                         car_goal.goal_speed = 0;
                 }
-                else
-                {
-		        car_goal.goal_speed = track_speed_;
-		}
+                
+	        car_goal.goal_speed = track_speed_;
 		car_goal.goal_angle = t_roadWheelAngle;
 		
 //		this->publishPathTrackingState();
@@ -322,8 +335,11 @@ void PathTracking::run()
 
 void PathTracking::avoiding_flag_callback(const std_msgs::Float32::ConstPtr& msg)
 {
-//	//avoid to left(-) or right(+) the value presents the offset
-//	avoiding_offset_ = msg->data;
+	//avoid to left(-) or right(+) the value presents the offset
+        if(is_offset_)
+        {
+	        avoiding_offset_ = msg->data;
+        }
 }
 
 

@@ -21,7 +21,10 @@
 		<param name="odom_topic" value="/odom"/>
 		<param name="car_state" value="/car_state"/>
 		<param name="car_goal" value="/car_goal"/>
+		
 		<param name="is_object" value="/is_object"/>
+		<param name="is_offset" value="/is_offset"/>
+		<param name="is_offset_"  type="bool"  value="false"/>
 				
 	</node>
 	
