@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+
+<!-- wang fa an -->
+<launch>
+	<node name="nuogeng_node" pkg="nuogeng" type="nuogeng_node" output="screen">
+		<param name="port_name" value="/dev/ttyUSB0"/>
+		<param name="is_ll2utm" value="true"/>
+		<param name="odom_topic" value="/odom"/>
+	</node>
+	
+	<node name="satellite_node" pkg="nuogeng" type="satellite_node" output="screen">
+		<param name="port_name" value="/dev/ttyUSB1"/>
+	</node>
+	
+	<node name="record_gps_satellite" pkg="nuogeng" type="record_gps_satellite" output="screen">
+		<param name="odom_topic" value="/odom"/>
+		<param name="use_synchronizer" value="True"/>
+		<param name="record_duration" value="1.0"/>  <!-- s -->
+		<param name="satellite_file" value="$(find nuogeng)/data/satellite.txt"/>
+		<param name="gps_file" value="$(find nuogeng)/data/gps.txt"/>
+	</node>
+</launch>
