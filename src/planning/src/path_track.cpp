@@ -162,7 +162,6 @@ bool PathTracking::init(ros::NodeHandle nh,ros::NodeHandle nh_private)
 	
 	while(ros::ok() && !is_gps_data_valid(current_point_))                                 // 判断是不是有效的gps数据
 	{
-	    std::cout << "x:" << current_point_.x << "y:" << current_point_.y <<std::endl;
 		ROS_INFO("gps data is invalid, please check the gps topic or waiting...");
 		sleep(1);
 	}
@@ -232,6 +231,7 @@ void PathTracking::run()
 	{
 //		if( avoiding_offset_ != 0.0)
 //		        target_point_ = pointOffset(path_points_[target_point_index_],avoiding_offset_);
+
 		try
 		{
 			lateral_err_ = calculateDis2path(current_point_.x,current_point_.y,path_points_,
@@ -273,7 +273,7 @@ void PathTracking::run()
 		
 		if(yaw_err_==0.0) continue;
 		
-		float turning_radius = (-0.5 * dis_yaw.first)/sin(yaw_err_);                     // 转弯半径  l/2sin(a)
+		float turning_radius = (0.5 * dis_yaw.first)/sin(yaw_err_);                     // 转弯半径  l/2sin(a)
 
 		float t_roadWheelAngle = generateRoadwheelAngleByRadius(turning_radius);         // 生成前轮转角
 		
@@ -298,7 +298,6 @@ void PathTracking::run()
 			break;
 		}
 		float max_curvature = maxCurvatureInRange(path_points_, nearest_point_index_, index);
-		
 		/***********转向灯**********/
 //		if(max_curvature < 0)   
 //		       car_goal.goal_light = 0x20;
@@ -325,7 +324,7 @@ void PathTracking::run()
 			ROS_INFO("set_speed:%f\t speed:%f",car_goal.goal_speed ,vehicle_speed_);
 			ROS_INFO("dis2target:%.2f\t yaw_err:%.2f\t lat_err:%.2f",dis_yaw.first,yaw_err_*180.0/M_PI,lateral_err_);
 			ROS_INFO("disThreshold:%f\t expect roadwheel angle:%.2f",disThreshold_,t_roadWheelAngle);
-//			ROS_INFO("set_speed:%f\t speed:%f",car_goal.goal_angle ,vehicle_speed_);
+
 		}
 		i++;		
 		loop_rate.sleep();
@@ -371,11 +370,11 @@ void PathTracking::car_state_callback(const logistics_msgs::RealState::ConstPtr&
 	car_state.real_angle = msg->real_angle;
 	car_state.real_brake = msg->real_brake;
 	car_state.real_park  = msg->real_park;
-	
 //	if(vehicle_speed_ >20.0)
 //		return;
 //	vehicle_speed_status_ = true;
 	vehicle_speed_ = car_state.real_speed; //  km/h
+
 }
 
 /*----------------------------主函数---------------------------------*/

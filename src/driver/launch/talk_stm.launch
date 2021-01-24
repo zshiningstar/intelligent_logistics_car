@@ -2,7 +2,7 @@
 <launch>
         
         <!-- try_node 是模拟上位机给下位机发送数据的节点,当启动循迹代码后,此节点应该被注释掉-->
-<!--        <node name="try_node" pkg="pc_stm32" type="try" output="screen">-->
+<!--    <node name="try_node" pkg="pc_stm32" type="try" output="screen">-->
 <!--	-->
 <!--		<param name="car_goal" value="/car_goal" />-->
 

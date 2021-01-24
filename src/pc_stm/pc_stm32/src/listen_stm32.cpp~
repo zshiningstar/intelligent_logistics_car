@@ -149,7 +149,7 @@ void Listener::parseIncomingData(uint8_t* buffer,size_t len)
 				pkg_len = pkg_buffer[3];
 //				std::cout << hex << pkg_buffer[11] << endl;
 				if((pkg_buffer[2] == 0x02) && sumCheck(pkg_buffer,pkg_len))    //0x02代表下位机向上位机发布的消息包id; 0xe0代表车速信号、制动信号、转角信号有效
-//				if(1)
+				if(1)
 					{
 //					std::cout << 4444444 << endl;
 					parseFromStm(pkg_buffer);

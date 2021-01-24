@@ -9,17 +9,16 @@
 	<arg name="gps_port" default="/dev/ttyUSB0"/>
 	<arg name="file_name" default="path.txt" />
 	<arg name="max_speed" default="1.3" />
-	
 	<node name="path_tracking" pkg="planning" type="path_track" output="screen">
 	
 		<param name="path_points_file" value="$(find recorder)/data/$(arg file_name)"/>
-		<param name="disThreshold" value="5.0"/>
+		<param name="disThreshold" value="6.0"/>
 		<param name="max_side_accel" value="1.5"/>
 		<param name="foreSightDistance_coefficient_" value = "1.8"/>
 		<param name="foreSightDis_latErrCoefficient" value = "1.0"/>
 		<param name="speed" value="$(arg max_speed)"/>
 		<param name="odom_topic" value="/odom"/>
-<!--		<param name="car_state" value="/car_state"/>-->
+		<param name="car_state" value="/car_state"/>
 		<param name="car_goal" value="/car_goal"/>
 		
 		<param name="is_object" value="/is_object"/>

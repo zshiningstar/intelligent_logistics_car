@@ -35,12 +35,20 @@ int main(int argc,char** argv)
 {
 
 		goal.goal_speed = 0;
+<<<<<<< HEAD
 //		sleep(5);+
 //		goal.goal_speed = rand()%11 + 5;
 		goal.goal_angle = 0;
 //                goal.goal_angle = rand()%11 - 5;        
 //goal.goal_angle = 0;
                 goal.goal_light = 0;
+=======
+//		sleep(5);
+//		goal.goal_speed = rand()%11 + 5;
+		goal.goal_angle = rand()%21 - 10;
+//goal.goal_angle = 0;
+                goal.goal_light = 
+>>>>>>> f4727bbfd2835f0310bc43fb1f7d91e75fa71063
 		goal.goal_brake = 3;
 		goal.goal_park  = 3;
 		sleep(1);
