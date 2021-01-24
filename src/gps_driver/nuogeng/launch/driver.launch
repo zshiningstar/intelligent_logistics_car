@@ -1,0 +1,16 @@
+<!-- -->
+
+<launch>
+
+	<arg name="port" value="/dev/ttyUSB0"/>
+	
+	<node name="nuogeng_node" pkg="nuogeng" type="nuogeng_node" output="screen">
+		<param name="port_name" value="$(arg port)"/>
+		<param name="odom_topic" value="odom"/>
+		<param name="parent_frame_id" value="world"/>
+		<param name="child_frame_id" value="gps"/>
+		<param name="pub_odom" value="true"/>
+		<param name="pub_tf" value="true"/>
+		
+	</node>
+</launch>

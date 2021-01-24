@@ -1,0 +1,25 @@
+<!-- -->
+<launch>
+	<!-- This is the node written by David Hodo for use with AUXOS.
+					for more up-to date roslaunching, see novatel_for_psr.launch
+	 -->
+	<!-- Start the novatel node -->
+	<node pkg="novatel" type="novatel_node" name="novatel_node" output="screen"  required="true">
+		<param name="port" value="/dev/ttyS1" />
+		<param name="baudrate" value="115200" />
+		
+		<param name="bestutm_topic" value="/best_utm" />
+		<param name="inspvax_topic" value = "/gps" />
+		<param name="bestgnss_topic" value = "/best_gnss" />
+		
+		
+		<param name="log_commands" value="bestgnssposb ontime 1" />
+	</node>
+	
+	<node pkg="novatel" type="recordTofile_node" name="recordTofile_node" output="screen" >
+		<param name="gps_topic" value="/best_gnss"/>
+		<param name="file_name" value="$(find novatel)/data/gps.txt" />
+	</node>
+	
+</launch>
+
