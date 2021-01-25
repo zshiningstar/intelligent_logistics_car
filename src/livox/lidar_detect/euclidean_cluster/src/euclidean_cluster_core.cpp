@@ -34,7 +34,7 @@ EuClusterCore::EuClusterCore(ros::NodeHandle &nh, ros::NodeHandle &private_nh)
     private_nh.param<int> ("max_cluster_size",max_cluster_size_,500);
 
 /*--------------------------设定最小检测范围----------------------------*/
-    private_nh.param<double> ("min_dection_long",min_dection_long,5);
+    private_nh.param<double> ("min_dection_long",min_dection_long,1);
     private_nh.param<bool>("is_min_dection_long",is_min_dection_long, true);
 /*---------------------------------------------------------------------*/
 
@@ -150,17 +150,18 @@ jsk_recognition_msgs::BoundingBox EuClusterCore::getBbox(const pcl::PointCloud<p
     
             
 /*---------------------------------计算障碍物和雷达之间的距离-------------------------------------*/            
-    std::cout << "前方障碍物x坐标:" << bbox.pose.position.x << "前方障碍物y坐标:" <<  bbox.pose.position.y << std::endl;
+//    std::cout << "前方障碍物x坐标:" << bbox.pose.position.x << "前方障碍物y坐标:" <<  bbox.pose.position.y << std::endl;
     double x = bbox.pose.position.x * bbox.pose.position.x;
     double y = bbox.pose.position.y * bbox.pose.position.y;
     double z = bbox.pose.position.z * bbox.pose.position.z;
     distance = sqrt(x+y+z);
-     
+    if(distance <= min_dection_long){
+    std::cout << "distance:" << distance << std::endl;}
 
 /*------------------------------------是否发布障碍物的消息----------------------------------------*/         
         if(is_min_dection_long)
         {
-            if(distance <= min_dection_long)
+            if(distance <= min_dection_long && (fabs(bbox.pose.position.y)<=0.5))
             {
             	bbox.header = point_cloud_header_;
             	bbox_array_.boxes.push_back(bbox);
@@ -168,12 +169,7 @@ jsk_recognition_msgs::BoundingBox EuClusterCore::getBbox(const pcl::PointCloud<p
                 is_object.data = distance;
                 pub_is_object_.publish(is_object);
             }
-	    	bbox.header = point_cloud_header_;
-            	bbox_array_.boxes.push_back(bbox);
-//    	        std::cout << "障碍物距离为:" << distance << std::endl;
-    	        is_object.data = distance;
-    	        pub_is_object_.publish(is_object);
-    	    }
+	    }
         else
         {
             bbox.header = point_cloud_header_;

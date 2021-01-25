@@ -18,7 +18,7 @@
 		<param name="max_cluster_size"  type="int"  value="50000"/>
 		
 		<!-- 加入最小探测范围 -->
-		<param name="min_dection_long"  type="int"  value="5"/>
+		<param name="min_dection_long"  type="double"  value="2"/>
 		<!-- 是否发布滤波后的障碍物消息 -->
 		<param name="is_min_dection_long"  type="bool"  value="true"/>
 		<!--估计位姿-->
