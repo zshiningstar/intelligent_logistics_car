@@ -32,8 +32,6 @@ private:
 	
 };
 
-/*-------------------------初始化-------------------------*/
-
 bool Talk::init()
 {
 	ros::NodeHandle nh;
@@ -47,7 +45,12 @@ bool Talk::init()
 	return true;
 }
 
-/*--------------------获取车辆期望目标信息---------------*/
+
+/*
+ *@fuc: 订阅 car_goal,写入串口
+ *
+ */
+
 void Talk::run()
 {	
 	static uint8_t buf[11];
@@ -57,26 +60,14 @@ void Talk::run()
 	buf[2]  = 0x02;   //数据包id
 	buf[3]  = 0x07;   //数据长度（包含校验位）
 	
-//	buf[4]  = msg->goal_speed & 0xff00;
-//	buf[5]  = msg->goal_speed & 0x00ff;
-//	buf[6]  = msg->goal_angle & 0xff00;
-//	buf[7]  = msg->goal_angle & 0x00ff;
-	
 	buf[4]  = 0xe0;
 	
 	int sum = 3 * 100 + 30000;
 	buf[5]  = sum >> 8;
 	buf[6]  = sum;
-
-//	buf[5]  = 0x76;
-//	buf[6]  = 0x5C;
 	int sun = 3 * 100 + 30000;
 	buf[7]  = sun >> 8;
 	buf[8]  = sun;
-
-//	buf[7]  = 0x75;
-//	buf[8]  = 0x30;
-	
 	buf[9]  = 0x00;
 	buf[10] = buf[2]+buf[3]+buf[4]+buf[5]+buf[6]+buf[7]+buf[8]+buf[9];   //校验位
 	printf("buf[10]:%d\n",buf[10]);
@@ -90,7 +81,11 @@ void Talk::run()
 
 }
 
-/*-------------------------打开串口---------------------*/
+/*
+ *@fuc:  打开串口
+ *
+ */
+ 
 bool Talk::openSerial(const std::string& port,int baudrate)              // 打开串口
 {
 	m_serial_port = new serial::Serial(port,baudrate,serial::Timeout::simpleTimeout(10)); 
@@ -113,8 +108,11 @@ bool Talk::openSerial(const std::string& port,int baudrate)              // 打�
 	return true;
 }     
 
-
-/*-------------------------关闭串口---------------------*/
+/*
+ *@fuc:  关闭串口
+ *
+ */
+ 
 void Talk::closeSerial()                                              // 关闭串口
 {
 	if(m_serial_port!=NULL)
@@ -124,7 +122,6 @@ void Talk::closeSerial()                                              // 关闭�
 	}
 }
 
-/*-------------------------主函数----------------------*/
 int main(int argc,char** argv)
 {
 	ros::init(argc,argv,"try_stm32_pc_node");

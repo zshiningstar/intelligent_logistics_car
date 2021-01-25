@@ -3,9 +3,6 @@
 #include <cmath>
 #include <nav_msgs/Odometry.h> 
 
-
-/*--------------------结构体定义----------------*/
-
 typedef struct
 {
 	double longitude;  // 经度
@@ -16,8 +13,10 @@ typedef struct
 	float curvature;   // 曲率
 }gpsMsg_t;
 
-
-/*-----------------计算两点间的距离-------------*/
+/*
+ *@fuc:  计算两点间的距离
+ *
+ */
 
 float dis2Points(const gpsMsg_t& point1, const gpsMsg_t& point2,bool is_sqrt)
 {
@@ -28,9 +27,6 @@ float dis2Points(const gpsMsg_t& point1, const gpsMsg_t& point2,bool is_sqrt)
 		return sqrt(x*x +y*y);
 	return x*x+y*y;
 }
-
-
-/*-------------------类定义-------------------*/
 
 class Record
 {
@@ -51,9 +47,6 @@ class Record
 		void recordToFile();
 };
 
-
-/*-----------------对象初始化--------------------*/
-
 Record::Record()
 {
 	last_point = {0.0,0.0,0.0,0.0,0.0};     // 上一点的经度、纬度、航向角、x、y坐标（没有道路曲率的赋值）
@@ -65,9 +58,6 @@ Record::~Record()
 	if(fp != NULL)
 		fclose(fp);
 }
-
-
-/*-----------------初始化----------------------*/
 
 bool Record::init()
 {
@@ -84,7 +74,7 @@ bool Record::init()
 	}
 	
 	private_nh.param<float>("sample_distance",sample_distance_,0.1);          
-	std::string utm_topic = private_nh.param<std::string>("utm_topic","/odom");      // 订阅的是novatel节点里面的话题（到时就要看用的哪种GPS了）
+	std::string utm_topic = private_nh.param<std::string>("utm_topic","/odom");      // 订阅的是gps节点里面的话题
 	
 	sub_gps_ = nh.subscribe(utm_topic ,1,&Record::gps_callback,this);                       // 回调
 

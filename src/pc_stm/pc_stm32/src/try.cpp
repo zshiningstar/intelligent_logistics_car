@@ -31,27 +31,16 @@ int main(int argc,char** argv)
 		srand(time(NULL));
 				
 		logistics_msgs::GoalState goal;
-//		for (int i = 0;i <10;i++)
-{
-
 		goal.goal_speed = 0;
 		goal.goal_angle = 0;
-//                goal.goal_angle = rand()%11 - 5;        
-//goal.goal_angle = 0;
+//      goal.goal_angle = rand()%11 - 5;        
+//      goal.goal_angle = 0;
         goal.goal_light = 0;
 		goal.goal_brake = 3;
 		goal.goal_park  = 3;
 		sleep(1);
 }
-		//发布消息
 		m_pub_goal.publish(goal);
-
-//		std::cout << "speed:" << goal.goal_speed <<"  " << "angle:" << goal.goal_angle << "  " 
-//		          << "goal.goal_brake:" << goal.goal_brake << "  " << "goal.goal_park:" << goal.goal_park << std::endl;
-
-//		std::cout << "数据发送开始......" << std::endl;
-		
-		//按照循环频率延时
 		loop_rate.sleep();
 	
 	}
