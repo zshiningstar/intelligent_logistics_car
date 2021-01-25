@@ -3,7 +3,7 @@
 #include <iostream>
 #include <iostream>
 #include <ros/ros.h>
-#include <serial/serial.h>
+#include <serial/serial.h>     
 #include <boost/thread.hpp>
 #include <boost/bind.hpp>
 #include <logistics_msgs/RealState.h>
@@ -85,9 +85,8 @@ void Talk::GoalState_callback(const logistics_msgs::GoalState::ConstPtr& msg)
  */
  
 bool Talk::openSerial(const std::string& port,int baudrate)              // 打开串口
-{
-	m_serial_port = new serial::Serial(port,baudrate,serial::Timeout::simpleTimeout(10)); 
-
+{   
+    m_serial_port = new serial::Serial(port,baudrate,serial::Timeout::simpleTimeout(10)); 
 	if (!m_serial_port->isOpen())
 	{
 		std::stringstream output;

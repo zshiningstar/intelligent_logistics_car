@@ -275,6 +275,7 @@ void PathTracking::run()
 			target_point_.show();
 			current_point_.show();
 			if(target_point_index_ >= path_points_.size())
+//			    target_point_index_ = target_point_index_ - path_points_.size();
 				break;
 			continue;
 		}
