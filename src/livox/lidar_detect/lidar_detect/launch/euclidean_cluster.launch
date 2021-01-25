@@ -1,0 +1,39 @@
+<!-- -->
+
+<launch>
+
+	<node name="ground_filter_node" pkg="ground_filter" type="ground_filter_node" output="screen">
+		<param name="raw_points" value="/pandar_points"/>
+
+		<param name="sensor_height" value="1.8"/>
+		<param name="use_threshold_filter" value="true"/>
+		<param name="clip_x_min" value="0.0"/>
+		<param name="clip_x_max" value="50.0"/>
+		<param name="clip_y_min" value="-20.0"/>
+		<param name="clip_y_max" value="20.0"/>
+		<param name="clip_z_min" value="-2.0"/>
+		<param name="clip_z_max" value="0.1"/>
+		<param name="min_height_threshold" value="0.2"/>
+		<param name="local_max_slope" value="20"/>
+		<param name="global_max_slope" value="25.0"/>
+		
+	</node>
+	
+	<node name="euclidean_cluster" pkg="euclidean_cluster" type="euclidean_cluster_node" output="screen">
+		<param name="in_points"  type="string"  value="/ground_filtered_points"/> 
+		<param name="obj_pub"  type="string"  value="/detected_bounding_boxs"/> 
+		
+		<param name="use_threshold_filter"  type="bool"  value="false"/>  
+
+		<param name="min_cluster_size"  type="int"  value="20"/>
+		<param name="max_cluster_size"  type="int"  value="50000"/>
+		
+		<param name="pose_estimation"  type="bool"  value="true"/>
+		<param name="use_downsample"  type="bool"  value="true"/>   
+		
+
+	</node>
+
+</launch>
+
+
