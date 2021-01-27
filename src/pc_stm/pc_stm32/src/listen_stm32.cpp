@@ -81,7 +81,6 @@ void Listener::startReading()              // 开始读取
 
 void Listener::readSerialThread()
 {
-//	std::cout << 11111111 << endl;
 	m_reading_status = true;
 	
 	const int Max_read_size = 200;

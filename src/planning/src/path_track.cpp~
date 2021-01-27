@@ -83,11 +83,8 @@ private:
 	float foreSightDis_latErrCoefficient_;
 	// I控制
 	float Ki_;
-	float safety_distance_;
 	
 	float avoiding_offset_;
-	
-	double now;
 	
 	logistics_msgs::GoalState car_goal;
 	logistics_msgs::RealState car_state;
@@ -108,8 +105,7 @@ PathTracking::PathTracking():
 	max_roadwheelAngle_(12.3),
 	object_data(0),
 	lateral_err_(0),
-	sumlateral_err_(0),
-	safety_distance_(2)
+	sumlateral_err_(0)
 {
 	car_goal.goal_speed = 0;
 	car_goal.goal_angle = 0;
@@ -267,18 +263,13 @@ void PathTracking::run()
 			break;
 		}
 		
-		/*
-	     *
-	     
-		disThreshold_ = foreSightDis_speedCoefficient_ * vehicle_speed_ + foreSightDis_latErrCoefficient_ * fabs(lateral_err_);   // 前视距离计算公式
-         1111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111
-        disThreshold_ = foreSightDis_speedCoefficient_ * vehicle_speed_ + foreSightDis_latErrCoefficient_ * fabs(lateral_err_) + foreSightDis_sumlatErrCoefficient_ * fabs(sumlateral_err_);
+//		disThreshold_ = foreSightDis_speedCoefficient_ * vehicle_speed_ + foreSightDis_latErrCoefficient_ * fabs(lateral_err_);   // 前视距离计算公式
+        // 1111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111
+//        disThreshold_ = foreSightDis_speedCoefficient_ * vehicle_speed_ + foreSightDis_latErrCoefficient_ * fabs(lateral_err_) + foreSightDis_sumlatErrCoefficient_ * fabs(sumlateral_err_);
 	
-		if(disThreshold_ < min_foresight_distance_) 
-			disThreshold_  = min_foresight_distance_;
-		
-		*
-		*/
+//		if(disThreshold_ < min_foresight_distance_) 
+//			disThreshold_  = min_foresight_distance_;
+			
 		 disThreshold_ = min_foresight_distance_ + 
 						 foreSightDis_speedCoefficient_ * car_state.real_speed + 
 						 foreSightDis_latErrCoefficient_ * fabs(lateral_err_);
@@ -320,7 +311,17 @@ void PathTracking::run()
 		////////////////////////////////////////////
 		
 		t_roadWheelAngle = limitRoadwheelAngleBySpeed(t_roadWheelAngle,vehicle_speed_);  // 受速度限制的前轮转角
-		
+//		if(t_roadWheelAngle < 0)
+//		{	
+//			if(-t_roadWheelAngle > MAX_ANGLE)
+//			{	
+//				t_roadWheelAngle = MAX_ANGLE;
+//			}
+//		}
+//		if(t_roadWheelAngle > MAX_ANGLE)
+//			t_roadWheelAngle = MAX_ANGLE;
+//		
+		//ROS_INFO("t_roadWheelAngle :%f\n",t_roadWheelAngle);
 		
 		//find the index of a path point x meters from the current point
 		size_t index = findIndexForGivenDis(path_points_,nearest_point_index_,disThreshold_ + 3); 
@@ -330,32 +331,29 @@ void PathTracking::run()
 			break;
 		}
 		float max_curvature = maxCurvatureInRange(path_points_, nearest_point_index_, index);
-		/*
-		 ********转向灯*********
-		if(max_curvature < 0)   
-		       car_goal.goal_light = 0x20;
-		else
-		       car_goal.goal_light = 0x10;
-        */
+		/***********转向灯**********/
+//		if(max_curvature < 0)   
+//		       car_goal.goal_light = 0x20;
+//		else
+//		       car_goal.goal_light = 0x10;
 
 		float max_speed = generateMaxTolarateSpeedByCurvature(max_curvature, max_side_accel_);
 		car_goal.goal_speed = track_speed_ > max_speed ? max_speed : track_speed_;
     
-        while(object_data != 0) //&& (fabs(t_roadWheelAngle) <= 10))
+        while(object_data != 0 && (fabs(t_roadWheelAngle) <= 10))
         {      
         /*
          *@fuc: 判断是否有障碍物
          *
          */ 
-            if(track_speed_ > 0)
-            {   
-                float acceleration = (track_speed_ * track_speed_) / (2 * (object_data - safety_distance_));
-                car_goal.goal_speed = track_speed_ - acceleration;
+            while(track_speed_ > 0)
+            {
+                car_goal.goal_speed = track_speed_ - 0.5;
                 track_speed_ = car_goal.goal_speed;
             }
-            double now_break = now - ros::Time::now().toSec(); 
-            if(fabs(now_break) > 0.03)
-                object_data = 0;
+            car_goal.goal_speed = 0;
+            sleep(6);
+            object_data = 0;
         }
 	    car_goal.goal_speed = track_speed_;
 		car_goal.goal_angle = t_roadWheelAngle;
@@ -403,14 +401,14 @@ void PathTracking::pub_car_goal_callback(const ros::TimerEvent&)
 }  
 
 /*
- *@fuc:  判断是否有障碍物体闯入(具体距离值可在livox里面修改)
+ *@fuc:  判断5m是否有障碍物体闯入(具体距离值可在livox里面修改)
  *
  */
 void PathTracking::is_object_callback(const std_msgs::Float32::ConstPtr& msg)
 {       
         object_data = msg->data;
         std::cout << " 有障碍物体,距离为:" << object_data << std::endl;
-        now = ros::Time::now().toSec();
+        
 }
 
 /*

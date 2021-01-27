@@ -84,14 +84,14 @@ def plot(file_name):
 	path_points.offsetPoints(reference_point_x,reference_point_y )
 	
 	debug_points = Points()
-	file_name = "../data/" + file_name
+	file_name += "_res.txt"
 	debug_points.load(file_name)
 	
 	debug_points.offsetPoints(reference_point_x,reference_point_y)
 	
 	plt.plot(path_points.x,path_points.y,'r.',label="reference path")
 	plt.plot(debug_points.x,debug_points.y,'b-.',label="trajactory")
-	plt.axis([-50, 400, -300, 0])
+	#plt.axis([-50, 400, -300, 0])
 
 	plt.legend()
 

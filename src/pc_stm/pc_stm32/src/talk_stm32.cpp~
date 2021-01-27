@@ -16,7 +16,8 @@ class Talk
 public:
 	Talk()
 	{};
-	~Talk();
+	~Talk()
+	{};
 	
 	bool init();
 private:
