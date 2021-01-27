@@ -47,7 +47,8 @@ int main(int argc,char** argv)
 	
 	std::cout << "数据发送开始......" << std::endl;
 	while (ros::ok())
-	{
+	{	
+		object_data_ = 0;
 		float num;
 		int i;
 //		srand(time(NULL));
@@ -55,7 +56,7 @@ int main(int argc,char** argv)
 		logistics_msgs::GoalState goal;
 		while(object_data_ == 0)
 		{
-		    goal.goal_speed = 2;
+		    goal.goal_speed = 0;
 		    goal.goal_angle = 0;
     //      goal.goal_angle = rand()%11 - 5;        
     //      goal.goal_angle = 0;

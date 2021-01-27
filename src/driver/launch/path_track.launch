@@ -7,17 +7,18 @@
 <launch>
 
 	<arg name="gps_port" default="/dev/ttyUSB0"/>
-	<arg name="file_name" default="path.txt" />
-	<arg name="max_speed" default="1.3" />
+	<arg name="file_name" default="path2.txt_res.txt" />
+	<arg name="max_speed" default="1.5" />
+	
 	<node name="path_tracking" pkg="planning" type="path_track" output="screen">
 	
 		<param name="path_points_file" value="$(find recorder)/data/$(arg file_name)"/>
-		<param name="disThreshold" value="6.0"/>
+		<param name="disThreshold" value="8"/>
 		<param name="max_side_accel" value="1.5"/>
 		<param name="foreSightDistance_coefficient_" value = "1.8"/>
 		<param name="foreSightDis_latErrCoefficient" value = "1.0"/>
 		<param name="speed" value="$(arg max_speed)"/>
-		<param name="odom_topic" value="/odom"/>
+		<param name="odom_topic" value="/ll2utm_odom"/>
 		<param name="car_state" value="/car_state"/>
 		<param name="car_goal" value="/car_goal"/>
 		
@@ -27,16 +28,29 @@
 				
 	</node>
 	
-<!--	<node pkg="nuogeng" type="nuogeng_node" name="nuogeng_node" output="screen">-->
+	<!-- 上位机给下位机发送消息命令 -->
+	
+	<node pkg="pc_stm32" type="talk_stm32" name="talker_node"  >
 
-<!--		<param name="port_name" value="$(arg gps_port)"/>-->
-<!--		<param name="odom_topic" value="/odom"/>-->
-<!--		<param name="parent_frame_id" value="world"/>-->
-<!--		<param name="child_frame_id" value="gps"/>-->
-<!--		<param name="pub_odom" value="true"/>-->
-<!--		<param name="pub_tf" value="true"/>-->
-<!--		-->
-<!--	</node>-->
+		<param name="car_goal" value="/car_goal" />
+		<param name="port_name" value="/dev/ttyUSB1" />
+		<param name="baudrate" value="115200" />
+		
+	</node>
+	
+	<node name="record_node" pkg="recorder" type="record_node" output= "screen">
+		<param name="file_path" value="$(find recorder)/data/"/>
+		<param name="file_name" value="$(arg file_name)_res.txt"/>
+		<param name="sample_distance" value="0.1" />
+		<param name="utm_topic" value="/ll2utm_odom" />
+	</node>
+	
+	<node name="nuogeng_node" pkg="nuogeng" type="nuogeng_node" output="screen">
+		<param name="port_name" value="/dev/ttyUSB0"/>
+		<param name="is_ll2utm" value="true"/>
+		<param name="odom_topic" value="/ll2utm_odom"/>
+		<param name="pub_odom" value="true"/>
+	</node>
 	
 
 	
