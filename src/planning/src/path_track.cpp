@@ -267,18 +267,6 @@ void PathTracking::run()
 			break;
 		}
 		
-		/*
-	     *
-	     
-		disThreshold_ = foreSightDis_speedCoefficient_ * vehicle_speed_ + foreSightDis_latErrCoefficient_ * fabs(lateral_err_);   // 前视距离计算公式
-         1111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111
-        disThreshold_ = foreSightDis_speedCoefficient_ * vehicle_speed_ + foreSightDis_latErrCoefficient_ * fabs(lateral_err_) + foreSightDis_sumlatErrCoefficient_ * fabs(sumlateral_err_);
-	
-		if(disThreshold_ < min_foresight_distance_) 
-			disThreshold_  = min_foresight_distance_;
-		
-		*
-		*/
 		 disThreshold_ = min_foresight_distance_ + 
 						 foreSightDis_speedCoefficient_ * car_state.real_speed + 
 						 foreSightDis_latErrCoefficient_ * fabs(lateral_err_);
@@ -305,20 +293,14 @@ void PathTracking::run()
 		if(yaw_err_==0.0) continue;
 		
 		float turning_radius = (-0.5 * dis_yaw.first)/sin(yaw_err_);                     // 转弯半径  l/2sin(a)
-		
-		////////////////////////////////////////////////////////////////////
+		//使用i控制,消除转向间隙引起的稳态误差
         float theta = Ki_ * sumlateral_err_;
         if(theta > 5)
             theta = 5;
         else if(theta < -5)
             theta = -5;
-        ///////////////////////////////////////////////////////////////////
 		float t_roadWheelAngle = generateRoadwheelAngleByRadius(turning_radius);         // 生成前轮转角
-		
-		////////////////////////////////////////////
 		t_roadWheelAngle = t_roadWheelAngle + theta;
-		////////////////////////////////////////////
-		
 		t_roadWheelAngle = limitRoadwheelAngleBySpeed(t_roadWheelAngle,vehicle_speed_);  // 受速度限制的前轮转角
 		
 		
@@ -341,7 +323,7 @@ void PathTracking::run()
 		float max_speed = generateMaxTolarateSpeedByCurvature(max_curvature, max_side_accel_);
 		car_goal.goal_speed = track_speed_ > max_speed ? max_speed : track_speed_;
     
-        while(object_data != 0) //&& (fabs(t_roadWheelAngle) <= 10))
+        if(object_data != 0) //&& (fabs(t_roadWheelAngle) <= 10))
         {      
         /*
          *@fuc: 判断是否有障碍物
@@ -354,7 +336,7 @@ void PathTracking::run()
                 track_speed_ = car_goal.goal_speed;
             }
             double now_break = now - ros::Time::now().toSec(); 
-            if(fabs(now_break) > 0.03)
+            if(fabs(now_break) > 0.3)
                 object_data = 0;
         }
 	    car_goal.goal_speed = track_speed_;
