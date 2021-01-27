@@ -1,9 +1,4 @@
-<!-- 	<node name="record_node" pkg="recorder" type="record_node" output="screen">
-		<param name="file_path" value="$(find recorder)/data"/>
-		<param name="file_name" value="$(arg file_name)"/>
-		<param name="sample_distance" value="0.1" />
-		<param name="odom_topic" value="/odom" />
-	</node>-->
+<!-- -->
 <launch>
 
 	<arg name="gps_port" default="/dev/ttyUSB0"/>

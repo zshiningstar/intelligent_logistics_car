@@ -1,8 +1,5 @@
 <!-- 		-->
 <launch>
-        
-
-	
 	<!-- 上位机给下位机发送消息命令 -->
 	
 	<node pkg="pc_stm32" type="talk_stm32" name="talker_node"  >
