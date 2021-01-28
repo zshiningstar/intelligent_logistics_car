@@ -183,7 +183,7 @@ bool PathTracking::init(ros::NodeHandle nh,ros::NodeHandle nh_private)
 	}
 	
 	target_point_index_ = findNearestPoint(path_points_,current_point_);                      
-	std::cout << target_point_index_ << " / "  << path_points_.size() << std::endl;
+//	std::cout << target_point_index_ << " / "  << path_points_.size() << std::endl;
 	if(target_point_index_ > path_points_.size() - 10)
 	{
 		ROS_ERROR("target index:%d ?? file read over, No target point was found !!!",target_point_index_);
@@ -278,10 +278,10 @@ void PathTracking::run()
 		if( dis_yaw.first < disThreshold_)
 		{
 			target_point_ = path_points_[target_point_index_++];
-			std::cout << target_point_index_ << " / "  << path_points_.size() << std::endl;
-			std::cout << "dis_yaw.first: " << dis_yaw.first << "\r\n";
-			target_point_.show();
-			current_point_.show();
+//			std::cout << target_point_index_ << " / "  << path_points_.size() << std::endl;
+	//		std::cout << "dis_yaw.first: " << dis_yaw.first << "\r\n";
+			//target_point_.show();
+			//current_point_.show();
 			if(target_point_index_ >= path_points_.size())
 //			    target_point_index_ = target_point_index_ - path_points_.size();
 				break;
@@ -295,10 +295,11 @@ void PathTracking::run()
 		float turning_radius = (-0.5 * dis_yaw.first)/sin(yaw_err_);                     // 转弯半径  l/2sin(a)
 		//使用i控制,消除转向间隙引起的稳态误差
         float theta = Ki_ * sumlateral_err_;
-        if(theta > 5)
-            theta = 5;
-        else if(theta < -5)
-            theta = -5;
+        float brake = 1.5;
+        if(theta > brake)
+            theta = brake;
+        else if(theta < -brake)
+            theta = -brake;
 		float t_roadWheelAngle = generateRoadwheelAngleByRadius(turning_radius);         // 生成前轮转角
 		t_roadWheelAngle = t_roadWheelAngle + theta;
 		t_roadWheelAngle = limitRoadwheelAngleBySpeed(t_roadWheelAngle,vehicle_speed_);  // 受速度限制的前轮转角

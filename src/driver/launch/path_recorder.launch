@@ -11,7 +11,7 @@
 	</node>
 	
 	<node name="nuogeng_node" pkg="nuogeng" type="nuogeng_node" output="screen">
-		<param name="port_name" value="/dev/ttyUSB0"/>
+		<param name="port_name" value="/dev/gps"/>
 		<param name="is_ll2utm" value="true"/>
 		<param name="odom_topic" value="/ll2utm_odom"/>
 		<param name="pub_odom" value="true"/>

@@ -2,17 +2,17 @@
 <launch>
 
 	<arg name="gps_port" default="/dev/ttyUSB0"/>
-	<arg name="file_name" default="path2.txt_res.txt" />
+	<arg name="file_name" default="path.txt" />
 	<arg name="max_speed" default="1.5" />
 	
 	<node name="path_tracking" pkg="planning" type="path_track" output="screen">
 	
 		<param name="path_points_file" value="$(find recorder)/data/$(arg file_name)"/>
-		<param name="min_foresight_distance" value="3"/>
+		<param name="min_foresight_distance" value="4"/>
 		<param name="max_side_accel" value="1.5"/>
 		<param name="foreSightDistance_coefficient_" value = "1.8"/>
 		<param name="foreSightDis_latErrCoefficient" value = "1.0"/>
-		<param name="Ki" value = "1.0"/>
+		<param name="Ki" value = "-1"/>
 		<param name="speed" value="$(arg max_speed)"/>
 		<param name="odom_topic" value="/ll2utm_odom"/>
 		<param name="car_state" value="/car_state"/>
@@ -29,12 +29,12 @@
 	<node pkg="pc_stm32" type="talk_stm32" name="talker_node"  >
 
 		<param name="car_goal" value="/car_goal" />
-		<param name="port_name" value="/dev/ttyUSB1" />
+		<param name="port_name" value="/dev/stm" />
 		<param name="baudrate" value="115200" />
 		
 	</node>
 	
-	<node name="record_node" pkg="recorder" type="record_node" output= "screen">
+	<node name="record_node" pkg="recorder" type="record_node" >
 		<param name="file_path" value="$(find recorder)/data/"/>
 		<param name="file_name" value="$(arg file_name)_res.txt"/>
 		<param name="sample_distance" value="0.1" />
@@ -42,7 +42,7 @@
 	</node>
 	
 	<node name="nuogeng_node" pkg="nuogeng" type="nuogeng_node" output="screen">
-		<param name="port_name" value="/dev/ttyUSB0"/>
+		<param name="port_name" value="/dev/gps"/>
 		<param name="is_ll2utm" value="true"/>
 		<param name="odom_topic" value="/ll2utm_odom"/>
 		<param name="pub_odom" value="true"/>
