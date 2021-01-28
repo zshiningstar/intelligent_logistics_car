@@ -14,6 +14,7 @@
 #include <boost/bind.hpp>
 #include <thread>
 #include <ant_math/ant_math.h>
+#include "gps_msgs/Inspvax.h"
 
 #define MAX_ANGLE  12.3
 
@@ -26,7 +27,8 @@ public:
 	void run();
 	void avoiding_flag_callback(const std_msgs::Float32::ConstPtr& msg);            // 订阅offset
 	void pub_car_goal_callback(const ros::TimerEvent&);                             // 定时发布车辆目标状态信息（转角和速度）
-	void gps_odom_callback(const nav_msgs::Odometry::ConstPtr& msg);                // 订阅GPS发布过来的消息（包括车辆自身的航向角、车辆自身的utm_x/utm_y/yaw）
+	void gps_odom_callback(const nav_msgs::Odometry::ConstPtr& msg);                // 订阅GPS发布过来的消息（包括车辆自身的航向角、车辆自身的utm_x/utm_y/yaw
+	void gps_callback(const gps_msgs::Inspvax::ConstPtr& msg);
 	void is_object_callback(const std_msgs::Float32::ConstPtr& msg);                // 判断5m内是否有障碍物闯入
 	
 	void car_state_callback(const logistics_msgs::RealState::ConstPtr& msg);
@@ -39,6 +41,7 @@ private:
 //	void publishPathTrackingState();
 private:
 	ros::Subscriber sub_utm_odom;
+	ros::Subscriber sub_gps;
 	ros::Subscriber sub_car_state;
 	ros::Timer timer_;
 	ros::Subscriber sub_is_object; //是否有障碍物闯入5m之内
@@ -51,6 +54,7 @@ private:
 	std::vector<gpsMsg_t> path_points_;
 	
 	gpsMsg_t current_point_, target_point_;
+	gps_msgs::Inspvax m_inspax;
 	
 	float min_foresight_distance_;
 	float disThreshold_;
@@ -109,7 +113,8 @@ PathTracking::PathTracking():
 	object_data(0),
 	lateral_err_(0),
 	sumlateral_err_(0),
-	safety_distance_(2)
+	safety_distance_(2),
+	vehicle_speed_(0)
 {
 	car_goal.goal_speed = 0;
 	car_goal.goal_angle = 0;
@@ -136,6 +141,9 @@ bool PathTracking::init(ros::NodeHandle nh,ros::NodeHandle nh_private)
 {
 	std::string odom_topic = nh_private.param<std::string>("odom_topic","/odom");   
 	sub_utm_odom  = nh.subscribe(odom_topic, 5,&PathTracking::gps_odom_callback,this);               // 订阅来自GPS节点的消息，以获取车辆自身状态信息
+	
+	std::string gps_topic = nh_private.param<std::string>("gps_topic","/gps");   
+	sub_gps  = nh.subscribe(gps_topic, 5,&PathTracking::gps_callback,this);               // 订阅来自GPS节点的消息，以获取车辆自身状态信息
 	
 	std::string is_object = nh_private.param<std::string>("is_object","/is_object");  
 	sub_is_object = nh.subscribe(is_object,10,&PathTracking::is_object_callback, this);
@@ -236,6 +244,18 @@ void PathTracking::gps_odom_callback(const nav_msgs::Odometry::ConstPtr& msg)
 	current_point_.yaw = msg->pose.covariance[0];
 }
 
+/*
+ *@fuc: 获取gps显示的车速
+ *
+ */
+ 
+void PathTracking::gps_callback(const gps_msgs::Inspvax::ConstPtr& msg)
+{   
+    float north_velocity = msg->north_velocity;
+    float east_velocity  = msg->east_velocity;
+    float speed = sqrt(pow(north_velocity,2) + pow(east_velocity,2));
+    vehicle_speed_ = speed;
+}
 
 /*
  *@fuc:  计算获取目标前轮转角和车速
@@ -252,6 +272,8 @@ void PathTracking::run()
 	{
 //		if( avoiding_offset_ != 0.0)
 //		        target_point_ = pointOffset(path_points_[target_point_index_],avoiding_offset_);
+        if(vehicle_speed_ = 0)
+            ROS_INFO("gps speed is not correct!");
 
 		try
 		{
@@ -268,7 +290,7 @@ void PathTracking::run()
 		}
 		
 		 disThreshold_ = min_foresight_distance_ + 
-						 foreSightDis_speedCoefficient_ * car_state.real_speed + 
+						 foreSightDis_speedCoefficient_ * vehicle_speed_ + 
 						 foreSightDis_latErrCoefficient_ * fabs(lateral_err_);
 	
 //		ROS_INFO("disThreshold:%f\t lateral_err:%f",disThreshold_,lateral_err_);
