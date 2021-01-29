@@ -15,7 +15,7 @@
 #define IS_POLAR_COORDINATE_GPS 0
 
 #define WHEEL_DISTANCE  1.2
-#define AXIS_DISTANCE  0.88
+#define AXIS_DISTANCE 0.88
 #define MAX_SPEED 30.0
 
 enum
