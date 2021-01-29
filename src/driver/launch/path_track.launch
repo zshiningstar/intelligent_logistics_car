@@ -3,7 +3,7 @@
 
 	<arg name="gps_port" default="/dev/ttyUSB0"/>
 	<arg name="file_name" default="path.txt" />
-	<arg name="max_speed" default="1.5" />
+	<arg name="max_speed" default="2" />
 	
 	<node name="path_tracking" pkg="planning" type="path_track" output="screen">
 	
@@ -14,7 +14,11 @@
 		<param name="foreSightDis_speedCoefficient" value = "0.3"/>
 		<param name="foreSightDis_latErrCoefficient" value = "1.0"/>
 		
-		<param name="Ki" value = "-1"/>
+		<param name="omega" value="10.0"/>		
+		<param name="brake" value = "0.8"/>
+		<param name="steer_offset" value = "0.5"/>
+		<param name="Ki" value = "0.5"/>
+		<param name="tolerate_laterror" value = "0.05"/>
 		<param name="speed" value="$(arg max_speed)"/>
 		<param name="odom_topic" value="/ll2utm_odom"/>
 		<param name="car_state" value="/car_state"/>

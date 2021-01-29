@@ -47,3 +47,9 @@ include_directories(
 add_executable(record_node src/record_path.cpp)
 add_dependencies(record_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(record_node ${catkin_LIBRARIES} )
+
+
+add_executable(calibrate_gps_node src/calibrate_gps.cpp)
+add_dependencies(calibrate_gps_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(calibrate_gps_node ${catkin_LIBRARIES} )
+

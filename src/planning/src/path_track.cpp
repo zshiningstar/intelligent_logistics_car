@@ -89,6 +89,10 @@ private:
 	float Ki_;
 	float tolerate_laterror_;
 	float safety_distance_;
+    float brake_;
+    float steer_offset_;
+    float omega_;
+    float theta_true_;
 	
 	float avoiding_offset_;
 	
@@ -115,7 +119,8 @@ PathTracking::PathTracking():
 	lateral_err_(0),
 	sumlateral_err_(0),
 	safety_distance_(2),
-	vehicle_speed_(0)
+	vehicle_speed_(0),
+	theta_true_(0)
 {
 	car_goal.goal_speed = 0;
 	car_goal.goal_angle = 0;
@@ -164,8 +169,12 @@ bool PathTracking::init(ros::NodeHandle nh,ros::NodeHandle nh_private)
 
 	nh_private.param<float>("foreSightDis_speedCoefficient", foreSightDis_speedCoefficient_,1.8);    // 参数设置
 	nh_private.param<float>("foreSightDis_latErrCoefficient", foreSightDis_latErrCoefficient_,0.3);  // 系数
+	nh_private.param<float>("omega", omega_,5.0);  // 转向角速度
 	nh_private.param<float>("Ki", Ki_,0.3);  // 系数
+	nh_private.param<float>("brake", brake_,0.3);  // 系数
+	nh_private.param<float>("steer_offset", steer_offset_,0.3);  // 系数
 	nh_private.param<float>("tolerate_laterror", tolerate_laterror_,0.3);  // 系数
+	
 	nh_private.param<float>("min_foresight_distance",min_foresight_distance_,3.0);                   // 最小前视距离为5米
 	nh_private.param<float>("max_side_accel",max_side_accel_,1.5);
 	
@@ -266,8 +275,9 @@ void PathTracking::gps_callback(const gps_msgs::Inspvax::ConstPtr& msg)
 void PathTracking::run()
 {
 	size_t i =0;
-	
-	ros::Rate loop_rate(30);
+	float control_rate = 30;
+	float dt = 1.0/control_rate;
+	ros::Rate loop_rate(control_rate);
 	std::cout << target_point_index_ << " / "  << path_points_.size() << std::endl;
 	while(ros::ok() /*&& target_point_index_ < path_points_.size()-2*/)       
 	{
@@ -283,6 +293,8 @@ void PathTracking::run()
 			//
 			if(fabs(lateral_err_) > tolerate_laterror_) 
 				sumlateral_err_ = sumlateral_err_ + lateral_err_;
+			if(sumlateral_err_ * lateral_err_ < 0)
+				sumlateral_err_ = 0;
 		}
 		catch(const char* str)
 		{
@@ -319,15 +331,14 @@ void PathTracking::run()
 		float turning_radius = (-0.5 * dis_yaw.first)/sin(yaw_err_);                     // 转弯半径  l/2sin(a)
 		//使用i控制,消除转向间隙引起的稳态误差
         float theta = Ki_ * sumlateral_err_;
-        float brake = 1.5;
-        if(theta > brake)
-            theta = brake;
-        else if(theta < -brake)
-            theta = -brake;
+        if(theta > brake_)
+            theta = brake_;
+        else if(theta < -brake_)
+            theta = -brake_;
 		float t_roadWheelAngle = generateRoadwheelAngleByRadius(turning_radius);         // 生成前轮转角
 		t_roadWheelAngle = t_roadWheelAngle + theta;
 		t_roadWheelAngle = limitRoadwheelAngleBySpeed(t_roadWheelAngle,vehicle_speed_);  // 受速度限制的前轮转角
-		
+		t_roadWheelAngle += steer_offset_;
 		
 		//find the index of a path point x meters from the current point
 		size_t index = findIndexForGivenDis(path_points_,nearest_point_index_,disThreshold_ + 3); 
@@ -364,8 +375,17 @@ void PathTracking::run()
             if(fabs(now_break) > 0.3)
                 object_data = 0;
         }
+        
+        int sign = 1;
+        if(t_roadWheelAngle > theta_true_) sign = 1;
+        else if(t_roadWheelAngle < theta_true_) sign = -1;
+        else sign = 0;
+        
+		float goal_angle = theta_true_ + sign * omega_ * dt ;
+        
 	    car_goal.goal_speed = track_speed_;
-		car_goal.goal_angle = t_roadWheelAngle;
+		car_goal.goal_angle = goal_angle ;
+		theta_true_ = goal_angle;
 		
 		if(i%20==0)
 		{
