@@ -38,7 +38,7 @@ public:
 	
 private:
 	gpsMsg_t pointOffset(const gpsMsg_t& point,float offset);
-//	void publishPathTrackingState();
+	
 private:
 	ros::Subscriber sub_utm_odom;
 	ros::Subscriber sub_gps;
@@ -146,10 +146,10 @@ PathTracking::~PathTracking()
 bool PathTracking::init(ros::NodeHandle nh,ros::NodeHandle nh_private)
 {
 	std::string odom_topic = nh_private.param<std::string>("odom_topic","/odom");   
-	sub_utm_odom  = nh.subscribe(odom_topic, 5,&PathTracking::gps_odom_callback,this);               // 订阅来自GPS节点的消息，以获取车辆自身状态信息
+	sub_utm_odom  = nh.subscribe(odom_topic, 5,&PathTracking::gps_odom_callback,this);               
 	
 	std::string gps_topic = nh_private.param<std::string>("gps_topic","/gps");   
-	sub_gps  = nh.subscribe(gps_topic, 5,&PathTracking::gps_callback,this);               // 订阅来自GPS节点的消息，以获取车辆自身状态信息
+	sub_gps  = nh.subscribe(gps_topic, 5,&PathTracking::gps_callback,this);               
 	
 	std::string is_object = nh_private.param<std::string>("is_object","/is_object");  
 	sub_is_object = nh.subscribe(is_object,10,&PathTracking::is_object_callback, this);
@@ -158,26 +158,24 @@ bool PathTracking::init(ros::NodeHandle nh,ros::NodeHandle nh_private)
 	sub_is_offset = nh.subscribe(is_object,10,&PathTracking::avoiding_flag_callback, this);
 	
 	std::string car_state = nh_private.param<std::string>("car_state","/car_state");  
-	sub_car_state = nh.subscribe(car_state,10,&PathTracking::car_state_callback, this);              // 订阅来自stm32向上位机的车辆反馈信息
+//	sub_car_state = nh.subscribe(car_state,10,&PathTracking::car_state_callback, this);            
 	
-	pub_car_goal  = nh.advertise<logistics_msgs::GoalState>(nh_private.param<std::string>("car_goal","/car_goal"),10);                     // 发布车辆目标状态信息
+	pub_car_goal  = nh.advertise<logistics_msgs::GoalState>(nh_private.param<std::string>("car_goal","/car_goal"),10);           
 	timer_ = nh.createTimer(ros::Duration(0.01),&PathTracking::pub_car_goal_callback,this);          // 设置一个定时器每0.01秒发布一次
 	
 	
 	nh_private.param<std::string>("path_points_file",path_points_file_,"");
 	nh_private.param<float>("speed",track_speed_,1.0);
 
-	nh_private.param<float>("foreSightDis_speedCoefficient", foreSightDis_speedCoefficient_,1.8);    // 参数设置
-	nh_private.param<float>("foreSightDis_latErrCoefficient", foreSightDis_latErrCoefficient_,0.3);  // 系数
-	nh_private.param<float>("omega", omega_,5.0);  // 转向角速度
-	nh_private.param<float>("Ki", Ki_,0.3);  // 系数
-	nh_private.param<float>("steer_clearance", steer_clearance_,0.3);  // 系数
-	nh_private.param<float>("steer_offset", steer_offset_,0.3);  // 系数
-	nh_private.param<float>("tolerate_laterror", tolerate_laterror_,0.3);  // 系数
-	
-	nh_private.param<float>("min_foresight_distance",min_foresight_distance_,3.0);                   // 最小前视距离为5米
+	nh_private.param<float>("foreSightDis_speedCoefficient", foreSightDis_speedCoefficient_,1.8);    
+	nh_private.param<float>("foreSightDis_latErrCoefficient", foreSightDis_latErrCoefficient_,0.3); 
+	nh_private.param<float>("omega", omega_,5.0);  													// 转向角速度 PID-D
+	nh_private.param<float>("Ki", Ki_,0.3);  														// 系数 PID-I
+	nh_private.param<float>("steer_clearance", steer_clearance_,0.3);  								// 转向间隙补偿
+	nh_private.param<float>("steer_offset", steer_offset_,0.3);  									// 转角补偿
+	nh_private.param<float>("tolerate_laterror", tolerate_laterror_,0.3);  							// 容忍横向偏差
+	nh_private.param<float>("min_foresight_distance",min_foresight_distance_,3.0);                   
 	nh_private.param<float>("max_side_accel",max_side_accel_,1.5);
-	
 	nh_private.param<bool>("is_offset_",is_offset_,false);                                     
 	
 	if(path_points_file_.empty())
@@ -241,8 +239,6 @@ bool PathTracking::is_gps_data_valid(gpsMsg_t& point)
 	return false;
 }
 
-
-
 /*
  *@fuc: 订阅来自GPS节点的消息
  *
@@ -272,6 +268,7 @@ void PathTracking::gps_callback(const gps_msgs::Inspvax::ConstPtr& msg)
  *@param:  t_roadWheelAngle:目标前轮转角
  *
  */
+ 
 void PathTracking::run()
 {
 	size_t i =0;
@@ -290,10 +287,9 @@ void PathTracking::run()
 		{
 			lateral_err_ = calculateDis2path(current_point_.x,current_point_.y,path_points_,
 											 target_point_index_,&nearest_point_index_) - avoiding_offset_;
-			//
-			if(fabs(lateral_err_) > tolerate_laterror_)  //横向偏差较小时不考虑
+			if(fabs(lateral_err_) > tolerate_laterror_)  										//横向偏差较小时不考虑
 				sumlateral_err_ = sumlateral_err_ + lateral_err_;
-			if(sumlateral_err_ * lateral_err_ < 0)
+			if(sumlateral_err_ * lateral_err_ < 0)       										//横向偏差变号时,说明行驶靠右/左,总横向偏差需要置0
 				sumlateral_err_ = 0;
 		}
 		catch(const char* str)
@@ -309,35 +305,27 @@ void PathTracking::run()
 	
 //		ROS_INFO("disThreshold:%f\t lateral_err:%f",disThreshold_,lateral_err_);
 									 
-		std::pair<float, float> dis_yaw = get_dis_yaw(target_point_, current_point_);     //  pair的实现是一个结构体，主要的两个成员变量是first second 
+		std::pair<float, float> dis_yaw = get_dis_yaw(target_point_, current_point_);     
 
 		if( dis_yaw.first < disThreshold_)
 		{
 			target_point_ = path_points_[target_point_index_++];
-//			std::cout << target_point_index_ << " / "  << path_points_.size() << std::endl;
-	//		std::cout << "dis_yaw.first: " << dis_yaw.first << "\r\n";
-			//target_point_.show();
-			//current_point_.show();
 			if(target_point_index_ >= path_points_.size())
-//			    target_point_index_ = target_point_index_ - path_points_.size();
 				break;
 			continue;
 		}
-		
-		yaw_err_ = dis_yaw.second - current_point_.yaw;                                  // 计算出车身姿态与目标点的夹角
-		
+	yaw_err_ = dis_yaw.second - current_point_.yaw;                                  		// 计算出车身姿态与目标点的夹角
 		if(yaw_err_==0.0) continue;
-		
-		float turning_radius = (-0.5 * dis_yaw.first)/sin(yaw_err_);                     // 转弯半径  l/2sin(a)
+		float turning_radius = (-0.5 * dis_yaw.first)/sin(yaw_err_);                     	// 转弯半径  l/2sin(a)
 		//使用i控制,消除转向间隙引起的稳态误差
         float theta = Ki_ * sumlateral_err_;
         if(theta > steer_clearance_)
             theta = steer_clearance_;
         else if(theta < -steer_clearance_)
             theta = -steer_clearance_;
-		float t_roadWheelAngle = generateRoadwheelAngleByRadius(turning_radius);         // 生成前轮转角
+		float t_roadWheelAngle = generateRoadwheelAngleByRadius(turning_radius);         
 		t_roadWheelAngle = t_roadWheelAngle + theta;
-		t_roadWheelAngle = limitRoadwheelAngleBySpeed(t_roadWheelAngle,vehicle_speed_);  // 受速度限制的前轮转角
+		t_roadWheelAngle = limitRoadwheelAngleBySpeed(t_roadWheelAngle,vehicle_speed_);  
 		t_roadWheelAngle += steer_offset_;
 		
 		//find the index of a path point x meters from the current point
@@ -414,6 +402,7 @@ void PathTracking::run()
  *@fuc:  offset避障
  *
  */
+ 
 void PathTracking::avoiding_flag_callback(const std_msgs::Float32::ConstPtr& msg)
 {
 	//avoid to left(-) or right(+) the value presents the offset
@@ -433,6 +422,7 @@ void PathTracking::pub_car_goal_callback(const ros::TimerEvent&)
  *@fuc:  判断是否有障碍物体闯入(具体距离值可在livox里面修改)
  *
  */
+ 
 void PathTracking::is_object_callback(const std_msgs::Float32::ConstPtr& msg)
 {       
         object_data = msg->data;
