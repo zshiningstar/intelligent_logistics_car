@@ -87,6 +87,7 @@ private:
 	float foreSightDis_latErrCoefficient_;
 	// I控制
 	float Ki_;
+	float tolerate_laterror_;
 	float safety_distance_;
 	
 	float avoiding_offset_;
@@ -164,7 +165,7 @@ bool PathTracking::init(ros::NodeHandle nh,ros::NodeHandle nh_private)
 	nh_private.param<float>("foreSightDis_speedCoefficient", foreSightDis_speedCoefficient_,1.8);    // 参数设置
 	nh_private.param<float>("foreSightDis_latErrCoefficient", foreSightDis_latErrCoefficient_,0.3);  // 系数
 	nh_private.param<float>("Ki", Ki_,0.3);  // 系数
-	
+	nh_private.param<float>("tolerate_laterror", tolerate_laterror_,0.3);  // 系数
 	nh_private.param<float>("min_foresight_distance",min_foresight_distance_,3.0);                   // 最小前视距离为5米
 	nh_private.param<float>("max_side_accel",max_side_accel_,1.5);
 	
@@ -279,8 +280,9 @@ void PathTracking::run()
 		{
 			lateral_err_ = calculateDis2path(current_point_.x,current_point_.y,path_points_,
 											 target_point_index_,&nearest_point_index_) - avoiding_offset_;
-			// 
-			sumlateral_err_ = sumlateral_err_ + lateral_err_;
+			//
+			if(fabs(lateral_err_) > tolerate_laterror_) 
+				sumlateral_err_ = sumlateral_err_ + lateral_err_;
 		}
 		catch(const char* str)
 		{
