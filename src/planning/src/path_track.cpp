@@ -16,7 +16,9 @@
 #include <ant_math/ant_math.h>
 #include "gps_msgs/Inspvax.h"
 
-#define MAX_ANGLE  12.3
+
+// 目标转角向左为+,向右为-;
+// 横向偏差向左为-,向右为+;
 
 class PathTracking
 {
@@ -161,7 +163,7 @@ bool PathTracking::init(ros::NodeHandle nh,ros::NodeHandle nh_private)
 //	sub_car_state = nh.subscribe(car_state,10,&PathTracking::car_state_callback, this);            
 	
 	pub_car_goal  = nh.advertise<logistics_msgs::GoalState>(nh_private.param<std::string>("car_goal","/car_goal"),10);           
-	timer_ = nh.createTimer(ros::Duration(0.01),&PathTracking::pub_car_goal_callback,this);          // 设置一个定时器每0.01秒发布一次
+	timer_ = nh.createTimer(ros::Duration(0.01),&PathTracking::pub_car_goal_callback,this);         // 设置一个定时器每0.01秒发布一次
 	
 	
 	nh_private.param<std::string>("path_points_file",path_points_file_,"");
@@ -172,7 +174,7 @@ bool PathTracking::init(ros::NodeHandle nh,ros::NodeHandle nh_private)
 	nh_private.param<float>("omega", omega_,5.0);  													// 转向角速度 PID-D
 	nh_private.param<float>("Ki", Ki_,0.3);  														// 系数 PID-I
 	nh_private.param<float>("steer_clearance", steer_clearance_,0.3);  								// 转向间隙补偿
-	nh_private.param<float>("steer_offset", steer_offset_,0.3);  									// 转角补偿
+	nh_private.param<float>("steer_offset", steer_offset_,0.3);  									// 转角补偿 | 车辆不会正常直线
 	nh_private.param<float>("tolerate_laterror", tolerate_laterror_,0.3);  							// 容忍横向偏差
 	nh_private.param<float>("min_foresight_distance",min_foresight_distance_,3.0);                   
 	nh_private.param<float>("max_side_accel",max_side_accel_,1.5);
@@ -187,12 +189,12 @@ bool PathTracking::init(ros::NodeHandle nh,ros::NodeHandle nh_private)
 	//start the ros::spin() thread
 	rosSpin_thread_ptr_ = boost::shared_ptr<boost::thread >(new boost::thread(boost::bind(&PathTracking::rosSpinThread, this)));
 	
-	if(!loadPathPoints(path_points_file_, path_points_))                                            // ant_math   cpp文件里面
+	if(!loadPathPoints(path_points_file_, path_points_))                                            
 		return false;
 	
 	ROS_INFO("pathPoints size:%d",path_points_.size());
 	
-	while(ros::ok() && !is_gps_data_valid(current_point_))                                         // 判断是不是有效的gps数据
+	while(ros::ok() && !is_gps_data_valid(current_point_))                                          // 判断是不是有效的gps数据
 	{
 		ROS_INFO("gps data is invalid, please check the gps topic or waiting...");
 		sleep(1);
@@ -275,7 +277,7 @@ void PathTracking::run()
 	float control_rate = 30;
 	float dt = 1.0/control_rate;
 	ros::Rate loop_rate(control_rate);
-	std::cout << target_point_index_ << " / "  << path_points_.size() << std::endl;
+//	std::cout << target_point_index_ << " / "  << path_points_.size() << std::endl;
 	while(ros::ok() /*&& target_point_index_ < path_points_.size()-2*/)       
 	{
 //		if( avoiding_offset_ != 0.0)
@@ -287,7 +289,7 @@ void PathTracking::run()
 		{
 			lateral_err_ = calculateDis2path(current_point_.x,current_point_.y,path_points_,
 											 target_point_index_,&nearest_point_index_) - avoiding_offset_;
-			if(fabs(lateral_err_) > tolerate_laterror_)  										//横向偏差较小时不考虑
+			if(fabs(lateral_err_) > tolerate_laterror_)  										//横向偏差较小时不修正,因为稳态误差不能全部消除,否则会转向激进
 				sumlateral_err_ = sumlateral_err_ + lateral_err_;
 			if(sumlateral_err_ * lateral_err_ < 0)       										//横向偏差变号时,说明行驶靠右/左,总横向偏差需要置0
 				sumlateral_err_ = 0;
@@ -314,9 +316,9 @@ void PathTracking::run()
 				break;
 			continue;
 		}
-	yaw_err_ = dis_yaw.second - current_point_.yaw;                                  		// 计算出车身姿态与目标点的夹角
+		yaw_err_ = dis_yaw.second - current_point_.yaw;                                  		// 计算出车身姿态与目标点的夹角
 		if(yaw_err_==0.0) continue;
-		float turning_radius = (-0.5 * dis_yaw.first)/sin(yaw_err_);                     	// 转弯半径  l/2sin(a)
+		float turning_radius = (-0.5 * dis_yaw.first)/sin(yaw_err_);                     		// 转弯半径  l/2sin(a)
 		//使用i控制,消除转向间隙引起的稳态误差
         float theta = Ki_ * sumlateral_err_;
         if(theta > steer_clearance_)
