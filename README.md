@@ -1,40 +1,29 @@
 
 ## 1、记录一段路经
-
 * 启动记录路径节点:记录一段路经，保存为txt文件
-
 ```
 roslaunch driver path_recorder.launch
 ```
-
-## 2、启动上位机监听下位机传输数据节点
-
-* 启动接收下位机传发来的信息节点
-```
-roslaunch driver talk_pc.launch
-```
-
-## 3、启动上位机向下位机发送数据节点
-```
-roslaunch driver talk_stm.launch
-```
-## 4、启动循迹节点
+## 2、启动循迹节点
 
 * 按照刚才记录的路径进行循迹
 ```
 roslaunch driver path_track.launch
 ```
 
-## 5、启动livox激光雷达雷达避障
+## 3、启动RTK差分定位
 
-**启动雷达**
 ```
-roslaunch livox_ros_driver livox_lidar_rviz.launch 
-```
-**检测5米内障碍物**
-* 具体数字可以在launch文件里面修改
-```
-roslaunch euclidean_cluster euclidean_cluster.launch
+./main /dev/rtk  需要具体看是哪个端口号
 ```
 
+
+
+### 注意事项:
+* 每次GPS上电之后,需要在上位机标定软件里面进行cool reset,保证其有正确的航向角度
+* GPS主机固定后,其坐标系和车辆载体坐标系并不重合,通过启动以下节点进行标定,并将终端上打印的数值大户入GPS标定上位机软件之中(Head ..参数)
+*  **标定过程中,除非将要发生安全问题,否则不要打方向,让其沿着直线往前行走**
+```
+roslaunch driver calibrate_gps.launch 
+```
 

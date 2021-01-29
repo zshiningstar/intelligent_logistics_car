@@ -1,6 +1,6 @@
 <!-- -->
 <launch>
-
+<!--	标定GPS航向角,找到GPS主机与载体坐标系之间的误差,并需要在上位机调试软件里面标定head offset-->
 	<arg name="file_name" default="path" />
 
 	<node name="calibrate_gps_node" pkg="recorder" type="calibrate_gps_node" output= "screen">

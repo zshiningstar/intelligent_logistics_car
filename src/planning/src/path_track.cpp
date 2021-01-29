@@ -89,7 +89,7 @@ private:
 	float Ki_;
 	float tolerate_laterror_;
 	float safety_distance_;
-    float brake_;
+    float steer_clearance_;
     float steer_offset_;
     float omega_;
     float theta_true_;
@@ -171,7 +171,7 @@ bool PathTracking::init(ros::NodeHandle nh,ros::NodeHandle nh_private)
 	nh_private.param<float>("foreSightDis_latErrCoefficient", foreSightDis_latErrCoefficient_,0.3);  // 系数
 	nh_private.param<float>("omega", omega_,5.0);  // 转向角速度
 	nh_private.param<float>("Ki", Ki_,0.3);  // 系数
-	nh_private.param<float>("brake", brake_,0.3);  // 系数
+	nh_private.param<float>("steer_clearance", steer_clearance_,0.3);  // 系数
 	nh_private.param<float>("steer_offset", steer_offset_,0.3);  // 系数
 	nh_private.param<float>("tolerate_laterror", tolerate_laterror_,0.3);  // 系数
 	
@@ -291,7 +291,7 @@ void PathTracking::run()
 			lateral_err_ = calculateDis2path(current_point_.x,current_point_.y,path_points_,
 											 target_point_index_,&nearest_point_index_) - avoiding_offset_;
 			//
-			if(fabs(lateral_err_) > tolerate_laterror_) 
+			if(fabs(lateral_err_) > tolerate_laterror_)  //横向偏差较小时不考虑
 				sumlateral_err_ = sumlateral_err_ + lateral_err_;
 			if(sumlateral_err_ * lateral_err_ < 0)
 				sumlateral_err_ = 0;
@@ -331,10 +331,10 @@ void PathTracking::run()
 		float turning_radius = (-0.5 * dis_yaw.first)/sin(yaw_err_);                     // 转弯半径  l/2sin(a)
 		//使用i控制,消除转向间隙引起的稳态误差
         float theta = Ki_ * sumlateral_err_;
-        if(theta > brake_)
-            theta = brake_;
-        else if(theta < -brake_)
-            theta = -brake_;
+        if(theta > steer_clearance_)
+            theta = steer_clearance_;
+        else if(theta < -steer_clearance_)
+            theta = -steer_clearance_;
 		float t_roadWheelAngle = generateRoadwheelAngleByRadius(turning_radius);         // 生成前轮转角
 		t_roadWheelAngle = t_roadWheelAngle + theta;
 		t_roadWheelAngle = limitRoadwheelAngleBySpeed(t_roadWheelAngle,vehicle_speed_);  // 受速度限制的前轮转角
