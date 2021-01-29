@@ -320,7 +320,7 @@ void PathTracking::run()
 		if(yaw_err_==0.0) continue;
 		float turning_radius = (-0.5 * dis_yaw.first)/sin(yaw_err_);                     		// 转弯半径  l/2sin(a)
 		//使用i控制,消除转向间隙引起的稳态误差
-        float theta = Ki_ * sumlateral_err_;
+        float theta = Ki_ * sumlateral_err_;													// 假想转角和总横向偏差为线性模型
         if(theta > steer_clearance_)
             theta = steer_clearance_;
         else if(theta < -steer_clearance_)
