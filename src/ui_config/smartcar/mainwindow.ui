@@ -6,42 +6,22 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>642</width>
-    <height>686</height>
+    <width>565</width>
+    <height>426</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <widget class="QListWidget" name="listWidget_gps">
-    <property name="geometry">
-     <rect>
-      <x>220</x>
-      <y>50</y>
-      <width>391</width>
-      <height>141</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QListWidget" name="listWidget_track">
-    <property name="geometry">
-     <rect>
-      <x>220</x>
-      <y>440</y>
-      <width>391</width>
-      <height>151</height>
-     </rect>
-    </property>
-   </widget>
    <widget class="QPushButton" name="master">
     <property name="enabled">
      <bool>true</bool>
     </property>
     <property name="geometry">
      <rect>
-      <x>20</x>
-      <y>30</y>
+      <x>70</x>
+      <y>50</y>
       <width>161</width>
       <height>61</height>
      </rect>
@@ -53,7 +33,7 @@
      </sizepolicy>
     </property>
     <property name="text">
-     <string>master</string>
+     <string>serial</string>
     </property>
    </widget>
    <widget class="QLabel" name="describe">
@@ -75,8 +55,8 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>20</x>
-      <y>130</y>
+      <x>320</x>
+      <y>50</y>
       <width>161</width>
       <height>61</height>
      </rect>
@@ -97,8 +77,8 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>20</x>
-      <y>230</y>
+      <x>70</x>
+      <y>150</y>
       <width>161</width>
       <height>61</height>
      </rect>
@@ -119,8 +99,8 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>20</x>
-      <y>330</y>
+      <x>320</x>
+      <y>150</y>
       <width>161</width>
       <height>61</height>
      </rect>
@@ -141,8 +121,8 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>20</x>
-      <y>430</y>
+      <x>70</x>
+      <y>250</y>
       <width>71</width>
       <height>61</height>
      </rect>
@@ -163,8 +143,8 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>20</x>
-      <y>530</y>
+      <x>320</x>
+      <y>250</y>
       <width>161</width>
       <height>61</height>
      </rect>
@@ -179,63 +159,14 @@
      <string>leishen</string>
     </property>
    </widget>
-   <widget class="QLabel" name="label_gps">
-    <property name="geometry">
-     <rect>
-      <x>220</x>
-      <y>30</y>
-      <width>391</width>
-      <height>18</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>gps</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_track">
-    <property name="geometry">
-     <rect>
-      <x>220</x>
-      <y>420</y>
-      <width>54</width>
-      <height>18</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>track</string>
-    </property>
-   </widget>
-   <widget class="QListWidget" name="listWidget_record">
-    <property name="geometry">
-     <rect>
-      <x>220</x>
-      <y>240</y>
-      <width>391</width>
-      <height>141</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_record">
-    <property name="geometry">
-     <rect>
-      <x>220</x>
-      <y>220</y>
-      <width>54</width>
-      <height>18</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>record</string>
-    </property>
-   </widget>
    <widget class="QPushButton" name="cluster">
     <property name="enabled">
      <bool>true</bool>
     </property>
     <property name="geometry">
      <rect>
-      <x>110</x>
-      <y>430</y>
+      <x>160</x>
+      <y>250</y>
       <width>71</width>
       <height>61</height>
      </rect>
@@ -256,7 +187,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>642</width>
+     <width>565</width>
      <height>23</height>
     </rect>
    </property>
