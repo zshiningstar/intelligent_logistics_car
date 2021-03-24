@@ -54,34 +54,34 @@ int main(int argc,char** argv)
 //		srand(time(NULL));
 				
 		logistics_msgs::GoalState goal;
-		while(object_data_ == 0)
-		{
-		    goal.goal_speed = 0;
-		    goal.goal_angle = 0;
-    //      goal.goal_angle = rand()%11 - 5;        
-    //      goal.goal_angle = 0;
+//		while(object_data_ == 0)
+//		{
+//		    goal.goal_speed = 0;
+//		    goal.goal_angle = 0;
+          goal.goal_speed = 0;        
+          goal.goal_angle = 0;
             goal.goal_light = 0;
 		    goal.goal_brake = 3;
 		    goal.goal_park  = 3;
     		sleep(1);
 		    m_pub_goal.publish(goal);
-		}
+//		}
 		
-		while(object_data_ != 0)
-		{
-            goal.goal_speed = 0;
-		    goal.goal_angle = 0;
-    //      goal.goal_angle = rand()%11 - 5;        
-    //      goal.goal_angle = 0;
-            goal.goal_light = 0;
-		    goal.goal_brake = 0;
-		    goal.goal_park  = 0;
-    		sleep(1);
-		    m_pub_goal.publish(goal);
-		    
-		    sleep(20);
-		    object_data_ = 0;
-        }
+//		while(object_data_ != 0)
+//		{
+//            goal.goal_speed = 0;
+//		    goal.goal_angle = 0;
+//    //      goal.goal_angle = rand()%11 - 5;        
+//    //      goal.goal_angle = 0;
+//            goal.goal_light = 0;
+//		    goal.goal_brake = 0;
+//		    goal.goal_park  = 0;
+//    		sleep(1);
+//		    m_pub_goal.publish(goal);
+//		    
+//		    sleep(20);
+//		    object_data_ = 0;
+//        }
 	
 	}
 	return 0;
