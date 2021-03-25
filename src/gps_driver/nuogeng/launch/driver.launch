@@ -2,7 +2,7 @@
 
 <launch>
 
-	<arg name="port" default="/dev/gps"/>
+	<arg name="port" default="/dev/ttyUSB0"/>
 	
 	<node name="nuogeng_node" pkg="nuogeng" type="nuogeng_node" output="screen">
 		<param name="port_name" value="$(arg port)"/>
