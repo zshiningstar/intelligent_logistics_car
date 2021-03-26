@@ -13,10 +13,7 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::on_master_clicked()
-{
-   system("gnome-terminal -x bash -c 'sudo chmod 666 /dev/ttyUSB*;'&");
-}
+
 
 void MainWindow::on_gps_clicked()
 {
@@ -46,4 +43,9 @@ void MainWindow::on_leishen_clicked()
 void MainWindow::on_cluster_clicked()
 {
     system("gnome-terminal -x bash -c 'source ~/logistics_ws/devel/setup.bash; roslaunch euclidean_cluster euclidean_cluster.launch'&");
+}
+
+void MainWindow::on_master_clicked()
+{
+    system("gnome-terminal -x bash -c 'cd ~/logistics_ws/src/recorder/data; python plot.py path.txt'&");
 }

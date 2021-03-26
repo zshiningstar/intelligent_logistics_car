@@ -33,7 +33,7 @@
      </sizepolicy>
     </property>
     <property name="text">
-     <string>serial</string>
+     <string>plot</string>
     </property>
    </widget>
    <widget class="QLabel" name="describe">
@@ -188,7 +188,7 @@
      <x>0</x>
      <y>0</y>
      <width>565</width>
-     <height>23</height>
+     <height>27</height>
     </rect>
    </property>
   </widget>
