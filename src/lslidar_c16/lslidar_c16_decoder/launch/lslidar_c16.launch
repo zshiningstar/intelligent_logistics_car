@@ -1,5 +1,5 @@
 <launch>
-  <arg name="device_ip" default="192.168.1.200" />
+  <arg name="device_ip" default="192.168.1.201" />
   <arg name="msop_port" default="2368" />
   <arg name="difop_port" default="2369" />
   <arg name="return_mode" default="1" />
@@ -10,7 +10,7 @@
     <param name="device_ip" value="$(arg device_ip)" />
     <param name="msop_port" value="$(arg msop_port)" />
     <param name="difop_port" value="$(arg difop_port)"/>
-    <param name="frame_id" value="laser_link"/>
+    <param name="frame_id" value="laser_link"/>s
     <param name="add_multicast" value="false"/>
     <param name="group_ip" value="224.1.1.2"/>
     <param name="rpm" value="600"/>
