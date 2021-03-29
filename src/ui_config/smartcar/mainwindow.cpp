@@ -47,5 +47,5 @@ void MainWindow::on_cluster_clicked()
 
 void MainWindow::on_master_clicked()
 {
-    system("gnome-terminal -x bash -c 'cd ~/logistics_ws/src/recorder/data; python plot.py path.txt'&");
+    system("gnome-terminal -x bash -c 'cd /home/nvidia/logistics_ws/src/recorder/data; python plot.py path.txt'&");
 }
