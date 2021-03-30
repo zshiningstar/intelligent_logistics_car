@@ -87,12 +87,37 @@ float dis2Points(const gpsMsg_t& point1, const gpsMsg_t& point2,bool is_sqrt)
 }
 
 
+//size_t findNearestPoint(const std::vector<gpsMsg_t>& path_points, const gpsMsg_t& current_point)
+//{
+//	size_t index = 0;
+//	float min_dis2 = FLT_MAX;
+//	
+//	for(size_t i=0; i<path_points.size(); ++i)
+//	{
+//		float dis2 = dis2Points(path_points[i],current_point,false);
+//		if(dis2 < min_dis2)
+//		{
+//			min_dis2 = dis2;
+//			index = i;
+//		}
+//	}
+//	if(min_dis2 > 15*15)
+//	{
+//		ROS_ERROR("current_point x:%f\ty:%f",current_point.x,current_point.y);
+//		ROS_ERROR("find correct nearest point failed! the nearest point distance over 15 meters");
+//		return path_points.size();
+//	}
+//		
+//	return index;
+//}
+
 size_t findNearestPoint(const std::vector<gpsMsg_t>& path_points, const gpsMsg_t& current_point)
-{
-	size_t index = 0;
+{	
+	int length = path_points.size();
+	size_t index = length;
 	float min_dis2 = FLT_MAX;
 	
-	for(size_t i=0; i<path_points.size(); ++i)
+	for(size_t i=length; i<=1; i--)
 	{
 		float dis2 = dis2Points(path_points[i],current_point,false);
 		if(dis2 < min_dis2)
