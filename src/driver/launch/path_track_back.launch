@@ -3,7 +3,7 @@
 
 	<arg name="gps_port" default="/dev/ttyUSB0"/>
 	<arg name="file_name" default="path.txt" />
-	<arg name="max_speed" default="3" />
+	<arg name="max_speed" default="-3" />
 	
 	<node name="path_tracking" pkg="planning" type="path_track_back" output="screen">
 	

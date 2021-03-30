@@ -113,7 +113,7 @@ private:
 
 PathTracking::PathTracking():
 	vehicle_speed_status_(true),
-	target_point_index_(0),
+	//target_point_index_(0),
 	avoiding_offset_(0.0),
 	nearest_point_index_(0),
 	max_roadwheelAngle_(12.3),
@@ -202,7 +202,7 @@ bool PathTracking::init(ros::NodeHandle nh,ros::NodeHandle nh_private)
 	
 	target_point_index_ = findNearestPoint(path_points_,current_point_);                      
 //	std::cout << target_point_index_ << " / "  << path_points_.size() << std::endl;
-	if(target_point_index_ - 10)
+	if(target_point_index_ < 1)
 	{
 		ROS_ERROR("target index:%d ?? file read over, No target point was found !!!",target_point_index_);
 		return false;
@@ -316,7 +316,7 @@ void PathTracking::run()
 				break;
 			continue;
 		}
-		yaw_err_ = dis_yaw.second - current_point_.yaw;                                  		// 计算出车身姿态与目标点的夹角
+		yaw_err_ = ( dis_yaw.second - current_point_.yaw );                                  		// 计算出车身姿态与目标点的夹角
 		if(yaw_err_==0.0) continue;
 		float turning_radius = (-0.5 * dis_yaw.first)/sin(yaw_err_);                     		// 转弯半径  l/2sin(a)
 		//使用i控制,消除转向间隙引起的稳态误差

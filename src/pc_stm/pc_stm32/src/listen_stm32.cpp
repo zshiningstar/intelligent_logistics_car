@@ -22,8 +22,15 @@ Listener::~Listener()
 
 bool Listener::openSerial(const std::string& port,int baudrate)              // 打开串口
 {
-	m_serial_port = new serial::Serial(port,baudrate,serial::Timeout::simpleTimeout(10)); 
-
+	try
+	{
+		m_serial_port = new serial::Serial(port,baudrate,serial::Timeout::simpleTimeout(10)); 
+	}
+	catch(serial::IOException& e)				//捕捉输入输出异常
+    {
+        ROS_ERROR_STREAM("Unable to open port.");
+        return -1;
+    }
 	if (!m_serial_port->isOpen())
 	{
 		std::stringstream output;
