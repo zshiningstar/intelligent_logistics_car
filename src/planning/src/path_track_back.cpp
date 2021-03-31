@@ -13,7 +13,7 @@
 #include <boost/thread.hpp>
 #include <boost/bind.hpp>
 #include <thread>
-#include <ant_math/ant_math.h>
+#include <ant_math/ant_math_back.h>
 #include "gps_msgs/Inspvax.h"
 
 
