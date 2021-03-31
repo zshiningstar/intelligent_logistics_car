@@ -16,8 +16,6 @@ public:
     ~MainWindow();
 
 private slots:
-    void on_master_clicked();
-
     void on_gps_clicked();
 
     void on_record_clicked();
@@ -29,6 +27,12 @@ private slots:
     void on_leishen_clicked();
 
     void on_cluster_clicked();
+
+    void on_back_clicked();
+
+    void on_serial_clicked();
+
+    void on_plot_clicked();
 
 private:
     Ui::MainWindow *ui;

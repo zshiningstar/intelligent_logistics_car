@@ -6,22 +6,22 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>565</width>
-    <height>426</height>
+    <width>619</width>
+    <height>341</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <widget class="QPushButton" name="master">
+   <widget class="QPushButton" name="plot">
     <property name="enabled">
      <bool>true</bool>
     </property>
     <property name="geometry">
      <rect>
-      <x>70</x>
-      <y>50</y>
+      <x>430</x>
+      <y>40</y>
       <width>161</width>
       <height>61</height>
      </rect>
@@ -55,8 +55,8 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>320</x>
-      <y>50</y>
+      <x>30</x>
+      <y>40</y>
       <width>161</width>
       <height>61</height>
      </rect>
@@ -77,8 +77,8 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>70</x>
-      <y>150</y>
+      <x>230</x>
+      <y>40</y>
       <width>161</width>
       <height>61</height>
      </rect>
@@ -99,8 +99,8 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>320</x>
-      <y>150</y>
+      <x>30</x>
+      <y>120</y>
       <width>161</width>
       <height>61</height>
      </rect>
@@ -121,9 +121,9 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>70</x>
-      <y>250</y>
-      <width>71</width>
+      <x>30</x>
+      <y>200</y>
+      <width>161</width>
       <height>61</height>
      </rect>
     </property>
@@ -143,8 +143,8 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>320</x>
-      <y>250</y>
+      <x>430</x>
+      <y>200</y>
       <width>161</width>
       <height>61</height>
      </rect>
@@ -165,9 +165,9 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>160</x>
-      <y>250</y>
-      <width>71</width>
+      <x>230</x>
+      <y>200</y>
+      <width>161</width>
       <height>61</height>
      </rect>
     </property>
@@ -181,13 +181,57 @@
      <string>cluster</string>
     </property>
    </widget>
+   <widget class="QPushButton" name="back">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>230</x>
+      <y>120</y>
+      <width>161</width>
+      <height>61</height>
+     </rect>
+    </property>
+    <property name="sizePolicy">
+     <sizepolicy hsizetype="Maximum" vsizetype="Minimum">
+      <horstretch>20</horstretch>
+      <verstretch>20</verstretch>
+     </sizepolicy>
+    </property>
+    <property name="text">
+     <string>back</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="serial">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>430</x>
+      <y>120</y>
+      <width>161</width>
+      <height>61</height>
+     </rect>
+    </property>
+    <property name="sizePolicy">
+     <sizepolicy hsizetype="Maximum" vsizetype="Minimum">
+      <horstretch>20</horstretch>
+      <verstretch>20</verstretch>
+     </sizepolicy>
+    </property>
+    <property name="text">
+     <string>serial</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>565</width>
+     <width>619</width>
      <height>27</height>
     </rect>
    </property>

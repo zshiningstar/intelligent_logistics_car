@@ -45,7 +45,17 @@ void MainWindow::on_cluster_clicked()
     system("gnome-terminal -x bash -c 'source ~/logistics_ws/devel/setup.bash; roslaunch euclidean_cluster euclidean_cluster.launch'&");
 }
 
-void MainWindow::on_master_clicked()
+void MainWindow::on_back_clicked()
 {
-    system("gnome-terminal -x bash -c 'cd /home/nvidia/logistics_ws/src/recorder/data; python plot.py path.txt'&");
+    system("gnome-terminal -x bash -c 'source ~/logistics_ws/devel/setup.bash; roslaunch driver path_track_back.launch'&");
+}
+
+void MainWindow::on_serial_clicked()
+{
+    system("gnome-terminal -x bash -c 'sudo chmod 666 /dev/ttyUSB0; sudo chmod 666 /dev/ttyUSB1'&");
+}
+
+void MainWindow::on_plot_clicked()
+{
+    system("gnome-terminal -x bash -c 'cd /home/zsx/logistics_ws/src/recorder/data; python plot.py path.txt'&");
 }
