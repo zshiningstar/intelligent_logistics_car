@@ -13,6 +13,7 @@ find_package(catkin REQUIRED COMPONENTS
   serial
   std_msgs
   logistics_msgs
+  tf
 )
 
 catkin_package(
