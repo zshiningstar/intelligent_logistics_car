@@ -51,7 +51,9 @@ float limitSpeedByCurrentRoadwheelAngle(float speed,float angle)
 //	return true;
 //}
 
-
+/*
+ *@fuc:read the path and put them in a vector
+ */
 bool loadPathPoints(std::string file_path,std::vector<gpsMsg_t>& points)
 {
 	std::ifstream in_file(file_path.c_str());
@@ -86,7 +88,9 @@ float dis2Points(const gpsMsg_t& point1, const gpsMsg_t& point2,bool is_sqrt)
 	return x*x+y*y;
 }
 
-
+/*
+ *@fuc:find the nearest point with forward view distance
+ */
 size_t findNearestPoint(const std::vector<gpsMsg_t>& path_points, const gpsMsg_t& current_point)
 {
 	size_t index = 0;
@@ -111,6 +115,7 @@ size_t findNearestPoint(const std::vector<gpsMsg_t>& path_points, const gpsMsg_t
 	return index;
 }
 
+//not use in tracking the path
 float calculateDis2path(const double& X_,const double& Y_,
 						 const std::vector<gpsMsg_t>& path_points, 
 						 const size_t& target_point_index,
@@ -294,14 +299,21 @@ size_t findIndexForGivenDis(const std::vector<gpsMsg_t>& path_points, size_t sta
 			return 0;//error
 			
 		sum_dis	+= disBetweenPoints(path_points[startIndex],path_points[startIndex+5]);
-		
 		startIndex += 5;
-		
+
+		if(startIndex-5 <= 1)
+			return 0;//error
+			
+		sum_dis	+= disBetweenPoints(path_points[startIndex],path_points[startIndex+5]);
+		startIndex -= 5; //find the nearest point from the last -5 point
 		if(sum_dis > dis)
 			return startIndex;
 	}
 }
 
+/*
+ *@fuc:calculate the distance between two points
+ */
 float disBetweenPoints(const gpsMsg_t& point1, const gpsMsg_t& point2)
 {
 	float x = point1.x - point2.x;
@@ -310,6 +322,7 @@ float disBetweenPoints(const gpsMsg_t& point1, const gpsMsg_t& point2)
 	return sqrt(x*x+y*y);
 }
 
+//do not use 
 float minCurvatureInRange(const std::vector<gpsMsg_t>& path_points, size_t startIndex,size_t endIndex)
 {
 	float min = FLT_MAX;
@@ -332,7 +345,11 @@ float maxCurvatureInRange(const std::vector<gpsMsg_t>& path_points, size_t start
 	return max;
 }
 
-
+/*
+ *@fuc:pair struct
+ *@param:the first is the distance between two points;
+ * 		 the second is the yaw between two points
+ */
 std::pair<float, float> get_dis_yaw(gpsMsg_t &point1,gpsMsg_t &point2)
 {
 	float x = point1.x - point2.x;
