@@ -16,7 +16,6 @@
 #include <ant_math/ant_math.h>
 #include "gps_msgs/Inspvax.h"
 
-
 // 目标转角向左为+,向右为-;
 // 横向偏差向左为-,向右为+;
 
@@ -437,16 +436,16 @@ void PathTracking::is_object_callback(const std_msgs::Float32::ConstPtr& msg)
  *
  */
 
-void PathTracking::car_state_callback(const logistics_msgs::RealState::ConstPtr& msg)
-{
-	car_state.real_speed = msg->real_speed;
-	car_state.real_angle = msg->real_angle;
-	car_state.real_brake = msg->real_brake;
-	car_state.real_park  = msg->real_park;
-	
-	vehicle_speed_ = car_state.real_speed; //  km/h
+//void PathTracking::car_state_callback(const logistics_msgs::RealState::ConstPtr& msg)
+//{
+//	car_state.real_speed = msg->real_speed;
+//	car_state.real_angle = msg->real_angle;
+//	car_state.real_brake = msg->real_brake;
+//	car_state.real_park  = msg->real_park;
+//	
+//	vehicle_speed_ = car_state.real_speed; //  km/h
 
-}
+//}
 
 
 int main(int argc,char**argv)

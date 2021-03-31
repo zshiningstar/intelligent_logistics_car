@@ -1,5 +1,7 @@
 std_msgs/Header header
 
+float64 real_speed_right
+float64 real_speed_left
 float64 real_speed
 float64 real_angle
 float64 real_light
