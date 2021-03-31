@@ -316,14 +316,12 @@ size_t findIndexForGivenDis(const std::vector<gpsMsg_t>& path_points, size_t sta
 	size_t points_size = path_points.size()-1;
 	while(ros::ok())
 	{
-		//if(startIndex+5 >= points_size)
-		if(startIndex-5 <= 1)
+		if(startIndex+5 >= points_size)
 			return 0;//error
 			
 		sum_dis	+= disBetweenPoints(path_points[startIndex],path_points[startIndex+5]);
 		
-		//startIndex += 5;
-		startIndex -= 5;
+		startIndex += 5;
 		if(sum_dis > dis)
 			return startIndex;
 	}
