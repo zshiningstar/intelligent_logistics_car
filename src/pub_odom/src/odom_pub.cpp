@@ -38,12 +38,14 @@ private:
 	
 	bool prase_flag_;
 	double x,y,th,vx,vy,vth;
-	double real_speed,real_angle;
+	double real_speed_left,real_speed_right,real_angle,real_speed;
 };
 void Odometry::RealState_callback(const logistics_msgs::RealState::ConstPtr& msg)
 {	
-	real_speed = msg->real_speed;
+	real_speed_left = msg->real_speed_left;
+	real_speed_right = msg->real_speed_right;
 	real_angle = msg->real_angle;
+	real_speed = (real_speed_left + real_speed_right) / 2;
 }
 bool Odometry::init()
 {	
