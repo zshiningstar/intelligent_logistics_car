@@ -2,7 +2,7 @@
 
 using namespace std;
 	
-Listener::Listener():				
+Listener::Listener():
 	m_reading_status(false),
 	prase_flag_(true),
 	m_pkg_buffer(new uint8_t[500])
