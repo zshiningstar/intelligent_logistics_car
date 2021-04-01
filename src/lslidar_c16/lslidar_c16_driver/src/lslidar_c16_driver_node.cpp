@@ -25,6 +25,7 @@ volatile sig_atomic_t flag = 1;
 static void my_handler(int sig)
 {
   flag = 0;
+    <param name="cbMethod" value="true"/>
 }
 
 int main(int argc, char** argv)
