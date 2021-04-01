@@ -99,6 +99,8 @@ private:
 	float avoiding_offset_;
 	
 	double now;
+	double timeout;
+	int control_rate;
 	
 	logistics_msgs::GoalState car_goal;
 	logistics_msgs::RealState car_state;
@@ -178,7 +180,9 @@ bool PathTracking::init(ros::NodeHandle nh,ros::NodeHandle nh_private)
 	nh_private.param<float>("tolerate_laterror", tolerate_laterror_,0.3);  							// 容忍横向偏差
 	nh_private.param<float>("min_foresight_distance",min_foresight_distance_,3.0);                   
 	nh_private.param<float>("max_side_accel",max_side_accel_,1.5);
-	nh_private.param<bool>("is_offset_",is_offset_,false);                                     
+	nh_private.param<bool>("is_offset_",is_offset_,false);        
+	nh_private.param<int>("control_rate",control_rate,30);        
+	nh_private.param<double>("timeout",timeout,0.3);                                  
 	
 	if(path_points_file_.empty())
 	{
@@ -274,7 +278,6 @@ void PathTracking::gps_callback(const gps_msgs::Inspvax::ConstPtr& msg)
 void PathTracking::run()
 {
 	size_t i =0;
-	float control_rate = 30;
 	float dt = 1.0/control_rate;
 	ros::Rate loop_rate(control_rate);
 //	std::cout << target_point_index_ << " / "  << path_points_.size() << std::endl;
@@ -338,18 +341,10 @@ void PathTracking::run()
 			break;
 		}
 		float max_curvature = maxCurvatureInRange(path_points_, nearest_point_index_, index);
-		/*
-		 ********转向灯*********
-		if(max_curvature < 0)   
-		       car_goal.goal_light = 0x20;
-		else
-		       car_goal.goal_light = 0x10;
-        */
-
 		float max_speed = generateMaxTolarateSpeedByCurvature(max_curvature, max_side_accel_);
 		car_goal.goal_speed = track_speed_ > max_speed ? max_speed : track_speed_;
     
-        if(object_data != 0) //&& (fabs(t_roadWheelAngle) <= 10))
+        if((object_data) && (fabs(t_roadWheelAngle) <= 10))
         {      
         /*
          *@fuc: 判断是否有障碍物
@@ -362,7 +357,7 @@ void PathTracking::run()
                 track_speed_ = car_goal.goal_speed;
             }
             double now_break = now - ros::Time::now().toSec(); 
-            if(fabs(now_break) > 0.3)
+            if(fabs(now_break) > timeout)
                 object_data = 0;
         }
         

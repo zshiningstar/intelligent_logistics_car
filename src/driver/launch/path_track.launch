@@ -4,6 +4,9 @@
 	<arg name="gps_port" default="/dev/ttyUSB0"/>
 	<arg name="file_name" default="path.txt" />
 	<arg name="max_speed" default="3" />
+	<arg name="rate" default="30" />
+	<arg name="delay_time" default="0.3" />
+	
 	
 	<node name="path_tracking" pkg="planning" type="path_track" output="screen">
 	
@@ -20,12 +23,16 @@
 		<param name="Ki" value = "0.5"/>			   		<!-- PID-I -->
 		<param name="tolerate_laterror" value = "0.05"/>	<!-- 容忍横向偏差 -->
 		<param name="speed" value="$(arg max_speed)"/>
+		<param name="control_rate" value="$(arg rate)">		<!-- Hz -->
+		<param name="timeout" value="$(arg delay_time)">	<!-- 障碍物时延 -->
+		
+		
 		<param name="odom_topic" value="/ll2utm_odom"/>
 		<param name="car_state" value="/car_state"/>
 		<param name="car_goal" value="/car_goal"/>
 		
-		<param name="is_object" value="/is_object"/>
-		<param name="is_offset" value="/is_offset"/>
+		<param name="is_object" value="/min_dis_obj"/>
+		<param name="is_offset" value="/obj_offset"/>
 		<param name="is_offset_"  type="bool"  value="false"/>
 				
 	</node>
