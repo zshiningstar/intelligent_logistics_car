@@ -203,7 +203,7 @@ bool PathTracking::init(ros::NodeHandle nh,ros::NodeHandle nh_private)
 		sleep(1);
 	}
 	
-	target_point_index_ = findNearestPoint(path_points_,current_point_);                      
+	                                                     target_point_index_ = findNearestPoint(path_points_,current_point_);                      
 //	std::cout << target_point_index_ << " / "  << path_points_.size() << std::endl;
 	if(target_point_index_ > path_points_.size() - 10)
 	{
@@ -332,6 +332,7 @@ void PathTracking::run()
 		t_roadWheelAngle = limitRoadwheelAngleBySpeed(t_roadWheelAngle,vehicle_speed_);  
 		t_roadWheelAngle += steer_offset_;
 		
+		ROS_INFO("nearest_point_index_:%d" ,nearest_point_index_);
 		//find the index of a path point x meters from the current point
 		size_t index = findIndexForGivenDis(path_points_,nearest_point_index_,disThreshold_ + 3); 
 		if(index ==0)
