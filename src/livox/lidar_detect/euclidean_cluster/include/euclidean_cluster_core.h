@@ -24,6 +24,7 @@
 
 #include <std_msgs/Header.h>
 #include <math.h>
+#include <vector>
 
 #include <jsk_recognition_msgs/BoundingBox.h>
 #include <jsk_recognition_msgs/BoundingBoxArray.h>
@@ -58,14 +59,16 @@ class EuClusterCore
 		
 		
 /*--------------------------------------------------------------*/
-                double min_dection_long;
-                double distance;
+        double min_dection_long;
+        double distance;
 		bool is_min_dection_long;
-		std_msgs::Float32 is_object;
+		std_msgs::Float32 min_dis_object_;
 		std_msgs::Float32 offset;
 		
-		ros::Publisher pub_is_object_;
+		ros::Publisher pub_min_dis_obj_;
 		ros::Publisher pub_offset_;
+		
+		std::vector<double> dis_list;
 /*--------------------------------------------------------------*/
 
 
