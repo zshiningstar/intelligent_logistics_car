@@ -23,8 +23,8 @@
 		<param name="Ki" value = "0.5"/>			   		<!-- PID-I -->
 		<param name="tolerate_laterror" value = "0.05"/>	<!-- 容忍横向偏差 -->
 		<param name="speed" value="$(arg max_speed)"/>
-		<param name="control_rate" value="$(arg rate)">		<!-- Hz -->
-		<param name="timeout" value="$(arg delay_time)">	<!-- 障碍物时延 -->
+		<param name="control_rate" value="$(arg rate)"/>		<!-- Hz -->
+		<param name="timeout" value="$(arg delay_time)"/>	<!-- 障碍物时延 -->
 		
 		
 		<param name="odom_topic" value="/ll2utm_odom"/>

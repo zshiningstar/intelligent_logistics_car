@@ -23,10 +23,6 @@ set(ant_math_SRCS
     src/ant_math.cpp
     include/ant_math/ant_math.h
 )
-set(ant_math_SRCS
-    src/ant_math_back.cpp
-    include/ant_math/ant_math_back.h
-)
 
 ## Add ant_math library
 add_library(${PROJECT_NAME} ${ant_math_SRCS})

@@ -1,4 +1,4 @@
-#include "ant_math/ant_math.h"
+#include "ant_math/ant_math_back.h"
 
 #define MAX_ROAD_WHEEL_ANGLE 25.0
 
@@ -301,6 +301,9 @@ size_t findIndexForGivenDis(const std::vector<gpsMsg_t>& path_points, size_t sta
 			
 		sum_dis	+= disBetweenPoints(path_points[startIndex],path_points[startIndex+5]);
 		startIndex -= 5; //find the nearest point from the last -5 point
+		
+		std::cout << startIndex << "\t" << points_size <<  std::endl;
+		
 		if(sum_dis > dis)
 			return startIndex;
 	}

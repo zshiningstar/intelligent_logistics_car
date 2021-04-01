@@ -389,6 +389,7 @@ void EuClusterCore::point_cb(const sensor_msgs::PointCloud2ConstPtr &in_cloud_pt
         {
 		    min_dis_object_.data =  *min_element(dis_list.begin(), dis_list.end());
 		    pub_min_dis_obj_.publish(min_dis_object_);
+		    dis_list.clear();
         }
     }
 }
