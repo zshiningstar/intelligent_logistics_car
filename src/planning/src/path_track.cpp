@@ -66,6 +66,7 @@ private:
 	
 	bool vehicle_speed_status_;
 	bool is_offset_;
+	bool is_back_;
 	
 	float vehicle_speed_;
 	float current_roadwheelAngle_;
@@ -182,6 +183,8 @@ bool PathTracking::init(ros::NodeHandle nh,ros::NodeHandle nh_private)
 	nh_private.param<bool>("is_offset_",is_offset_,false);        
 	nh_private.param<int>("control_rate",control_rate,30);        
 	nh_private.param<double>("timeout",timeout,0.3);     
+	nh_private.param<bool>("is_back",is_back_,false);   
+	
 	
 	if(path_points_file_.empty())
 	{
@@ -192,9 +195,11 @@ bool PathTracking::init(ros::NodeHandle nh,ros::NodeHandle nh_private)
 	//start the ros::spin() thread
 	rosSpin_thread_ptr_ = boost::shared_ptr<boost::thread >(new boost::thread(boost::bind(&PathTracking::rosSpinThread, this)));
 	
-	if(!loadPathPoints(path_points_file_, path_points_))                                            
-		return false;
-	
+	if(loadPathPoints(path_points_file_, path_points_))
+	{	
+		if(is_back_)
+			reverse(path_points_.begin(), path_points_.end());                                            
+	}
 	ROS_INFO("pathPoints size:%d",path_points_.size());
 	
 	while(ros::ok() && !is_gps_data_valid(current_point_))                                          // 判断是不是有效的gps数据

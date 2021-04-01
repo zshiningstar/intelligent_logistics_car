@@ -26,14 +26,14 @@
 		<param name="control_rate" value="$(arg rate)"/>		<!-- Hz -->
 		<param name="timeout" value="$(arg delay_time)"/>	<!-- 障碍物时延 -->
 		
-		
 		<param name="odom_topic" value="/ll2utm_odom"/>
 		<param name="car_state" value="/car_state"/>
 		<param name="car_goal" value="/car_goal"/>
 		
 		<param name="is_object" value="/min_dis_obj"/>
 		<param name="is_offset" value="/obj_offset"/>
-		<param name="is_offset_"  type="bool"  value="false"/>
+		<param name="is_offset_" value="false"/>
+		<param name="is_back" value="false"/>
 				
 	</node>
 	

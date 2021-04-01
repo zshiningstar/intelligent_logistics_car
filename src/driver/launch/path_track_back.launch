@@ -8,7 +8,7 @@
 	<arg name="delay_time" default="0.3" />
 	
 	
-	<node name="path_tracking" pkg="planning" type="path_track_back" output="screen">
+	<node name="path_tracking" pkg="planning" type="path_track" output="screen">
 	
 		<param name="path_points_file" value="$(find recorder)/data/$(arg file_name)"/>
 		<param name="min_foresight_distance" value="4"/>
@@ -32,7 +32,8 @@
 		
 		<param name="is_object" value="/min_dis_obj"/>
 		<param name="is_offset" value="/obj_offset"/>
-		<param name="is_offset_"  type="bool"  value="false"/>
+		<param name="is_offset_" value="false"/>
+		<param name="is_back" value="true"/>
 				
 	</node>
 	
