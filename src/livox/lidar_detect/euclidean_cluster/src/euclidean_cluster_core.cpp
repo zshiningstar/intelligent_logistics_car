@@ -6,15 +6,15 @@ EuClusterCore::EuClusterCore(ros::NodeHandle &nh, ros::NodeHandle &private_nh)
     cluster_distance_ = {0.4, 0.8, 1.4, 1.8}; //各区间的聚类半径
     private_nh.param<std::string>("obj_pub",obj_pub_,"/detection/lidar_objects");
     std::string raw_points_topic = private_nh.param<std::string>("in_points","/pandar_points");
-
+	
     sub_point_cloud_     = nh.subscribe(raw_points_topic, 1, &EuClusterCore::point_cb, this);//point_cb
     pub_filtered_points_ = nh.advertise<sensor_msgs::PointCloud2>("/filtered_points", 1);
     pub_bounding_boxs_   = nh.advertise<jsk_recognition_msgs::BoundingBoxArray>(obj_pub_, 1);
     pub_polygon_         = nh.advertise<euclidean_cluster::ObjectPolygonArray>("/objtect_polygon",1);
     pub_object_marker_   = nh.advertise<visualization_msgs::MarkerArray>("/object_marker",1);
-    pub_min_dis_obj_     = nh.advertise<std_msgs::Float32>("/min_dis_obj",1);
-    pub_offset_          = nh.advertise<std_msgs::Float32>("/obj_offset",1);
-
+    pub_min_dis_obj_     = nh.advertise<std_msgs::Float32>(private_nh.param<std::string>("min_dis_obj","/min_dis_obj"),1);
+    pub_offset_          = nh.advertise<std_msgs::Float32>(private_nh.param<std::string>("obj_offset","/obj_offset"),1);
+	
     private_nh.param<double>("x_max",x_max_,1.0);
     private_nh.param<double>("x_min",x_min_,1.0);
     private_nh.param<double>("y_max",y_max_,1.0);

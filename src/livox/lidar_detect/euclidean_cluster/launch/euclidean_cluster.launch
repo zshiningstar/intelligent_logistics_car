@@ -5,6 +5,8 @@
 
 		<param name="in_points"  type="string"  value="/livox/lidar"/> 
 		<param name="obj_pub"  type="string"  value="/detected_bounding_boxs"/> 
+		<param name="min_dis_obj"  type="string"  value="/min_dis_obj">
+		<param name="obj_offset"  type= "string"  value="/obj_offset">
 		
 		<param name="use_threshold_filter"  type="bool"  value="false"/>  
 		<param name="y_max"  type="double"  value="8"/>
@@ -17,9 +19,7 @@
 		<param name="min_cluster_size"  type="int"  value="20"/>
 		<param name="max_cluster_size"  type="int"  value="50000"/>
 		
-		<!-- 加入最小探测范围 -->
-		<param name="min_dection_long"  type="double"  value="5"/>
-		<!-- 是否发布滤波后的障碍物消息 -->
+		<!-- 是否发布滤波后的最近障碍物距离消息 -->
 		<param name="is_min_dection_long"  type="bool"  value="true"/>
 		<!--估计位姿-->
 		<param name="pose_estimation"  type="bool"  value="true"/>  
