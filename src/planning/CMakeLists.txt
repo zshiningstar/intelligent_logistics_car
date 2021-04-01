@@ -38,8 +38,3 @@ include_directories(
 add_executable(path_track src/path_track.cpp)
 add_dependencies(path_track ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(path_track ${catkin_LIBRARIES} )
-
-
-add_executable(path_track_back src/path_track_back.cpp)
-add_dependencies(path_track_back ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(path_track_back ${catkin_LIBRARIES} )
