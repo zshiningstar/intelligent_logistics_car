@@ -301,11 +301,6 @@ size_t findIndexForGivenDis(const std::vector<gpsMsg_t>& path_points, size_t sta
 		sum_dis	+= disBetweenPoints(path_points[startIndex],path_points[startIndex+5]);
 		startIndex += 5;
 
-		if(startIndex-5 <= 1)
-			return 0;//error
-			
-		sum_dis	+= disBetweenPoints(path_points[startIndex],path_points[startIndex+5]);
-		startIndex -= 5; //find the nearest point from the last -5 point
 		if(sum_dis > dis)
 			return startIndex;
 	}
