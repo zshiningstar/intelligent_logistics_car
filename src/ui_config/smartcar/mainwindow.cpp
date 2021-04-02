@@ -57,5 +57,5 @@ void MainWindow::on_serial_clicked()
 
 void MainWindow::on_plot_clicked()
 {
-    system("gnome-terminal -x bash -c 'cd /home/zsx/logistics_ws/src/recorder/data; python plot.py path.txt'&");
+    system("gnome-terminal -x bash -c 'cd /home/nvidia/logistics_ws/src/recorder/data; python plot.py path.txt'&");
 }
