@@ -1,3 +1,4 @@
+<!-- -->
 <launch>
 
 	<arg name="lvx_file_path" default="livox_test.lvx"/>
@@ -39,5 +40,6 @@
     	<node pkg="rosbag" type="record" name="record" output="screen"
           		args="-a"/>
     </group>
+
 
 </launch>

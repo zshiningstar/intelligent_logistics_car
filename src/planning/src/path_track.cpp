@@ -355,11 +355,12 @@ void PathTracking::run()
          *@fuc: 判断是否有障碍物
          *
          */ 
-            if(track_speed_ > 0)
+            if(track_speed_ > 0 && object_data < 4)
             {   
-                float acceleration = (track_speed_ * track_speed_) / (2 * fabs(object_data - safety_distance_));
-                car_goal.goal_speed = track_speed_ - acceleration;
-                track_speed_ = car_goal.goal_speed;
+                //float acceleration = (track_speed_ * track_speed_) / (2 * fabs(object_data - safety_distance_));
+                //car_goal.goal_speed = track_speed_ - acceleration;
+                //track_speed_ = car_goal.goal_speed;
+                track_speed_ = 0;
             }
             double now_break = now - ros::Time::now().toSec(); 
             if(fabs(now_break) > timeout)
@@ -428,7 +429,7 @@ void PathTracking::pub_car_goal_callback(const ros::TimerEvent&)
 void PathTracking::is_object_callback(const std_msgs::Float32::ConstPtr& msg)
 {       
         object_data = msg->data;
-        std::cout << " 有障碍物体,距离为:" << object_data << std::endl;
+        //std::cout << " 有障碍物体,距离为:" << object_data << std::endl;
         now = ros::Time::now().toSec();
 }
 
