@@ -58,7 +58,7 @@ bool Nuogeng::init()
 	m_pub_ll2utm = nh.advertise<nav_msgs::Odometry>(nh_private.param<std::string>("odom_topic","/odom"),1);
 	
 	nh_private.param<std::string>("parent_frame_id", m_parent_frame_id, "world");
-	nh_private.param<std::string>("child_frame_id", m_child_frame_id, "world");
+	nh_private.param<std::string>("child_frame_id", m_child_frame_id, "gps");
 	
 	nh_private.param<bool>("pub_odom", m_is_pub_ll2utm, false);
 	nh_private.param<bool>("pub_tf", m_is_pub_tf, true);

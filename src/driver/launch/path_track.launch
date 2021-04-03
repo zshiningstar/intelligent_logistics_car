@@ -58,7 +58,11 @@
 		<param name="port_name" value="/dev/ttyUSB0"/>
 		<param name="is_ll2utm" value="true"/>
 		<param name="odom_topic" value="/ll2utm_odom"/>
+		<param name="parent_frame_id" value="world"/>
+		<param name="child_frame_id" value="gps"/>
 		<param name="pub_odom" value="true"/>
+		<param name="pub_tf" value="false"/>
+		
 	</node>
 	
 
