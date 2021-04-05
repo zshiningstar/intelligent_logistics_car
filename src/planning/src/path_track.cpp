@@ -285,13 +285,14 @@ void PathTracking::run()
 	float dt = 1.0/control_rate;
 	ros::Rate loop_rate(control_rate);  //30Hz
 //	std::cout << target_point_index_ << " / "  << path_points_.size() << std::endl;
+
 	while(ros::ok() /*&& target_point_index_ < path_points_.size()-2*/)       
 	{
 //		if( avoiding_offset_ != 0.0)
 //		        target_point_ = pointOffset(path_points_[target_point_index_],avoiding_offset_);
         if(vehicle_speed_ = 0)
             ROS_INFO("gps speed is not correct!");
-
+		float goal_speed = track_speed_;
 		try
 		{
 			lateral_err_ = calculateDis2path(current_point_.x,current_point_.y,path_points_,
@@ -355,12 +356,12 @@ void PathTracking::run()
          *@fuc: 判断是否有障碍物
          *
          */ 
-            if(track_speed_ > 0 && object_data < 4)
+            if(goal_speed > 0 && object_data < 4)
             {   
                 //float acceleration = (track_speed_ * track_speed_) / (2 * fabs(object_data - safety_distance_));
                 //car_goal.goal_speed = track_speed_ - acceleration;
                 //track_speed_ = car_goal.goal_speed;
-                track_speed_ = 0;
+                goal_speed = 0;
             }
             double now_break = now - ros::Time::now().toSec(); 
             if(fabs(now_break) > timeout)
@@ -374,7 +375,7 @@ void PathTracking::run()
         
 		float goal_angle = theta_true_ + sign * omega_ * dt ;
         
-	    car_goal.goal_speed = track_speed_;
+	    car_goal.goal_speed = goal_speed;
 		car_goal.goal_angle = goal_angle ;
 		theta_true_ = goal_angle;
 		

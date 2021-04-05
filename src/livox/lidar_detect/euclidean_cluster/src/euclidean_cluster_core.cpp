@@ -66,9 +66,9 @@ void EuClusterCore::clip_filter(const pcl::PointCloud<pcl::PointXYZ>::Ptr in,con
             indices.indices.push_back(i);
         }
         //去除车身附近点云
-        else if(in->points[i].x<2.0 && in->points[i].x>-1.2 && 
+  /*      else if(in->points[i].x<2.0 && in->points[i].x>-1.2 && 
                 in->points[i].y>-1.5 && in->points[i].y<1.5 )
-             indices.indices.push_back(i);
+             indices.indices.push_back(i);*/
              
     }
     cliper.setIndices(boost::make_shared<pcl::PointIndices>(indices));
