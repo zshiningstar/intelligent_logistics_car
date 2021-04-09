@@ -63,7 +63,6 @@ private:
 	float track_speed_;
 	float object_data;
 	
-	
 	bool vehicle_speed_status_;
 	bool is_offset_;
 	bool is_back_;
@@ -122,7 +121,6 @@ PathTracking::PathTracking():
 	object_data(0),
 	lateral_err_(0),
 	sumlateral_err_(0),
-	safety_distance_(2),
 	vehicle_speed_(0),
 	theta_true_(0)
 {
@@ -178,7 +176,8 @@ bool PathTracking::init(ros::NodeHandle nh,ros::NodeHandle nh_private)
 	nh_private.param<float>("steer_clearance", steer_clearance_,0.3);  								// 转向间隙补偿
 	nh_private.param<float>("steer_offset", steer_offset_,0.3);  									// 转角补偿 | 车辆不会正常直线
 	nh_private.param<float>("tolerate_laterror", tolerate_laterror_,0.3);  							// 容忍横向偏差
-	nh_private.param<float>("min_foresight_distance",min_foresight_distance_,3.0);                   
+	nh_private.param<float>("min_foresight_distance",min_foresight_distance_,3.0);
+	nh_private.param<float>("safety_distance",safety_distance_,4);
 	nh_private.param<float>("max_side_accel",max_side_accel_,1.5);
 	nh_private.param<bool>("is_offset_",is_offset_,false);        
 	nh_private.param<int>("control_rate",control_rate,30);        
@@ -356,7 +355,7 @@ void PathTracking::run()
          *@fuc: 判断是否有障碍物
          *
          */ 
-            if(goal_speed > 0 && object_data < 4)
+            if(goal_speed > 0 && object_data < safety_distance_)
             {   
                 //float acceleration = (track_speed_ * track_speed_) / (2 * fabs(object_data - safety_distance_));
                 //car_goal.goal_speed = track_speed_ - acceleration;
