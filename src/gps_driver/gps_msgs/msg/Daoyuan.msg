@@ -16,10 +16,9 @@ float64 north_velocity
 float64 east_velocity
 float64 down_velocity
 float64 gps_state
-float64 wheel_data1
-float64 wheel_data2
-float64 wheel_data3
 
 float64 gps_time
-float64 rotation_type
+uint8 rotation_type
 float64 gps_zhou
+
+uint8 Initializing_State

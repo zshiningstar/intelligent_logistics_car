@@ -8,5 +8,7 @@ float64 rollstd
 float64 pitchstd
 float64 yawstd
 float64 temperature
-float64 is_wheel_speed
-float64 num_satellites
+bool is_wheel_speed
+uint8 num_satellites
+
+string gps_location_state

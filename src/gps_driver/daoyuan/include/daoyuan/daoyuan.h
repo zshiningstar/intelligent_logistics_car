@@ -73,6 +73,24 @@ struct pkgRS422_t
 	int gps_state;
 });
 
+//enum GpsState 
+//{
+//	NONE = 0, 
+//	FIXEDPOS = 1, 
+//	FIXEDHEIGHT = 2, 
+//	DOPPLER_VELOCITY = 8, 
+//	SINGLE = 16,
+//	PSRDIFF = 17,
+//	SBAS = 18,
+//	L1_FLOAT = 32,
+//	IONOFREE_FLOAT = 33,
+//	NARROW_FLOAT = 34,
+//	L1_INT = 48,
+//	WIDE_INT = 49,
+//	NARROW_INT = 50
+//};
+
+
 double deg2rad(const double& deg)
 {
 	return deg*M_PI/180.0;
@@ -101,7 +119,7 @@ private:
 		for(size_t i=1; i<len; ++i)
 		{
 			sum = sum ^ buf[i];
-			//cout << hex << int(buf[i]) << " ";
+//			std::cout << std::hex << int(buf[i]) << std::endl;
 		}
 		return sum;
 	}

@@ -53,12 +53,26 @@
 		<param name="sample_distance" value="0.1" />
 		<param name="utm_topic" value="/ll2utm_odom" />
 	</node>
-	
+	<!-- 
 	<node name="nuogeng_node" pkg="nuogeng" type="nuogeng_node" output="screen">
-		<param name="port_name" value="/dev/ttyUSB0"/>
+		<param name="port_name" value="/dev/ttyUSB2"/>
+		<param name="is_ll2utm" value="true"/>
+		<param name="odom_topic" value="/ll2utm_odom"/>
+		<param name="parent_frame_id" value="world"/>
+		<param name="child_frame_id" value="gps"/>
+		<param name="pub_odom" value="true"/>
+		<param name="pub_tf" value="false"/>
+		
+	</node>
+	-->
+	<node name="daoyuan" pkg="daoyuan" type="daoyuan" output="screen">
+		<param name="port_name" value="$(arg gps_port)"/>
+		<param name="baudrate" value="230400"/>
 		<param name="is_ll2utm" value="true"/>
 		<param name="odom_topic" value="/ll2utm_odom"/>
 		<param name="pub_odom" value="true"/>
+		
+		
 	</node>
 	
 

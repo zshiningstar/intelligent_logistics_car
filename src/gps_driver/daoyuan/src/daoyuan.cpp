@@ -60,7 +60,7 @@ bool Daoyuan::init()
 	m_pub_ll2utm = nh.advertise<nav_msgs::Odometry>(nh_private.param<std::string>("odom_topic","/odom"),1);
 	
 	nh_private.param<std::string>("parent_frame_id", m_parent_frame_id, "world");
-	nh_private.param<std::string>("child_frame_id", m_child_frame_id, "world");
+	nh_private.param<std::string>("child_frame_id", m_child_frame_id, "gps");
 	
 	nh_private.param<bool>("pub_odom", m_is_pub_ll2utm, false);
 	
@@ -82,6 +82,7 @@ void Daoyuan::startReading()
 
 void Daoyuan::readSerialThread()
 {
+	//std::cout << 11111111111 << std::endl;
 	m_reading_status = true;
 	const int Max_read_size = 200;
 	uint8_t * const raw_data_buf = new uint8_t[Max_read_size];
@@ -132,6 +133,7 @@ void Daoyuan::parseIncomingData(uint8_t* buffer,size_t len)
 		{
 			if(0xBD == buffer[i])
 				pkg_buffer[pkg_buffer_index++] = buffer[i];
+				//std::cout << 22222222222 << std::endl;
 		}
 		
 		else if(1 == pkg_buffer_index)
@@ -139,16 +141,18 @@ void Daoyuan::parseIncomingData(uint8_t* buffer,size_t len)
 			if(0xDB == buffer[i])
 			{
 				pkg_buffer[pkg_buffer_index++] = buffer[i];
+				//std::cout << 333333333333 << std::endl;
 			}
 			else
 				pkg_buffer_index = 0;
 		}
 		
-		else if(2 == pkg_buffer_index)
+		else if(2 == pkg_buffer_index)   //BD DB  0B
 		{
 			if(0x0B == buffer[i])
 			{
 				pkg_buffer[pkg_buffer_index++] = buffer[i];
+				//std::cout << 444444444444 << std::endl;
 			}
 			else
 				pkg_buffer_index = 0;
@@ -157,13 +161,22 @@ void Daoyuan::parseIncomingData(uint8_t* buffer,size_t len)
 		else
 		{
 			pkg_buffer[pkg_buffer_index++] = buffer[i];
-			if(pkg_buffer_index == 62)
+//			if(pkg_buffer_index == 40)
+//			{
+//				for(int n = 40;n <= 45;n++)
+//					pkg_buffer[pkg_buffer_index++] = 0;
+//			}
+//			if(pkg_buffer_index == 46)
+//				pkg_buffer[pkg_buffer_index++] = buffer[i];
+			if(pkg_buffer_index == 63)
 			{
-				pkg_len1 = 63;
-				pkg_len2 = 58;
+				pkg_len1 = 61;
+				pkg_len2 = 56;
 				
-				XOR1 = (XOR(pkg_buffer,pkg_len2) == pkg_buffer[57]) ? 1 : 0;
-				XOR2 = (XOR(pkg_buffer,pkg_len1) == pkg_buffer[62]) ? 1 : 0;
+				XOR1 = (XOR(pkg_buffer,57) == pkg_buffer[57]) ? 1 : 0;
+				XOR2 = (XOR(pkg_buffer,62) == pkg_buffer[62]) ? 1 : 0;
+				
+				//std::cout << std::hex << int(pkg_buffer[57])  << "\t"   <<  int(pkg_buffer[62])  << std::endl;
 				
 				if(XOR1 && XOR2)
 				{
@@ -171,8 +184,9 @@ void Daoyuan::parseIncomingData(uint8_t* buffer,size_t len)
 				
 				}
 				else
-					continue;
-				
+					ROS_ERROR("check failed.");
+
+				pkg_buffer_index = 0;
 			}
 			
 		}
@@ -187,7 +201,40 @@ void Daoyuan::parse(const uint8_t* buffer)
 	m_inspax.header.stamp = ros::Time::now();
 	m_inspax.header.frame_id = "gps";
 	
-	m_inspax.roll				 = complement(buffer[3] + buffer[4] * 256, coefficient1);
+	m_inspax.roll = *(int16_t*)(buffer+3) * coefficient1;
+	m_inspax.pitch = *(int16_t*)(buffer+5) * coefficient1;
+	m_inspax.azimuth = *(int16_t*)(buffer+7) * coefficient1;
+	
+	m_inspax.top_velocity_x = *(int16_t*)(buffer+9) * coefficient2;
+	m_inspax.top_velocity_y =  *(int16_t*)(buffer+11) * coefficient2;
+	m_inspax.top_velocity_z =  *(int16_t*)(buffer+13) * coefficient2;
+	
+	m_inspax.table_x = *(int16_t*)(buffer+15) * coefficient3;
+	m_inspax.table_y =  *(int16_t*)(buffer+17) * coefficient3;
+	m_inspax.table_z = *(int16_t*)(buffer+19) * coefficient3;
+	
+	m_inspax.latitude = *(int32_t*)(buffer+21) * coefficient4;
+	m_inspax.longitude = *(int32_t*)(buffer+25) * coefficient4;
+	m_inspax.height = *(int32_t*)(buffer+29) * coefficient5;
+	
+	m_inspax.north_velocity =  *(int16_t*)(buffer+33) * coefficient6;
+	m_inspax.east_velocity =  *(int16_t*)(buffer+35) * coefficient6;
+	m_inspax.down_velocity =  *(int16_t*)(buffer+37) * coefficient6;
+	
+	m_inspax.gps_state = *(buffer+37);
+	
+	int16_t wheel_data1 = *(int16_t*)(buffer+46);
+	int16_t wheel_data2 = *(int16_t*)(buffer+48);
+	int16_t wheel_data3 = *(int16_t*)(buffer+50);
+	
+	m_inspax.gps_time = *(uint32_t*)(buffer+52);
+	
+	m_inspax.rotation_type = buffer[56];
+	
+	m_inspax.gps_zhou = *(uint32_t*)(buffer+58);
+	
+	/*
+	//m_inspax.roll				 = complement(buffer[3] + buffer[4] * 256, coefficient1);
 	m_inspax.pitch 				 = complement(buffer[5] + buffer[6] * 256, coefficient1);
 	m_inspax.azimuth 			 = complement(buffer[7] + buffer[8] * 256, coefficient1);
 	
@@ -209,46 +256,93 @@ void Daoyuan::parse(const uint8_t* buffer)
 	
 	m_inspax.gps_state 		     = complement(buffer[39], coefficient7);
 	
-	m_inspax.wheel_data1		 = complement(buffer[46] + buffer[47] * 256, coefficient7);
-	m_inspax.wheel_data1		 = complement(buffer[48] + buffer[49] * 256, coefficient7);
-	m_inspax.wheel_data1		 = complement(buffer[50] + buffer[51] * 256, coefficient7);
+	int16_t wheel_data1		 = complement(buffer[46] + buffer[47] * 256, coefficient7);
+	int16_t wheel_data1		 = complement(buffer[48] + buffer[49] * 256, coefficient7);
+	int16_t wheel_data1		 = complement(buffer[50] + buffer[51] * 256, coefficient7);
 	
 	m_inspax.gps_time			 = complement(buffer[52] + buffer[53] * 256 + buffer[54] * 256 *256 + buffer[55] * 256 * 256 * 256, coefficient8);
 	m_inspax.rotation_type       = buffer[56];
 	
 	m_inspax.gps_zhou            = complement(buffer[58] + buffer[59] * 256 + buffer[60] * 256 *256 + buffer[61] * 256 * 256 * 256, coefficient7);
+	*/
 	
+	if(m_inspax.gps_state != 0x0f)
+		m_inspax.Initializing_State = 0;
+	else 
+		m_inspax.Initializing_State = 1;
+	m_pub_rs422.publish(m_inspax);  // 发布原始解析程序
 	
-	if(m_inspax.gps_state == 0xf0)
-		m_pub_rs422.publish(m_inspax);  // 发布原始解析程序
-		
-	switch(buffer[56])
+	uint8_t wheel_type = buffer[56];
+	
+	switch(wheel_type)
 	{	
-		case 0x0:
-			m_wheel.latstd 			= pow(NATURE,m_inspax.wheel_data1 / 100);
-			m_wheel.lonstd 			= pow(NATURE,m_inspax.wheel_data2 / 100);
-			m_wheel.hstd 			= pow(NATURE,m_inspax.wheel_data3 / 100);
+		case 0: //
+			m_wheel.latstd 			= pow(NATURE, wheel_data1 / 100.0);
+			m_wheel.lonstd 			= pow(NATURE, wheel_data2 / 100.0);
+			m_wheel.hstd 			= pow(NATURE, wheel_data3 / 100.0);
 			break;
-		case 0x01:
-			m_wheel.vn_std 			= pow(NATURE,m_inspax.wheel_data1 / 100);
-			m_wheel.ve_std 			= pow(NATURE,m_inspax.wheel_data2 / 100);
-			m_wheel.vd_std 			= pow(NATURE,m_inspax.wheel_data3 / 100);
+		case 1:
+			m_wheel.vn_std 			= pow(NATURE, wheel_data1 / 100.0);
+			m_wheel.ve_std 			= pow(NATURE, wheel_data2 / 100.0);
+			m_wheel.vd_std 			= pow(NATURE, wheel_data3 / 100.0);
 			break;
-		case 0x02:
-			m_wheel.rollstd 		= pow(NATURE,m_inspax.wheel_data1 / 100);
-			m_wheel.pitchstd 		= pow(NATURE,m_inspax.wheel_data2 / 100);
-			m_wheel.yawstd 			= pow(NATURE,m_inspax.wheel_data3 / 100);
+		case 2:
+			m_wheel.rollstd 		= pow(NATURE, wheel_data1 / 100.0);
+			m_wheel.pitchstd 		= pow(NATURE, wheel_data2 / 100.0);
+			m_wheel.yawstd 			= pow(NATURE, wheel_data3 / 100.0);
 			break;
-		case 0x22:
-			m_wheel.temperature 	= m_inspax.wheel_data1 * 200 / 32768;
+		case 22:
+			m_wheel.temperature 	= wheel_data1 * 200.0 / 32768;
 			break;
-		case 0x32:
-			m_wheel.num_satellites	= m_inspax.wheel_data2;
-			break;
-		case 0x33:
-			m_wheel.is_wheel_speed  = m_inspax.wheel_data2;
+		case 32:
+		{	
+			m_wheel.num_satellites	= wheel_data2;
+			switch (wheel_data1)
+			{
+				case 0:
+					m_wheel.gps_location_state = "NONE";
+					break;
+				case 1:
+					m_wheel.gps_location_state = "FIXEDPOS";
+					break;
+				case 2:
+					m_wheel.gps_location_state = "FIXEDHEIGHT";
+					break;
+				case 8:
+					m_wheel.gps_location_state = "SINGLE";
+					break;
+				case 16:
+					m_wheel.gps_location_state = "DOPPLER_VELOCITY";
+					break;
+				case 17:
+					m_wheel.gps_location_state = "PSRDIFF";
+					break;
+				case 18:
+					m_wheel.gps_location_state = "SBAS";
+					break;
+				case 32:
+					m_wheel.gps_location_state = "L1_FLOAT";
+					break;
+				case 33:
+					m_wheel.gps_location_state = "IONOFREE_FLOAT";
+					break;
+				case 34:
+					m_wheel.gps_location_state = "NARROW_FLOAT";
+					break;
+				case 48:
+					m_wheel.gps_location_state = "L1_INT";
+					break;
+				case 49:
+					m_wheel.gps_location_state = "WIDE_INT";
+					break;
+				case 50:
+					m_wheel.gps_location_state = "NARROW_INT";
+					break;
+			}
+		}
+		case 33:
+			m_wheel.is_wheel_speed  = wheel_data2;
 			break; 
-		
 	}
 	
 	m_pub_wheel.publish(m_wheel);     // 发布轮循信息
