@@ -1,9 +1,4 @@
-#include<iostream>
 #include"daoyuan/daoyuan.h"
-#include <geodesy/utm.h>
-#include <geodesy/wgs84.h>
-#include <geographic_msgs/GeoPoint.h>
-#include <Eigen/Dense>
 
 Daoyuan::Daoyuan():
 	m_reading_status(false),
@@ -63,7 +58,6 @@ bool Daoyuan::init()
 	nh_private.param<std::string>("child_frame_id", m_child_frame_id, "gps");
 	
 	nh_private.param<bool>("pub_odom", m_is_pub_ll2utm, false);
-	
 	nh_private.param<bool>("pub_tf", m_is_pub_tf, true);
 	
 	std::string port_name = nh_private.param<std::string>("port_name","/dev/ttyUSB0");
@@ -82,7 +76,6 @@ void Daoyuan::startReading()
 
 void Daoyuan::readSerialThread()
 {
-	//std::cout << 11111111111 << std::endl;
 	m_reading_status = true;
 	const int Max_read_size = 200;
 	uint8_t * const raw_data_buf = new uint8_t[Max_read_size];
@@ -133,7 +126,6 @@ void Daoyuan::parseIncomingData(uint8_t* buffer,size_t len)
 		{
 			if(0xBD == buffer[i])
 				pkg_buffer[pkg_buffer_index++] = buffer[i];
-				//std::cout << 22222222222 << std::endl;
 		}
 		
 		else if(1 == pkg_buffer_index)
@@ -141,7 +133,6 @@ void Daoyuan::parseIncomingData(uint8_t* buffer,size_t len)
 			if(0xDB == buffer[i])
 			{
 				pkg_buffer[pkg_buffer_index++] = buffer[i];
-				//std::cout << 333333333333 << std::endl;
 			}
 			else
 				pkg_buffer_index = 0;
@@ -152,7 +143,6 @@ void Daoyuan::parseIncomingData(uint8_t* buffer,size_t len)
 			if(0x0B == buffer[i])
 			{
 				pkg_buffer[pkg_buffer_index++] = buffer[i];
-				//std::cout << 444444444444 << std::endl;
 			}
 			else
 				pkg_buffer_index = 0;
@@ -160,37 +150,25 @@ void Daoyuan::parseIncomingData(uint8_t* buffer,size_t len)
 		
 		else
 		{
-			pkg_buffer[pkg_buffer_index++] = buffer[i];
-//			if(pkg_buffer_index == 40)
-//			{
-//				for(int n = 40;n <= 45;n++)
-//					pkg_buffer[pkg_buffer_index++] = 0;
-//			}
-//			if(pkg_buffer_index == 46)
-//				pkg_buffer[pkg_buffer_index++] = buffer[i];
+			pkg_buffer[pkg_buffer_index++] = buffer[i];  //  ++ ->63
+			
 			if(pkg_buffer_index == 63)
 			{
-				pkg_len1 = 61;
-				pkg_len2 = 56;
-				
-				XOR1 = (XOR(pkg_buffer,57) == pkg_buffer[57]) ? 1 : 0;
-				XOR2 = (XOR(pkg_buffer,62) == pkg_buffer[62]) ? 1 : 0;
-				
+				XOR1 = (XOR(pkg_buffer,57) == pkg_buffer[57]) ? 1 : 0;   //check 0~56
+				XOR2 = (XOR(pkg_buffer,62) == pkg_buffer[62]) ? 1 : 0;   //check 0~61
 				//std::cout << std::hex << int(pkg_buffer[57])  << "\t"   <<  int(pkg_buffer[62])  << std::endl;
 				
 				if(XOR1 && XOR2)
 				{
 					parse(pkg_buffer);
-				
 				}
 				else
 					ROS_ERROR("check failed.");
 
-				pkg_buffer_index = 0;
+				pkg_buffer_index = 0;   //recovery
 			}
 			
 		}
-			
 	}
 }
 
@@ -205,13 +183,13 @@ void Daoyuan::parse(const uint8_t* buffer)
 	m_inspax.pitch = *(int16_t*)(buffer+5) * coefficient1;
 	m_inspax.azimuth = *(int16_t*)(buffer+7) * coefficient1;
 	
-	m_inspax.top_velocity_x = *(int16_t*)(buffer+9) * coefficient2;
-	m_inspax.top_velocity_y =  *(int16_t*)(buffer+11) * coefficient2;
-	m_inspax.top_velocity_z =  *(int16_t*)(buffer+13) * coefficient2;
+	m_inspax.gyroscope_velocity_x = *(int16_t*)(buffer+9) * coefficient2;
+	m_inspax.gyroscope_velocity_y =  *(int16_t*)(buffer+11) * coefficient2;
+	m_inspax.gyroscope_velocity_z =  *(int16_t*)(buffer+13) * coefficient2;
 	
-	m_inspax.table_x = *(int16_t*)(buffer+15) * coefficient3;
-	m_inspax.table_y =  *(int16_t*)(buffer+17) * coefficient3;
-	m_inspax.table_z = *(int16_t*)(buffer+19) * coefficient3;
+	m_inspax.accelerator_x = *(int16_t*)(buffer+15) * coefficient3;
+	m_inspax.accelerator_y =  *(int16_t*)(buffer+17) * coefficient3;
+	m_inspax.accelerator_z = *(int16_t*)(buffer+19) * coefficient3;
 	
 	m_inspax.latitude = *(int32_t*)(buffer+21) * coefficient4;
 	m_inspax.longitude = *(int32_t*)(buffer+25) * coefficient4;
@@ -227,24 +205,22 @@ void Daoyuan::parse(const uint8_t* buffer)
 	int16_t wheel_data2 = *(int16_t*)(buffer+48);
 	int16_t wheel_data3 = *(int16_t*)(buffer+50);
 	
-	m_inspax.gps_time = *(uint32_t*)(buffer+52);
-	
+	m_inspax.gps_time = *(uint32_t*)(buffer+52) * coefficient7;
 	m_inspax.rotation_type = buffer[56];
-	
-	m_inspax.gps_zhou = *(uint32_t*)(buffer+58);
+	m_inspax.gps_week = *(uint32_t*)(buffer+58);
 	
 	/*
 	//m_inspax.roll				 = complement(buffer[3] + buffer[4] * 256, coefficient1);
 	m_inspax.pitch 				 = complement(buffer[5] + buffer[6] * 256, coefficient1);
 	m_inspax.azimuth 			 = complement(buffer[7] + buffer[8] * 256, coefficient1);
 	
-	m_inspax.top_velocity_x 	 = complement(buffer[9] + buffer[10] * 256, coefficient2);
-	m_inspax.top_velocity_y 	 = complement(buffer[11] + buffer[12] * 256, coefficient2);
-	m_inspax.top_velocity_z 	 = complement(buffer[13] + buffer[14] * 256, coefficient2);
+	m_inspax.gyroscope_velocity_x 	 = complement(buffer[9] + buffer[10] * 256, coefficient2);
+	m_inspax.gyroscope_velocity_y 	 = complement(buffer[11] + buffer[12] * 256, coefficient2);
+	m_inspax.gyroscope_velocity_z 	 = complement(buffer[13] + buffer[14] * 256, coefficient2);
 	
-	m_inspax.table_x 			 = complement(buffer[15] + buffer[16] * 256, coefficient3);
-	m_inspax.table_y 	 		 = complement(buffer[17] + buffer[18] * 256, coefficient3);
-	m_inspax.table_z 			 = complement(buffer[19] + buffer[20] * 256, coefficient3);
+	m_inspax.accelerator_x 			 = complement(buffer[15] + buffer[16] * 256, coefficient3);
+	m_inspax.accelerator_y 	 		 = complement(buffer[17] + buffer[18] * 256, coefficient3);
+	m_inspax.accelerator_z 			 = complement(buffer[19] + buffer[20] * 256, coefficient3);
 	
 	m_inspax.latitude 			 = complement(buffer[21] + buffer[22] * 256 + buffer[23] * 256 *256 + buffer[24] * 256 * 256 * 256, coefficient4);
 	m_inspax.longitude			 = complement(buffer[25] + buffer[26] * 256 + buffer[27] * 256 *256 + buffer[28] * 256 * 256 * 256, coefficient4);
@@ -256,21 +232,25 @@ void Daoyuan::parse(const uint8_t* buffer)
 	
 	m_inspax.gps_state 		     = complement(buffer[39], coefficient7);
 	
-	int16_t wheel_data1		 = complement(buffer[46] + buffer[47] * 256, coefficient7);
-	int16_t wheel_data1		 = complement(buffer[48] + buffer[49] * 256, coefficient7);
-	int16_t wheel_data1		 = complement(buffer[50] + buffer[51] * 256, coefficient7);
+	int16_t wheel_data1		     = complement(buffer[46] + buffer[47] * 256, coefficient7);
+	int16_t wheel_data1		     = complement(buffer[48] + buffer[49] * 256, coefficient7);
+	int16_t wheel_data1		     = complement(buffer[50] + buffer[51] * 256, coefficient7);
 	
 	m_inspax.gps_time			 = complement(buffer[52] + buffer[53] * 256 + buffer[54] * 256 *256 + buffer[55] * 256 * 256 * 256, coefficient8);
 	m_inspax.rotation_type       = buffer[56];
 	
-	m_inspax.gps_zhou            = complement(buffer[58] + buffer[59] * 256 + buffer[60] * 256 *256 + buffer[61] * 256 * 256 * 256, coefficient7);
+	m_inspax.gps_week            = complement(buffer[58] + buffer[59] * 256 + buffer[60] * 256 *256 + buffer[61] * 256 * 256 * 256, coefficient7);
 	*/
-	
+	float latitude = m_inspax.latitude;
+	float longitude = m_inspax.longitude;
 	if(m_inspax.gps_state != 0x0f)
 		m_inspax.Initializing_State = 0;
 	else 
 		m_inspax.Initializing_State = 1;
-	m_pub_rs422.publish(m_inspax);  // 发布原始解析程序
+	if((fabs(latitude) <=3) && (fabs(longitude) <=3))
+		return;
+	else
+		m_pub_rs422.publish(m_inspax);  // 发布原始解析程序
 	
 	uint8_t wheel_type = buffer[56];
 	

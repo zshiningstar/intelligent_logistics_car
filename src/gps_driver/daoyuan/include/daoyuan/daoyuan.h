@@ -1,6 +1,11 @@
 #ifndef DAOYUAN_H_
 #define DAOYUAN_H_
 #include<iostream>
+#include<iostream>
+#include<geodesy/utm.h>
+#include<geodesy/wgs84.h>
+#include<geographic_msgs/GeoPoint.h>
+#include<Eigen/Dense>
 #include<ros/ros.h>
 #include<cmath>
 #include<serial/serial.h>
@@ -20,8 +25,7 @@
 #define coefficient4  0.0000001
 #define coefficient5  0.001
 #define coefficient6  0.0030517578125
-#define coefficient7  0
-#define coefficient8  0.25
+#define coefficient7  0.25
 #define NATURE        2.718281
 
 #define PACK( __Declaration__ ) __Declaration__ __attribute__((__packed__))
@@ -53,12 +57,6 @@ struct pkgRS422_t
 	float north_velocity;
 	float east_velocity;
 	float down_velocity;
-	
-//	int pose_state:1;
-//	int velocity_state:1;
-//	int gesture_state:1;
-//	int azimuth_state:1;
-//	int blank:4;            		    // not use
 	
 	float wheel_data1;
 	float wheel_data2;	
@@ -119,20 +117,18 @@ private:
 		for(size_t i=1; i<len; ++i)
 		{
 			sum = sum ^ buf[i];
-//			std::cout << std::hex << int(buf[i]) << std::endl;
 		}
 		return sum;
 	}
-	float complement(int buf, float a)
-	{
-		int buf_num = 0;
-		double value = 0;
-		buf_num = *((int*)(&buf));
-		value = (double)buf_num * a;
-		
-		return value;
-	}
-	
+//	float complement(int buf, float a)
+//	{
+//		int buf_num = 0;
+//		double value = 0;
+//		buf_num = *((int*)(&buf));
+//		value = (double)buf_num * a;
+//		
+//		return value;
+//	}
 	
 private:
 	ros::Publisher m_pub_rs422;
