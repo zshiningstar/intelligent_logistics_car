@@ -248,7 +248,11 @@ void Daoyuan::parse(const uint8_t* buffer)
 	else 
 		m_inspax.Initializing_State = 1;
 	if((fabs(latitude) <=3) && (fabs(longitude) <=3))
+	{	
+		std::cout << "roll:" << m_inspax.roll << "\t" << "pitch:" << m_inspax.pitch << "\t" << "azimuth:" << m_inspax.azimuth << std::endl;
+		std::cout << "latitude:" << latitude << "\t" << "longitude:" << longitude << std::endl;
 		return;
+	}
 	else
 		m_pub_rs422.publish(m_inspax);  // 发布原始解析程序
 	
