@@ -375,7 +375,7 @@ void PathTracking::run()
 		float goal_angle = theta_true_ + sign * omega_ * dt ;
         
 	    car_goal.goal_speed = goal_speed;
-		car_goal.goal_angle = goal_angle ;
+		car_goal.goal_angle = goal_angle * 1.3;
 		theta_true_ = goal_angle;
 		
 		if(i%20==0)

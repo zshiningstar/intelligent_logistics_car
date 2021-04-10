@@ -19,7 +19,7 @@
 		
 		<param name="omega" value="10.0"/>		
 		<param name="steer_clearance" value = "0.8"/>  		<!-- 转向间隙 -->
-		<param name="steer_offset" value = "0.5"/>     		<!-- 转角补偿 -->
+		<param name="steer_offset" value = "-1"/>     		<!-- 转角补偿 -->
 		<param name="Ki" value = "0.5"/>			   		<!-- PID-I -->
 		<param name="tolerate_laterror" value = "0.05"/>	<!-- 容忍横向偏差 -->
 		<param name="speed" value="$(arg max_speed)"/>
