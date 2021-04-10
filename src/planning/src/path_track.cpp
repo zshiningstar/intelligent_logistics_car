@@ -207,7 +207,7 @@ bool PathTracking::init(ros::NodeHandle nh,ros::NodeHandle nh_private)
 		sleep(1);
 	}
 	
-	                                                     target_point_index_ = findNearestPoint(path_points_,current_point_);                      
+	target_point_index_ = findNearestPoint(path_points_,current_point_);                      
 //	std::cout << target_point_index_ << " / "  << path_points_.size() << std::endl;
 	if(target_point_index_ > path_points_.size() - 10)
 	{
