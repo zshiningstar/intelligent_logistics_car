@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>619</width>
-    <height>341</height>
+    <height>425</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -21,7 +21,7 @@
     <property name="geometry">
      <rect>
       <x>430</x>
-      <y>40</y>
+      <y>130</y>
       <width>161</width>
       <height>61</height>
      </rect>
@@ -77,8 +77,8 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>230</x>
-      <y>40</y>
+      <x>30</x>
+      <y>210</y>
       <width>161</width>
       <height>61</height>
      </rect>
@@ -99,8 +99,8 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>30</x>
-      <y>120</y>
+      <x>230</x>
+      <y>210</y>
       <width>161</width>
       <height>61</height>
      </rect>
@@ -112,7 +112,7 @@
      </sizepolicy>
     </property>
     <property name="text">
-     <string>track</string>
+     <string>forward</string>
     </property>
    </widget>
    <widget class="QPushButton" name="livox">
@@ -122,7 +122,7 @@
     <property name="geometry">
      <rect>
       <x>30</x>
-      <y>200</y>
+      <y>290</y>
       <width>161</width>
       <height>61</height>
      </rect>
@@ -144,7 +144,7 @@
     <property name="geometry">
      <rect>
       <x>430</x>
-      <y>200</y>
+      <y>290</y>
       <width>161</width>
       <height>61</height>
      </rect>
@@ -166,7 +166,7 @@
     <property name="geometry">
      <rect>
       <x>230</x>
-      <y>200</y>
+      <y>290</y>
       <width>161</width>
       <height>61</height>
      </rect>
@@ -187,8 +187,8 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>230</x>
-      <y>120</y>
+      <x>430</x>
+      <y>210</y>
       <width>161</width>
       <height>61</height>
      </rect>
@@ -200,7 +200,7 @@
      </sizepolicy>
     </property>
     <property name="text">
-     <string>back</string>
+     <string>backward</string>
     </property>
    </widget>
    <widget class="QPushButton" name="serial">
@@ -209,8 +209,8 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>430</x>
-      <y>120</y>
+      <x>230</x>
+      <y>130</y>
       <width>161</width>
       <height>61</height>
      </rect>
@@ -223,6 +223,72 @@
     </property>
     <property name="text">
      <string>serial</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="gps_topic">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>230</x>
+      <y>40</y>
+      <width>161</width>
+      <height>61</height>
+     </rect>
+    </property>
+    <property name="sizePolicy">
+     <sizepolicy hsizetype="Maximum" vsizetype="Minimum">
+      <horstretch>20</horstretch>
+      <verstretch>20</verstretch>
+     </sizepolicy>
+    </property>
+    <property name="text">
+     <string>/gps</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="gps_odom">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>430</x>
+      <y>40</y>
+      <width>161</width>
+      <height>61</height>
+     </rect>
+    </property>
+    <property name="sizePolicy">
+     <sizepolicy hsizetype="Maximum" vsizetype="Minimum">
+      <horstretch>20</horstretch>
+      <verstretch>20</verstretch>
+     </sizepolicy>
+    </property>
+    <property name="text">
+     <string>/odom</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="topic_list">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>130</y>
+      <width>161</width>
+      <height>61</height>
+     </rect>
+    </property>
+    <property name="sizePolicy">
+     <sizepolicy hsizetype="Maximum" vsizetype="Minimum">
+      <horstretch>20</horstretch>
+      <verstretch>20</verstretch>
+     </sizepolicy>
+    </property>
+    <property name="text">
+     <string>topic_list</string>
     </property>
    </widget>
   </widget>

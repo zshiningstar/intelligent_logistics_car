@@ -17,7 +17,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_gps_clicked()
 {
-    system("gnome-terminal -x bash -c 'source ~/logistics_ws/devel/setup.bash; roslaunch nuogeng driver.launch'&");
+    system("gnome-terminal -x bash -c 'source ~/logistics_ws/devel/setup.bash; roslaunch daoyuan ceshi.launch'&");
 }
 
 void MainWindow::on_record_clicked()
@@ -58,4 +58,19 @@ void MainWindow::on_serial_clicked()
 void MainWindow::on_plot_clicked()
 {
     system("gnome-terminal -x bash -c 'cd /home/nvidia/logistics_ws/src/recorder/data; python plot.py path.txt'&");
+}
+
+void MainWindow::on_gps_topic_clicked()
+{
+    system("gnome-terminal -x bash -c 'source ~/logistics_ws/devel/setup.bash; rostopic echo /gps'&");
+}
+
+void MainWindow::on_gps_odom_clicked()
+{
+    system("gnome-terminal -x bash -c 'source ~/logistics_ws/devel/setup.bash; rostopic echo /odom'&");
+}
+
+void MainWindow::on_topic_list_clicked()
+{
+    system("gnome-terminal -x bash -c 'source ~/logistics_ws/devel/setup.bash; rostopic list'&");
 }

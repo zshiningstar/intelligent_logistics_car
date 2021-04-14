@@ -34,6 +34,12 @@ private slots:
 
     void on_plot_clicked();
 
+    void on_gps_topic_clicked();
+
+    void on_gps_odom_clicked();
+
+    void on_topic_list_clicked();
+
 private:
     Ui::MainWindow *ui;
 };
