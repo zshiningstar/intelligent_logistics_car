@@ -36,10 +36,8 @@ public:
 	
 	bool is_gps_data_valid(gpsMsg_t& point);
 	void rosSpinThread(){ros::spin();}
-	
 private:
 	gpsMsg_t pointOffset(const gpsMsg_t& point,float offset);
-	
 private:
 	ros::Subscriber sub_utm_odom;
 	ros::Subscriber sub_gps;
@@ -48,31 +46,22 @@ private:
 	ros::Subscriber sub_is_object; //是否有障碍物闯入5m之内
 	ros::Subscriber sub_is_offset; //订阅offset
 	ros::Publisher pub_car_goal;
-	
 	boost::shared_ptr<boost::thread> rosSpin_thread_ptr_;
-	
 	std::string path_points_file_;
 	std::vector<gpsMsg_t> path_points_;
-	
 	gpsMsg_t current_point_, target_point_;
 	gps_msgs::Inspvax m_inspax;
-	
 	float min_foresight_distance_;
 	float disThreshold_;
-
 	float track_speed_;
 	float object_data;
-	
 	bool vehicle_speed_status_;
 	bool is_offset_;
 	bool is_back_;
-	
 	float vehicle_speed_;
 	float current_roadwheelAngle_;
-	
 	float safety_distance_front_;
 	float danger_distance_front_;
-	
 	float max_roadwheelAngle_;
 	float max_side_accel_;
 	bool is_avoiding_;
@@ -80,10 +69,8 @@ private:
 	// sumlateral_err_
 	float sumlateral_err_;
 	float yaw_err_;
-	
 	size_t target_point_index_;
 	size_t nearest_point_index_;
-	
 	float foreSightDis_speedCoefficient_;
 	float foreSightDis_latErrCoefficient_;
 	// I控制
@@ -94,16 +81,12 @@ private:
     float steer_offset_;
     float omega_;
     float theta_true_;
-	
 	float avoiding_offset_;
-	
 	double now;
 	double timeout;
 	int control_rate;
-	
 	logistics_msgs::GoalState car_goal;
 	logistics_msgs::RealState car_state;
-	
 	bool check_gps_;
 	bool is_inroom_;
 };
@@ -163,14 +146,10 @@ bool PathTracking::init(ros::NodeHandle nh,ros::NodeHandle nh_private)
 	
 	std::string car_state = nh_private.param<std::string>("car_state","/car_state");  
 //	sub_car_state = nh.subscribe(car_state,10,&PathTracking::car_state_callback, this);            
-	
 	pub_car_goal  = nh.advertise<logistics_msgs::GoalState>(nh_private.param<std::string>("car_goal","/car_goal"),10);           
 	timer_ = nh.createTimer(ros::Duration(0.01),&PathTracking::pub_car_goal_callback,this);         // 设置一个定时器每0.01秒发布一次
-	
-	
 	nh_private.param<std::string>("path_points_file",path_points_file_,"");
 	nh_private.param<float>("speed",track_speed_,1.0);
-
 	nh_private.param<float>("foreSightDis_speedCoefficient", foreSightDis_speedCoefficient_,1.8);    
 	nh_private.param<float>("foreSightDis_latErrCoefficient", foreSightDis_latErrCoefficient_,0.3); 
 	nh_private.param<float>("omega", omega_,5.0);  													// 转向角速度 PID-D
@@ -185,10 +164,8 @@ bool PathTracking::init(ros::NodeHandle nh,ros::NodeHandle nh_private)
 	nh_private.param<int>("control_rate",control_rate,30);        
 	nh_private.param<double>("timeout",timeout,0.3);     
 	nh_private.param<bool>("is_back",is_back_,false);   
-	
 	nh_private.param<bool>("check_gps", check_gps_, true);
 	nh_private.param<bool>("is_inroom", is_inroom_, true);
-	
 	if(path_points_file_.empty())
 	{
 		ROS_ERROR("no input path points file !!");
@@ -197,16 +174,13 @@ bool PathTracking::init(ros::NodeHandle nh,ros::NodeHandle nh_private)
 	
 	//start the ros::spin() thread
 	rosSpin_thread_ptr_ = boost::shared_ptr<boost::thread >(new boost::thread(boost::bind(&PathTracking::rosSpinThread, this)));
-	
 	ros::Duration(2.0).sleep();
-	
 	if(loadPathPoints(path_points_file_, path_points_))
 	{	
 		if(is_back_)
 			reverse(path_points_.begin(), path_points_.end());                                            
 	}
 	ROS_INFO("pathPoints size:%d",path_points_.size());
-	
 	while(check_gps_ &&ros::ok() && !is_gps_data_valid(current_point_))                                          // 判断是不是有效的gps数据
 	{
 		ROS_INFO("gps data is invalid, please check the gps topic or waiting...");
@@ -215,7 +189,6 @@ bool PathTracking::init(ros::NodeHandle nh,ros::NodeHandle nh_private)
 	
 	//for(int i=0; i<path_points_.size(); ++i)
 	//	std::cout << path_points_[i].x << "\t" << path_points_[i].y << std::endl;
-	
 	target_point_index_ = findNearestPoint(path_points_,current_point_);                      
 	std::cout << target_point_index_ << " / "  << path_points_.size() << std::endl;
 	if(target_point_index_ > path_points_.size() - 10)
@@ -223,17 +196,14 @@ bool PathTracking::init(ros::NodeHandle nh,ros::NodeHandle nh_private)
 		ROS_ERROR("target index:%d ?? file read over, No target point was found !!!",target_point_index_);
 		return false;
 	}
-	
 	while(!vehicle_speed_status_ && ros::ok())
 	{
 		ROS_INFO("waiting for vehicle speed data ok ...");
 		usleep(200000);
 	}
-	
 	target_point_ = path_points_[target_point_index_];
 	return true;
 }
-
 
 gpsMsg_t PathTracking::pointOffset(const gpsMsg_t& point,float offset)
 {
@@ -300,12 +270,10 @@ void PathTracking::gps_callback(const gps_msgs::Inspvax::ConstPtr& msg)
  
 void PathTracking::run()
 {
-
 	size_t i =0;
 	float dt = 1.0/control_rate;
 	ros::Rate loop_rate(control_rate);  //30Hz
 //	std::cout << target_point_index_ << " / "  << path_points_.size() << std::endl;
-
 	while(ros::ok() /*&& target_point_index_ < path_points_.size()-2*/)       
 	{
 //		if( avoiding_offset_ != 0.0)
@@ -328,7 +296,6 @@ void PathTracking::run()
 			ROS_INFO("%s",str);
 			break;
 		}
-		
 		 disThreshold_ = min_foresight_distance_ + 
 						 foreSightDis_speedCoefficient_ * vehicle_speed_ + 
 						 foreSightDis_latErrCoefficient_ * fabs(lateral_err_);
@@ -387,18 +354,14 @@ void PathTracking::run()
             if(fabs(now_break) > timeout)
                 object_data = 0;
         }
-        
         int sign = 1;
         if(t_roadWheelAngle > theta_true_) sign = 1;
         else if(t_roadWheelAngle < theta_true_) sign = -1;
         else sign = 0;
-        
 		float goal_angle = theta_true_ + sign * omega_ * dt ;
-        
 	    car_goal.goal_speed = goal_speed;
 		car_goal.goal_angle = goal_angle * 1.3;
 		theta_true_ = goal_angle;
-		
 		if(i%20==0)
 		{
 			ROS_INFO("min_r:%.3f\t max_speed:%.1f",1.0/max_curvature, max_speed);
@@ -412,10 +375,8 @@ void PathTracking::run()
 	}
 	
 	ROS_INFO("driverless completed...");
-	
 	car_goal.goal_angle = 0.0;
 	car_goal.goal_speed = 0.0;
-	
 	while(ros::ok())
 	{
 		sleep(1);
@@ -469,7 +430,6 @@ void PathTracking::is_object_callback(const std_msgs::Float32::ConstPtr& msg)
 //	vehicle_speed_ = car_state.real_speed; //  km/h
 
 //}
-
 
 int main(int argc,char**argv)
 {
