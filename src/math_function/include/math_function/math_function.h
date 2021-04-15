@@ -1,56 +1,117 @@
-#include "ant_math/ant_math.h"
+#ifndef MATH_H_
+#define MATH_H_
+
+#include<cstring>
+#include<cmath>
+#include<assert.h>
+#include<string>
+#include<vector>
+#include<cstdio>
+#include<ros/ros.h>
+#include<limits.h>
+#include<exception>
+#include<fstream>
 
 #define MAX_ROAD_WHEEL_ANGLE 25.0
+#define IS_POLAR_COORDINATE_GPS 0
+
+#define WHEEL_DISTANCE  1.2
+#define AXIS_DISTANCE 0.88  // 轴距
+#define MAX_SPEED 30.0
 
 const float g_vehicle_width = 1 ;// m
 const float g_vehicle_length = 1.5; 
-
 const float g_max_deceleration = 5.0; // m/s/s
-
 static const float max_side_acceleration = 1.5; // m/s/s
 
-
-
-float limitRoadwheelAngleBySpeed(const float& angle, const float& speed)
+enum
 {
-	float min_steering_radius = speed*speed/max_side_acceleration;
-	if(min_steering_radius <3.0)  //radius = 3.0 -> steeringAngle = 30.0
-		min_steering_radius = 3.0;
+	TrafficSign_None = 0,
+	TrafficSign_TrafficLight =1,
+	TrafficSign_Avoid = 2,
+	TrafficSign_TurnLeft = 3,
+	TrafficSign_CarFollow = 4,//?
+	TrafficSign_LaneNarrow = 5,
+	TrafficSign_IllegalPedestrian = 6,
+	TrafficSign_NoTrafficLight = 7,
+	TrafficSign_PickUp = 8,
+	TrafficSign_Ambulance = 9,//?
+	TrafficSign_Railway = 10,
+	TrafficSign_TempStop = 11,//?
+	TrafficSign_UTurn = 12,
+	TrafficSign_School = 13,
+	TrafficSign_AvoidStartingCar = 14,
+	TrafficSign_OffDutyPerson = 15,
+	TrafficSign_Bridge = 16,
+	TrafficSign_AccidentArea = 17,
+	TrafficSign_JamArea = 18,
+	TrafficSign_BusStop = 19,
+	TrafficSign_NonVehicle = 20,
+	TrafficSign_StopArea = 21, //?
 	
-	float max_roadwheelAngle = fabs(generateRoadwheelAngleByRadius(min_steering_radius));
-	if(max_roadwheelAngle > MAX_ROAD_WHEEL_ANGLE - 5.0)
-	   max_roadwheelAngle = MAX_ROAD_WHEEL_ANGLE -5.0;
-	//ROS_INFO("max_angle:%f\t angle:%f",max_roadwheelAngle,angle);
-	return saturationEqual(angle,max_roadwheelAngle);
+	TrafficSign_CloseTurnLight = 22,
+	TrafficSign_TurnRight = 23,
+	TrafficSign_Stop = 24,
+};
+
+typedef struct
+{
+	double longitude;
+	double latitude;
+	double yaw;
+	double x;
+	double y;
+	float curvature;
+	
+	float maxOffset_left;
+	float maxOffset_right;
+	uint8_t traffic_sign;
+	uint8_t other_info;
+	
+	void show()
+	{
+		std::cout << std::fixed << x << "\t" << y << "\t" << yaw*180.0/M_PI << std::endl;
+	}
+	
+}gpsMsg_t;
+
+extern const float g_vehicle_width;
+extern const float g_vehicle_length;
+extern const float g_max_deceleration;
+
+inline float saturationEqual(float value,float limit)
+{
+	//ROS_INFO("value:%f\t limit:%f",value,limit);
+	assert(limit>=0);
+	if(value>limit)
+		value = limit;
+	else if(value < -limit)
+		value = -limit;
+	return value;
 }
 
-float limitSpeedByCurrentRoadwheelAngle(float speed,float angle)
+inline float generateRoadwheelAngleByRadius(const float& radius)
 {
-	float steering_radius = fabs(AXIS_DISTANCE/tan(angle*M_PI/180.0));
-	float max_speed =  sqrt(steering_radius*max_side_acceleration);
-	
-	return speed>max_speed? max_speed: speed;
+	assert(radius!=0);
+	//return asin(AXIS_DISTANCE /radius)*180/M_PI;  //the angle larger
+	return atan(AXIS_DISTANCE/radius)*180/M_PI;    //correct algorithm 
+}
+
+inline double sinDeg(const double& deg)
+{
+	return sin(deg*M_PI/180.0);
 }
 
 
-//bool loadPathPoints(std::string file_path,std::vector<gpsMsg_t>& points)
-//{
-//	FILE *fp = fopen(file_path.c_str(),"r");
-//	if(fp==NULL)
-//	{
-//		ROS_ERROR("open %s failed",file_path.c_str());
-//		return false;
-//	}
-//	gpsMsg_t point;
-//	while(!feof(fp))
-//	{
-//		fscanf(fp,"%lf\t%lf\t%lf\t%f\n",&point.x,&point.y,&point.yaw,&point.curvature);
-//		points.push_back(point);
-//	}
-//	fclose(fp);
-//	return true;
-//}
+inline int sign(float num)
+{
+	return num > 0? 1 : -1;
+}
 
+inline float deg2rad(float deg)
+{
+	return  (deg/180.0)*M_PI;
+}
 
 bool loadPathPoints(std::string file_path,std::vector<gpsMsg_t>& points)
 {
@@ -75,7 +136,6 @@ bool loadPathPoints(std::string file_path,std::vector<gpsMsg_t>& points)
 	return true;
 }
 
-
 float dis2Points(const gpsMsg_t& point1, const gpsMsg_t& point2,bool is_sqrt)
 {
 	float x = point1.x - point2.x;
@@ -85,7 +145,6 @@ float dis2Points(const gpsMsg_t& point1, const gpsMsg_t& point2,bool is_sqrt)
 		return sqrt(x*x +y*y);
 	return x*x+y*y;
 }
-
 
 size_t findNearestPoint(const std::vector<gpsMsg_t>& path_points, const gpsMsg_t& current_point)
 {
@@ -110,6 +169,14 @@ size_t findNearestPoint(const std::vector<gpsMsg_t>& path_points, const gpsMsg_t
 	}
 		
 	return index;
+}
+
+float disBetweenPoints(const gpsMsg_t& point1, const gpsMsg_t& point2)
+{
+	float x = point1.x - point2.x;
+	float y = point1.y - point2.y;
+	
+	return sqrt(x*x+y*y);
 }
 
 float calculateDis2path(const double& X_,const double& Y_,
@@ -232,17 +299,64 @@ float calculateDis2path(const double& X_,const double& Y_,
 	return x;
 }
 
-
-float limitSpeedByPathCurvature(const float& speed,const float& curvature)
+std::pair<float, float> get_dis_yaw(gpsMsg_t &target,gpsMsg_t &current)
 {
-	if(curvature == 0.0)
-		return speed;
+	float x = target.x - current.x;
+	float y = target.y - current.y;
 	
-	float max_speed =  sqrt(1.0/fabs(curvature)*max_side_acceleration) *3.6;
-	return speed>max_speed? max_speed: speed;
+	std::pair<float, float> dis_yaw;
+	dis_yaw.first = sqrt(x * x + y * y);
+	dis_yaw.second = atan2(y,x);
+	
+	if(dis_yaw.second <0)
+		dis_yaw.second += 2*M_PI;
+	
+	//std::cout << "dx dy: " << x << "\t" << y << std::endl;
+	//std::cout <<"(" << target.x << "," << target.y << ")\t(" << current.x << "," << current.y << ")" << std::endl;
+	//std::cout << "t_yaw:" << dis_yaw.second * 180.0/M_PI << std::endl; 
+	
+	return dis_yaw;
 }
 
-//km/h
+float limitRoadwheelAngleBySpeed(const float& angle, const float& speed)
+{
+	float min_steering_radius = speed*speed/max_side_acceleration;
+	if(min_steering_radius <3.0)  //radius = 3.0 -> steeringAngle = 30.0
+		min_steering_radius = 3.0;
+	
+	float max_roadwheelAngle = fabs(generateRoadwheelAngleByRadius(min_steering_radius));
+	if(max_roadwheelAngle > MAX_ROAD_WHEEL_ANGLE - 5.0)
+	   max_roadwheelAngle = MAX_ROAD_WHEEL_ANGLE -5.0;
+	//ROS_INFO("max_angle:%f\t angle:%f",max_roadwheelAngle,angle);
+	return saturationEqual(angle,max_roadwheelAngle);
+}
+
+size_t findIndexForGivenDis(const std::vector<gpsMsg_t>& path_points, size_t startIndex,float dis)
+{
+	float sum_dis = 0.0;
+	size_t points_size = path_points.size()-1;
+	while(ros::ok())
+	{
+		if(startIndex+5 >= points_size)
+			return 0;//error
+		sum_dis	+= disBetweenPoints(path_points[startIndex],path_points[startIndex+5]);
+		startIndex += 5;
+		if(sum_dis > dis)
+			return startIndex;
+	}
+}
+
+float maxCurvatureInRange(const std::vector<gpsMsg_t>& path_points, size_t startIndex,size_t endIndex)
+{
+	float max = 0.;
+	for(size_t i=startIndex; i<endIndex; i++)
+	{
+		if(fabs(path_points[i].curvature) > max)
+			max = fabs(path_points[i].curvature);
+	}
+	return max;
+}
+
 float generateMaxTolarateSpeedByCurvature(const float& curvature, const float& max_accel)
 {
 	float abs_cur = fabs(curvature);
@@ -269,85 +383,6 @@ float generateMaxTolarateSpeedByCurvature(const std::vector<gpsMsg_t>& path_poin
 	return sqrt(1.0/max_cuvature*1.5) *3.6;
 }
 
-float limitSpeedByLateralAndYawErr(float speed,float latErr,float yawErr)
-{
-	///??
-}
-
-//offset: change lane offset
-//distance: longitudianal displacement of vehicle in the course of change lane
-float maxRoadWheelAngleWhenChangeLane(const float& offset,const float& distance)
-{
-	float theta = 2*atan(fabs(offset)/distance);
-	float radius = 0.5*distance/sin(theta);
-	return generateRoadwheelAngleByRadius(radius);
-}
-
-
-//given the startIndex and expect distance  find the point index
-size_t findIndexForGivenDis(const std::vector<gpsMsg_t>& path_points, size_t startIndex,float dis)
-{
-	float sum_dis = 0.0;
-	size_t points_size = path_points.size()-1;
-	while(ros::ok())
-	{
-		if(startIndex+5 >= points_size)
-			return 0;//error
-		sum_dis	+= disBetweenPoints(path_points[startIndex],path_points[startIndex+5]);
-		startIndex += 5;
-		if(sum_dis > dis)
-			return startIndex;
-	}
-}
-
-float disBetweenPoints(const gpsMsg_t& point1, const gpsMsg_t& point2)
-{
-	float x = point1.x - point2.x;
-	float y = point1.y - point2.y;
-	
-	return sqrt(x*x+y*y);
-}
-
-float minCurvatureInRange(const std::vector<gpsMsg_t>& path_points, size_t startIndex,size_t endIndex)
-{
-	float min = FLT_MAX;
-	for(size_t i=startIndex; i<endIndex; i++)
-	{
-		if(path_points[i].curvature < min)
-			min = path_points[i].curvature;
-	}
-	return min;
-}
-
-float maxCurvatureInRange(const std::vector<gpsMsg_t>& path_points, size_t startIndex,size_t endIndex)
-{
-	float max = 0.;
-	for(size_t i=startIndex; i<endIndex; i++)
-	{
-		if(fabs(path_points[i].curvature) > max)
-			max = fabs(path_points[i].curvature);
-	}
-	return max;
-}
-
-
-std::pair<float, float> get_dis_yaw(gpsMsg_t &target,gpsMsg_t &current)
-{
-	float x = target.x - current.x;
-	float y = target.y - current.y;
-	
-	std::pair<float, float> dis_yaw;
-	dis_yaw.first = sqrt(x * x + y * y);
-	dis_yaw.second = atan2(y,x);
-	
-	if(dis_yaw.second <0)
-		dis_yaw.second += 2*M_PI;
-	
-	//std::cout << "dx dy: " << x << "\t" << y << std::endl;
-	//std::cout <<"(" << target.x << "," << target.y << ")\t(" << current.x << "," << current.y << ")" << std::endl;
-	//std::cout << "t_yaw:" << dis_yaw.second * 180.0/M_PI << std::endl; 
-	
-	return dis_yaw;
-}
+#endif
 
 

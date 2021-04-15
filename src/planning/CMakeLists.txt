@@ -12,7 +12,7 @@ find_package(catkin REQUIRED COMPONENTS
   rospy
   std_msgs
   logistics_msgs
-  ant_math
+  math_function
 )
 
 ## Generate messages in the 'msg' folder

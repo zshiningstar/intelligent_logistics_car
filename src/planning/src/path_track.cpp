@@ -13,7 +13,7 @@
 #include <boost/thread.hpp>
 #include <boost/bind.hpp>
 #include <thread>
-#include <ant_math/ant_math.h>
+#include <math_function/math_function.h>
 #include "gps_msgs/Inspvax.h"
 
 // 目标转角向左为+,向右为-;
