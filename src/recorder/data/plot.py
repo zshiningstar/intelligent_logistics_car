@@ -92,6 +92,7 @@ def plot(file_name):
 	plt.plot(path_points.x,path_points.y,'r.',label="reference path")
 	plt.plot(debug_points.x,debug_points.y,'b-.',label="trajactory")
 	#plt.axis([-50, 400, -300, 0])
+	plt.axis('equal')
 
 	plt.legend()
 

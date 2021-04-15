@@ -79,7 +79,7 @@ bool loadPathPoints(std::string file_path,std::vector<gpsMsg_t>& points)
 float dis2Points(const gpsMsg_t& point1, const gpsMsg_t& point2,bool is_sqrt)
 {
 	float x = point1.x - point2.x;
-	float y = point1.y - point2.y;
+ 	float y = point1.y - point2.y;
 	
 	if(is_sqrt)
 		return sqrt(x*x +y*y);
@@ -95,6 +95,7 @@ size_t findNearestPoint(const std::vector<gpsMsg_t>& path_points, const gpsMsg_t
 	for(size_t i=0; i<path_points.size(); ++i)
 	{
 		float dis2 = dis2Points(path_points[i],current_point,false);
+		//std::cout << "findNearestPoint dis: " << sqrt(dis2) << std::endl;
 		if(dis2 < min_dis2)
 		{
 			min_dis2 = dis2;
@@ -330,17 +331,22 @@ float maxCurvatureInRange(const std::vector<gpsMsg_t>& path_points, size_t start
 }
 
 
-std::pair<float, float> get_dis_yaw(gpsMsg_t &point1,gpsMsg_t &point2)
+std::pair<float, float> get_dis_yaw(gpsMsg_t &target,gpsMsg_t &current)
 {
-	float x = point1.x - point2.x;
-	float y = point1.y - point2.y;
+	float x = target.x - current.x;
+	float y = target.y - current.y;
 	
 	std::pair<float, float> dis_yaw;
 	dis_yaw.first = sqrt(x * x + y * y);
-	dis_yaw.second = atan2(x,y);
+	dis_yaw.second = atan2(y,x);
 	
 	if(dis_yaw.second <0)
 		dis_yaw.second += 2*M_PI;
+	
+	//std::cout << "dx dy: " << x << "\t" << y << std::endl;
+	//std::cout <<"(" << target.x << "," << target.y << ")\t(" << current.x << "," << current.y << ")" << std::endl;
+	//std::cout << "t_yaw:" << dis_yaw.second * 180.0/M_PI << std::endl; 
+	
 	return dis_yaw;
 }
 

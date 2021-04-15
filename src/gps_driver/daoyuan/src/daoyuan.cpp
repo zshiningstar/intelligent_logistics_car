@@ -358,7 +358,7 @@ void Daoyuan::parse(const uint8_t* buffer)
 		odom.pose.pose.position.y = utm.northing;
 		odom.pose.pose.position.z = utm.altitude;
 		
-		odom.pose.covariance[0] = m_inspax.azimuth *M_PI / 180.0;
+		odom.pose.covariance[0] = -deg2rad(m_inspax.azimuth-90.0);
 		odom.pose.covariance[1] = point.longitude;
 		odom.pose.covariance[2] = point.latitude;
 		

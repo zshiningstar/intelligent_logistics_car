@@ -104,6 +104,8 @@ private:
 	logistics_msgs::GoalState car_goal;
 	logistics_msgs::RealState car_state;
 	
+	bool check_gps_;
+	bool is_inroom_;
 };
 
 /*
@@ -184,6 +186,8 @@ bool PathTracking::init(ros::NodeHandle nh,ros::NodeHandle nh_private)
 	nh_private.param<double>("timeout",timeout,0.3);     
 	nh_private.param<bool>("is_back",is_back_,false);   
 	
+	nh_private.param<bool>("check_gps", check_gps_, true);
+	nh_private.param<bool>("is_inroom", is_inroom_, true);
 	
 	if(path_points_file_.empty())
 	{
@@ -194,6 +198,8 @@ bool PathTracking::init(ros::NodeHandle nh,ros::NodeHandle nh_private)
 	//start the ros::spin() thread
 	rosSpin_thread_ptr_ = boost::shared_ptr<boost::thread >(new boost::thread(boost::bind(&PathTracking::rosSpinThread, this)));
 	
+	ros::Duration(2.0).sleep();
+	
 	if(loadPathPoints(path_points_file_, path_points_))
 	{	
 		if(is_back_)
@@ -201,14 +207,17 @@ bool PathTracking::init(ros::NodeHandle nh,ros::NodeHandle nh_private)
 	}
 	ROS_INFO("pathPoints size:%d",path_points_.size());
 	
-	while(ros::ok() && !is_gps_data_valid(current_point_))                                          // 判断是不是有效的gps数据
+	while(check_gps_ &&ros::ok() && !is_gps_data_valid(current_point_))                                          // 判断是不是有效的gps数据
 	{
 		ROS_INFO("gps data is invalid, please check the gps topic or waiting...");
 		sleep(1);
 	}
 	
+	//for(int i=0; i<path_points_.size(); ++i)
+	//	std::cout << path_points_[i].x << "\t" << path_points_[i].y << std::endl;
+	
 	target_point_index_ = findNearestPoint(path_points_,current_point_);                      
-//	std::cout << target_point_index_ << " / "  << path_points_.size() << std::endl;
+	std::cout << target_point_index_ << " / "  << path_points_.size() << std::endl;
 	if(target_point_index_ > path_points_.size() - 10)
 	{
 		ROS_ERROR("target index:%d ?? file read over, No target point was found !!!",target_point_index_);
@@ -241,11 +250,22 @@ gpsMsg_t PathTracking::pointOffset(const gpsMsg_t& point,float offset)
 
 bool PathTracking::is_gps_data_valid(gpsMsg_t& point)
 {	
-	if(point.x > 100 && point.y >100)
+	if(is_inroom_)
 	{
-		return true;
+		if(point.x < 0.5 || point.y < 0.5)
+		{
+			return true;
+		}
+		return false;
 	}
-	return false;
+	else
+	{
+		if(point.x > 100 && point.y > 100)
+		{
+			return true;
+		}
+		return false;
+	}
 }
 
 /*
@@ -280,6 +300,7 @@ void PathTracking::gps_callback(const gps_msgs::Inspvax::ConstPtr& msg)
  
 void PathTracking::run()
 {
+
 	size_t i =0;
 	float dt = 1.0/control_rate;
 	ros::Rate loop_rate(control_rate);  //30Hz
@@ -325,7 +346,7 @@ void PathTracking::run()
 		}
 		yaw_err_ = dis_yaw.second - current_point_.yaw;                                  		// 计算出车身姿态与目标点的夹角
 		if(yaw_err_==0.0) continue;
-		float turning_radius = (-0.5 * dis_yaw.first)/sin(yaw_err_);                     		// 转弯半径  l/2sin(a)
+		float turning_radius = (0.5 * dis_yaw.first)/sin(yaw_err_);                     		// 转弯半径  l/2sin(a)
 		//使用i控制,消除转向间隙引起的稳态误差
         float theta = Ki_ * sumlateral_err_;													// 假想转角和总横向偏差为线性模型
         if(theta > steer_clearance_)

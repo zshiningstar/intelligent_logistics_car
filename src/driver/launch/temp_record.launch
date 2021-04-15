@@ -8,7 +8,7 @@
 		<param name="file_path" value="$(find recorder)/data/"/>
 		<param name="file_name" value="$(arg file_name).txt"/>
 		<param name="sample_distance" value="0.1" />
-		<param name="utm_topic" value="/ll2utm_odom" />
+		<param name="utm_topic" value="/odom" />
 	</node>
 <!--	
 	<node name="nuogeng_node" pkg="nuogeng" type="nuogeng_node" output="screen">
@@ -18,7 +18,7 @@
 		<param name="pub_odom" value="true"/>
 	</node>  -->
 	
-
+	<!--
 	<node name="daoyuan" pkg="daoyuan" type="daoyuan" output="screen">
 		<param name="port_name" value="$(arg port)"/>
 		<param name="baudrate" value="230400"/>
@@ -28,7 +28,7 @@
 		
 		
 	</node>
-
+	-->
 	
 </launch>
 

@@ -2,8 +2,8 @@
 Version=1.0
 Name=物流车
 Comment=myqtapp
-Exec=/home/zsx/logistics_ws/src/ui/smartcar
-Icon=/home/zsx/logistics_ws/src/ui/car.jpg
+Exec=/home/robot/logistics_ws/src/ui/smartcar
+Icon=/home/robot/logistics_ws/src/ui/car.jpg
 Terminal=false
 Type=Application
 Categories=Application;
