@@ -52,7 +52,7 @@ void MainWindow::on_back_clicked()
 
 void MainWindow::on_serial_clicked()
 {
-    system("gnome-terminal -x bash -c 'sudo chmod 666 /dev/ttyUSB0; sudo chmod 666 /dev/ttyUSB1'&");
+    system("gnome-terminal -x bash -c 'source ~/logistics_ws/devel/setup.bash; roslaunch driver temp_go.launch'&");
 }
 
 void MainWindow::on_plot_clicked()
@@ -72,5 +72,10 @@ void MainWindow::on_gps_odom_clicked()
 
 void MainWindow::on_topic_list_clicked()
 {
-    system("gnome-terminal -x bash -c 'source ~/logistics_ws/devel/setup.bash; rostopic list'&");
+    system("gnome-terminal -x bash -c 'source ~/logistics_ws/devel/setup.bash; roslaunch driver temp_back.launch'&");
+}
+
+void MainWindow::on_record_room_clicked()
+{
+    system("gnome-terminal -x bash -c 'source ~/logistics_ws/devel/setup.bash; roslaunch driver temp_record.launch'&");
 }

@@ -40,6 +40,8 @@ private slots:
 
     void on_topic_list_clicked();
 
+    void on_record_room_clicked();
+
 private:
     Ui::MainWindow *ui;
 };

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>619</width>
-    <height>425</height>
+    <width>640</width>
+    <height>643</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -20,9 +20,9 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>430</x>
-      <y>130</y>
-      <width>161</width>
+      <x>30</x>
+      <y>500</y>
+      <width>561</width>
       <height>61</height>
      </rect>
     </property>
@@ -56,7 +56,7 @@
     <property name="geometry">
      <rect>
       <x>30</x>
-      <y>40</y>
+      <y>60</y>
       <width>161</width>
       <height>61</height>
      </rect>
@@ -68,7 +68,7 @@
      </sizepolicy>
     </property>
     <property name="text">
-     <string>gps</string>
+     <string>daoyuan</string>
     </property>
    </widget>
    <widget class="QPushButton" name="record">
@@ -78,7 +78,7 @@
     <property name="geometry">
      <rect>
       <x>30</x>
-      <y>210</y>
+      <y>280</y>
       <width>161</width>
       <height>61</height>
      </rect>
@@ -100,7 +100,7 @@
     <property name="geometry">
      <rect>
       <x>230</x>
-      <y>210</y>
+      <y>280</y>
       <width>161</width>
       <height>61</height>
      </rect>
@@ -122,7 +122,7 @@
     <property name="geometry">
      <rect>
       <x>30</x>
-      <y>290</y>
+      <y>390</y>
       <width>161</width>
       <height>61</height>
      </rect>
@@ -144,7 +144,7 @@
     <property name="geometry">
      <rect>
       <x>430</x>
-      <y>290</y>
+      <y>390</y>
       <width>161</width>
       <height>61</height>
      </rect>
@@ -166,7 +166,7 @@
     <property name="geometry">
      <rect>
       <x>230</x>
-      <y>290</y>
+      <y>390</y>
       <width>161</width>
       <height>61</height>
      </rect>
@@ -188,7 +188,7 @@
     <property name="geometry">
      <rect>
       <x>430</x>
-      <y>210</y>
+      <y>280</y>
       <width>161</width>
       <height>61</height>
      </rect>
@@ -209,8 +209,8 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>230</x>
-      <y>130</y>
+      <x>430</x>
+      <y>170</y>
       <width>161</width>
       <height>61</height>
      </rect>
@@ -222,7 +222,7 @@
      </sizepolicy>
     </property>
     <property name="text">
-     <string>serial</string>
+     <string>backward_room</string>
     </property>
    </widget>
    <widget class="QPushButton" name="gps_topic">
@@ -232,7 +232,7 @@
     <property name="geometry">
      <rect>
       <x>230</x>
-      <y>40</y>
+      <y>60</y>
       <width>161</width>
       <height>61</height>
      </rect>
@@ -254,7 +254,7 @@
     <property name="geometry">
      <rect>
       <x>430</x>
-      <y>40</y>
+      <y>60</y>
       <width>161</width>
       <height>61</height>
      </rect>
@@ -275,8 +275,8 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>30</x>
-      <y>130</y>
+      <x>230</x>
+      <y>170</y>
       <width>161</width>
       <height>61</height>
      </rect>
@@ -288,7 +288,94 @@
      </sizepolicy>
     </property>
     <property name="text">
-     <string>topic_list</string>
+     <string>forward_room</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="record_room">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>170</y>
+      <width>161</width>
+      <height>61</height>
+     </rect>
+    </property>
+    <property name="sizePolicy">
+     <sizepolicy hsizetype="Maximum" vsizetype="Minimum">
+      <horstretch>20</horstretch>
+      <verstretch>20</verstretch>
+     </sizepolicy>
+    </property>
+    <property name="text">
+     <string>record_room</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>20</y>
+      <width>63</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>GPS</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_2">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>130</y>
+      <width>121</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>IN ROOM</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_3">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>240</y>
+      <width>191</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>OUTSIDE ROOM</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_4">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>350</y>
+      <width>191</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>SENSOR</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_5">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>460</y>
+      <width>191</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>TOOLS</string>
     </property>
    </widget>
   </widget>
@@ -297,7 +384,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>619</width>
+     <width>640</width>
      <height>27</height>
     </rect>
    </property>
