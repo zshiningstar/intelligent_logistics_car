@@ -13,7 +13,7 @@
 #include <boost/thread.hpp>
 #include <boost/bind.hpp>
 #include <thread>
-#include <math_function/math_function.h>
+#include <math_function/math_function.h>   // 和头文件的名字保持一致;和define里面的不用保持一致
 #include "gps_msgs/Inspvax.h"
 
 // 目标转角向左为+,向右为-;
