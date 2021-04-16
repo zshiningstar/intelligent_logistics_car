@@ -12,47 +12,40 @@
 #include<exception>
 #include<fstream>
 
-#define MAX_ROAD_WHEEL_ANGLE 25.0
-#define IS_POLAR_COORDINATE_GPS 0
-
-#define WHEEL_DISTANCE  1.2
+#define MAX_ROAD_WHEEL_ANGLE 25.0 // 最大车轮转角
 #define AXIS_DISTANCE 0.88  // 轴距
-#define MAX_SPEED 30.0
 
-const float g_vehicle_width = 1 ;// m
-const float g_vehicle_length = 1.5; 
-const float g_max_deceleration = 5.0; // m/s/s
 static const float max_side_acceleration = 1.5; // m/s/s
 
-enum
-{
-	TrafficSign_None = 0,
-	TrafficSign_TrafficLight =1,
-	TrafficSign_Avoid = 2,
-	TrafficSign_TurnLeft = 3,
-	TrafficSign_CarFollow = 4,//?
-	TrafficSign_LaneNarrow = 5,
-	TrafficSign_IllegalPedestrian = 6,
-	TrafficSign_NoTrafficLight = 7,
-	TrafficSign_PickUp = 8,
-	TrafficSign_Ambulance = 9,//?
-	TrafficSign_Railway = 10,
-	TrafficSign_TempStop = 11,//?
-	TrafficSign_UTurn = 12,
-	TrafficSign_School = 13,
-	TrafficSign_AvoidStartingCar = 14,
-	TrafficSign_OffDutyPerson = 15,
-	TrafficSign_Bridge = 16,
-	TrafficSign_AccidentArea = 17,
-	TrafficSign_JamArea = 18,
-	TrafficSign_BusStop = 19,
-	TrafficSign_NonVehicle = 20,
-	TrafficSign_StopArea = 21, //?
-	
-	TrafficSign_CloseTurnLight = 22,
-	TrafficSign_TurnRight = 23,
-	TrafficSign_Stop = 24,
-};
+//enum
+//{
+//	TrafficSign_None = 0,
+//	TrafficSign_TrafficLight =1,
+//	TrafficSign_Avoid = 2,
+//	TrafficSign_TurnLeft = 3,
+//	TrafficSign_CarFollow = 4,//?
+//	TrafficSign_LaneNarrow = 5,
+//	TrafficSign_IllegalPedestrian = 6,
+//	TrafficSign_NoTrafficLight = 7,
+//	TrafficSign_PickUp = 8,
+//	TrafficSign_Ambulance = 9,//?
+//	TrafficSign_Railway = 10,
+//	TrafficSign_TempStop = 11,//?
+//	TrafficSign_UTurn = 12,
+//	TrafficSign_School = 13,
+//	TrafficSign_AvoidStartingCar = 14,
+//	TrafficSign_OffDutyPerson = 15,
+//	TrafficSign_Bridge = 16,
+//	TrafficSign_AccidentArea = 17,
+//	TrafficSign_JamArea = 18,
+//	TrafficSign_BusStop = 19,
+//	TrafficSign_NonVehicle = 20,
+//	TrafficSign_StopArea = 21, //?
+//	
+//	TrafficSign_CloseTurnLight = 22,
+//	TrafficSign_TurnRight = 23,
+//	TrafficSign_Stop = 24,
+//};
 
 typedef struct
 {
@@ -67,21 +60,13 @@ typedef struct
 	float maxOffset_right;
 	uint8_t traffic_sign;
 	uint8_t other_info;
-	
-	void show()
-	{
-		std::cout << std::fixed << x << "\t" << y << "\t" << yaw*180.0/M_PI << std::endl;
-	}
-	
 }gpsMsg_t;
 
-extern const float g_vehicle_width;
-extern const float g_vehicle_length;
-extern const float g_max_deceleration;
-
+/*
+ *@fuc:数值限制函数
+ */
 inline float saturationEqual(float value,float limit)
 {
-	//ROS_INFO("value:%f\t limit:%f",value,limit);
 	assert(limit>=0);
 	if(value>limit)
 		value = limit;
@@ -90,29 +75,42 @@ inline float saturationEqual(float value,float limit)
 	return value;
 }
 
+/*
+ *@fuc:通过转弯半径计算前轮转角函数
+ */
 inline float generateRoadwheelAngleByRadius(const float& radius)
 {
 	assert(radius!=0);
 	//return asin(AXIS_DISTANCE /radius)*180/M_PI;  //the angle larger
-	return atan(AXIS_DISTANCE/radius)*180/M_PI;    //correct algorithm 
+	return atan(AXIS_DISTANCE/radius)*180/M_PI;     //correct algorithm 
 }
 
+/*
+ *@fuc:计算角度sin值函数
+ */
 inline double sinDeg(const double& deg)
 {
 	return sin(deg*M_PI/180.0);
 }
 
-
+/*
+ *@fuc:符号函数
+ */
 inline int sign(float num)
 {
 	return num > 0? 1 : -1;
 }
-
+/*
+ *@fuc:角度转换弧度函数
+ */
 inline float deg2rad(float deg)
 {
 	return  (deg/180.0)*M_PI;
 }
 
+/*
+ *@fuc:载入txt文本路径点函数
+ */
 bool loadPathPoints(std::string file_path,std::vector<gpsMsg_t>& points)
 {
 	std::ifstream in_file(file_path.c_str());
@@ -136,6 +134,9 @@ bool loadPathPoints(std::string file_path,std::vector<gpsMsg_t>& points)
 	return true;
 }
 
+/*
+ *@fuc:计算两点之间距离函数(传入参数为gpsMsg_t类型)
+ */
 float dis2Points(const gpsMsg_t& point1, const gpsMsg_t& point2,bool is_sqrt)
 {
 	float x = point1.x - point2.x;
@@ -146,6 +147,9 @@ float dis2Points(const gpsMsg_t& point1, const gpsMsg_t& point2,bool is_sqrt)
 	return x*x+y*y;
 }
 
+/*
+ *@fuc:寻找最近点函数
+ */
 size_t findNearestPoint(const std::vector<gpsMsg_t>& path_points, const gpsMsg_t& current_point)
 {
 	size_t index = 0;
@@ -171,6 +175,9 @@ size_t findNearestPoint(const std::vector<gpsMsg_t>& path_points, const gpsMsg_t
 	return index;
 }
 
+/*
+ *@fuc:计算两点之间距离函数
+ */
 float disBetweenPoints(const gpsMsg_t& point1, const gpsMsg_t& point2)
 {
 	float x = point1.x - point2.x;
@@ -179,6 +186,9 @@ float disBetweenPoints(const gpsMsg_t& point1, const gpsMsg_t& point2)
 	return sqrt(x*x+y*y);
 }
 
+/*
+ *@fuc:计算两点之间横向偏差
+ */
 float calculateDis2path(const double& X_,const double& Y_,
 						 const std::vector<gpsMsg_t>& path_points, 
 						 const size_t& target_point_index,
@@ -299,6 +309,9 @@ float calculateDis2path(const double& X_,const double& Y_,
 	return x;
 }
 
+/*
+ *@fuc:计算两点之间距离以及航向偏差
+ */
 std::pair<float, float> get_dis_yaw(gpsMsg_t &target,gpsMsg_t &current)
 {
 	float x = target.x - current.x;
@@ -318,6 +331,9 @@ std::pair<float, float> get_dis_yaw(gpsMsg_t &target,gpsMsg_t &current)
 	return dis_yaw;
 }
 
+/*
+ *@fuc:根据速度限制转角函数
+ */
 float limitRoadwheelAngleBySpeed(const float& angle, const float& speed)
 {
 	float min_steering_radius = speed*speed/max_side_acceleration;
@@ -331,6 +347,9 @@ float limitRoadwheelAngleBySpeed(const float& angle, const float& speed)
 	return saturationEqual(angle,max_roadwheelAngle);
 }
 
+/*
+ *@fuc:根据设定的前视距离寻找路径点的下标
+ */
 size_t findIndexForGivenDis(const std::vector<gpsMsg_t>& path_points, size_t startIndex,float dis)
 {
 	float sum_dis = 0.0;
@@ -346,6 +365,9 @@ size_t findIndexForGivenDis(const std::vector<gpsMsg_t>& path_points, size_t sta
 	}
 }
 
+/*
+ *@fuc:在记录的路径中寻找最大的曲率范围
+ */
 float maxCurvatureInRange(const std::vector<gpsMsg_t>& path_points, size_t startIndex,size_t endIndex)
 {
 	float max = 0.;
@@ -357,6 +379,9 @@ float maxCurvatureInRange(const std::vector<gpsMsg_t>& path_points, size_t start
 	return max;
 }
 
+/*
+ *@fuc:根据取率生成最大容许速度
+ */
 float generateMaxTolarateSpeedByCurvature(const float& curvature, const float& max_accel)
 {
 	float abs_cur = fabs(curvature);
@@ -366,6 +391,9 @@ float generateMaxTolarateSpeedByCurvature(const float& curvature, const float& m
 	return sqrt(1.0/abs_cur*max_accel) *3.6;
 }
 
+/*
+ *@fuc:根据取率生成最大容许速度
+ */
 float generateMaxTolarateSpeedByCurvature(const std::vector<gpsMsg_t>& path_points,
 											const size_t& nearest_point_index,
 											const size_t& target_point_index)
