@@ -1,7 +1,7 @@
 <!-- -->
 <launch>
 
-	<arg name="file_name" default="path1.txt" />
+	<arg name="file_name" default="path.txt" />
 	<arg name="max_speed" default="-3" />
 	<arg name="rate" default="30" />
 	<arg name="delay_time" default="0.3" />
@@ -25,7 +25,7 @@
 		<param name="control_rate" value="$(arg rate)"/>		<!-- Hz -->
 		<param name="timeout" value="$(arg delay_time)"/>	<!-- 障碍物时延 -->
 		
-		<param name="odom_topic" value="/odom"/>
+		<param name="odom_topic" value="/slam_fused_odom"/>
 		<param name="car_state" value="/car_state"/>
 		<param name="car_goal" value="/car_goal"/>
 		
@@ -34,7 +34,7 @@
 		<param name="is_offset_" value="false"/>
 		<param name="is_back" value="true"/>
 		
-		<param name="check_gps" value="true"/>
+		<param name="check_gps" value="false"/>
 		<param name="is_inroom" value="true"/>		
 	</node>
 	

@@ -114,8 +114,8 @@ PathTracking::PathTracking():
 	car_goal.goal_brake = 0;
 	car_goal.goal_park  = 0;
 	
-	current_point_.x = 0;
-	current_point_.y = 0;
+	//current_point_.x = 0;
+	//current_point_.y = 0;
 }
 
 PathTracking::~PathTracking()
@@ -181,7 +181,7 @@ bool PathTracking::init(ros::NodeHandle nh,ros::NodeHandle nh_private)
 			reverse(path_points_.begin(), path_points_.end());                                            
 	}
 	ROS_INFO("pathPoints size:%d",path_points_.size());
-	while(check_gps_ &&ros::ok() && !is_gps_data_valid(current_point_))                                          // 判断是不是有效的gps数据
+	while(ros::ok() && !is_gps_data_valid(current_point_))                                          // 判断是不是有效的gps数据
 	{
 		ROS_INFO("gps data is invalid, please check the gps topic or waiting...");
 		sleep(1);
@@ -219,23 +219,13 @@ gpsMsg_t PathTracking::pointOffset(const gpsMsg_t& point,float offset)
  */
 
 bool PathTracking::is_gps_data_valid(gpsMsg_t& point)
-{	
-	if(is_inroom_)
-	{
-		if(point.x < 0.5 || point.y < 0.5)
-		{
-			return true;
-		}
-		return false;
-	}
-	else
-	{
+{		
+		std::cout << "x:" << point.x << "\t" << "y:" << point.y << std::endl;
 		if(point.x > 100 && point.y > 100)
 		{
 			return true;
 		}
 		return false;
-	}
 }
 
 /*

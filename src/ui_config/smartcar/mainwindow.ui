@@ -45,9 +45,7 @@
       <height>18</height>
      </rect>
     </property>
-    <property name="text">
-     <string>SEU-smartcar</string>
-    </property>
+
    </widget>
    <widget class="QPushButton" name="gps">
     <property name="enabled">

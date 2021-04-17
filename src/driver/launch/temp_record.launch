@@ -8,7 +8,7 @@
 		<param name="file_path" value="$(find recorder)/data/"/>
 		<param name="file_name" value="$(arg file_name).txt"/>
 		<param name="sample_distance" value="0.1" />
-		<param name="utm_topic" value="/odom" />
+		<param name="utm_topic" value="/slam_fused_odom" />
 	</node>
 <!--	
 	<node name="nuogeng_node" pkg="nuogeng" type="nuogeng_node" output="screen">

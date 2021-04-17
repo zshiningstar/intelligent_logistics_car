@@ -178,7 +178,6 @@ public:
     {
         MainWindow->setWindowTitle(QApplication::translate("MainWindow", "MainWindow", 0, QApplication::UnicodeUTF8));
         plot->setText(QApplication::translate("MainWindow", "plot", 0, QApplication::UnicodeUTF8));
-        describe->setText(QApplication::translate("MainWindow", "SEU-smartcar", 0, QApplication::UnicodeUTF8));
         gps->setText(QApplication::translate("MainWindow", "daoyuan", 0, QApplication::UnicodeUTF8));
         record->setText(QApplication::translate("MainWindow", "record", 0, QApplication::UnicodeUTF8));
         track->setText(QApplication::translate("MainWindow", "forward", 0, QApplication::UnicodeUTF8));
