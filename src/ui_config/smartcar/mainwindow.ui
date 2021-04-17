@@ -45,7 +45,6 @@
       <height>18</height>
      </rect>
     </property>
-
    </widget>
    <widget class="QPushButton" name="gps">
     <property name="enabled">
@@ -207,7 +206,7 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>430</x>
+      <x>230</x>
       <y>170</y>
       <width>161</width>
       <height>61</height>
@@ -220,7 +219,7 @@
      </sizepolicy>
     </property>
     <property name="text">
-     <string>backward_room</string>
+     <string>forward</string>
     </property>
    </widget>
    <widget class="QPushButton" name="gps_topic">
@@ -273,7 +272,7 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>230</x>
+      <x>430</x>
       <y>170</y>
       <width>161</width>
       <height>61</height>
@@ -286,7 +285,7 @@
      </sizepolicy>
     </property>
     <property name="text">
-     <string>forward_room</string>
+     <string>backward</string>
     </property>
    </widget>
    <widget class="QPushButton" name="record_room">
@@ -308,7 +307,7 @@
      </sizepolicy>
     </property>
     <property name="text">
-     <string>record_room</string>
+     <string>record</string>
     </property>
    </widget>
    <widget class="QLabel" name="label">
@@ -316,12 +315,12 @@
      <rect>
       <x>30</x>
       <y>20</y>
-      <width>63</width>
+      <width>221</width>
       <height>22</height>
      </rect>
     </property>
     <property name="text">
-     <string>GPS</string>
+     <string>GPS_Driver</string>
     </property>
    </widget>
    <widget class="QLabel" name="label_2">
@@ -329,12 +328,12 @@
      <rect>
       <x>30</x>
       <y>130</y>
-      <width>121</width>
+      <width>251</width>
       <height>22</height>
      </rect>
     </property>
     <property name="text">
-     <string>IN ROOM</string>
+     <string>Record(GPS_SLAM)</string>
     </property>
    </widget>
    <widget class="QLabel" name="label_3">
@@ -347,7 +346,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>OUTSIDE ROOM</string>
+     <string>Record(GPS)</string>
     </property>
    </widget>
    <widget class="QLabel" name="label_4">

@@ -115,7 +115,7 @@ public:
         serial = new QPushButton(centralWidget);
         serial->setObjectName(QString::fromUtf8("serial"));
         serial->setEnabled(true);
-        serial->setGeometry(QRect(430, 170, 161, 61));
+        serial->setGeometry(QRect(230, 170, 161, 61));
         sizePolicy.setHeightForWidth(serial->sizePolicy().hasHeightForWidth());
         serial->setSizePolicy(sizePolicy);
         gps_topic = new QPushButton(centralWidget);
@@ -133,7 +133,7 @@ public:
         topic_list = new QPushButton(centralWidget);
         topic_list->setObjectName(QString::fromUtf8("topic_list"));
         topic_list->setEnabled(true);
-        topic_list->setGeometry(QRect(230, 170, 161, 61));
+        topic_list->setGeometry(QRect(430, 170, 161, 61));
         sizePolicy.setHeightForWidth(topic_list->sizePolicy().hasHeightForWidth());
         topic_list->setSizePolicy(sizePolicy);
         record_room = new QPushButton(centralWidget);
@@ -144,10 +144,10 @@ public:
         record_room->setSizePolicy(sizePolicy);
         label = new QLabel(centralWidget);
         label->setObjectName(QString::fromUtf8("label"));
-        label->setGeometry(QRect(30, 20, 63, 22));
+        label->setGeometry(QRect(30, 20, 221, 22));
         label_2 = new QLabel(centralWidget);
         label_2->setObjectName(QString::fromUtf8("label_2"));
-        label_2->setGeometry(QRect(30, 130, 121, 22));
+        label_2->setGeometry(QRect(30, 130, 251, 22));
         label_3 = new QLabel(centralWidget);
         label_3->setObjectName(QString::fromUtf8("label_3"));
         label_3->setGeometry(QRect(30, 240, 191, 22));
@@ -185,14 +185,14 @@ public:
         leishen->setText(QApplication::translate("MainWindow", "leishen", 0, QApplication::UnicodeUTF8));
         cluster->setText(QApplication::translate("MainWindow", "cluster", 0, QApplication::UnicodeUTF8));
         back->setText(QApplication::translate("MainWindow", "backward", 0, QApplication::UnicodeUTF8));
-        serial->setText(QApplication::translate("MainWindow", "backward_room", 0, QApplication::UnicodeUTF8));
+        serial->setText(QApplication::translate("MainWindow", "forward", 0, QApplication::UnicodeUTF8));
         gps_topic->setText(QApplication::translate("MainWindow", "/gps", 0, QApplication::UnicodeUTF8));
         gps_odom->setText(QApplication::translate("MainWindow", "/odom", 0, QApplication::UnicodeUTF8));
-        topic_list->setText(QApplication::translate("MainWindow", "forward_room", 0, QApplication::UnicodeUTF8));
-        record_room->setText(QApplication::translate("MainWindow", "record_room", 0, QApplication::UnicodeUTF8));
-        label->setText(QApplication::translate("MainWindow", "GPS", 0, QApplication::UnicodeUTF8));
-        label_2->setText(QApplication::translate("MainWindow", "IN ROOM", 0, QApplication::UnicodeUTF8));
-        label_3->setText(QApplication::translate("MainWindow", "OUTSIDE ROOM", 0, QApplication::UnicodeUTF8));
+        topic_list->setText(QApplication::translate("MainWindow", "backward", 0, QApplication::UnicodeUTF8));
+        record_room->setText(QApplication::translate("MainWindow", "record", 0, QApplication::UnicodeUTF8));
+        label->setText(QApplication::translate("MainWindow", "GPS_Driver", 0, QApplication::UnicodeUTF8));
+        label_2->setText(QApplication::translate("MainWindow", "Record(GPS_SLAM)", 0, QApplication::UnicodeUTF8));
+        label_3->setText(QApplication::translate("MainWindow", "Record(GPS)", 0, QApplication::UnicodeUTF8));
         label_4->setText(QApplication::translate("MainWindow", "SENSOR", 0, QApplication::UnicodeUTF8));
         label_5->setText(QApplication::translate("MainWindow", "TOOLS", 0, QApplication::UnicodeUTF8));
     } // retranslateUi
