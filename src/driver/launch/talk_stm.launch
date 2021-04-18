@@ -5,7 +5,7 @@
 	<node pkg="pc_stm32" type="talk_stm32" name="talker_node"  >
 
 		<param name="car_goal" value="/car_goal" />
-		<param name="port_name" value="/dev/ttyUSB1" />
+		<param name="port_name" value="/dev/stm" />
 		<param name="baudrate" value="115200" />
 		
 	</node>

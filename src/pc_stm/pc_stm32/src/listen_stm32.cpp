@@ -187,9 +187,9 @@ void Listener::parseFromStm(const unsigned char* buffer)
 	m_state.header.stamp = ros::Time::now();
 	m_state.header.frame_id = "car_state";
 	
-	m_state.real_speed_left = ((buffer[5] * 256 + buffer[6]) - 30000) * 0.01;
-	m_state.real_speed_right = ((buffer[7] * 256 + buffer[8]) - 30000) * 0.01;
-	m_state.real_angle = ((buffer[9] * 256 + buffer[10]) - 30000) * 0.01;
+	m_state.real_speed_left = ((buffer[5]  + buffer[6]* 256) - 30000) * 0.01;
+	m_state.real_speed_right = ((buffer[7]+ buffer[8] * 256 ) - 30000) * 0.01;
+	m_state.real_angle = ((buffer[9] + buffer[10]* 256 ) - 30000) * 0.01;
 	m_state.real_brake = buffer[11] & 0xf0;
 	m_state.real_park  = buffer[11] & 0x0f;
 	
@@ -201,6 +201,7 @@ void Listener::parseFromStm(const unsigned char* buffer)
 	real_angle = m_state.real_angle;
 	real_speed = generate_real_speed(real_speed_left,real_speed_right);
 	
+	std::cout << "real_speed: " << real_speed << std::endl;
 	if(prase_flag_)
 	{
 		double x = 0.0;

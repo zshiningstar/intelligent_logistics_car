@@ -13,7 +13,7 @@
 	<node pkg="pc_stm32" type="listen_stm32" name="listen_node" output="screen">
 
 		<param name="car_state" value="/car_state" />
-		<param name="port_name" value="/dev/ttyUSB1" />
+		<param name="port_name" value="/dev/stm" />
 		<param name="baudrate" value="115200" />
 		
 	</node>
