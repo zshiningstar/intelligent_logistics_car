@@ -89,6 +89,8 @@ private:
 	logistics_msgs::RealState car_state;
 	bool check_gps_;
 	bool is_inroom_;
+	
+	bool isLocationValid;
 };
 
 /*
@@ -107,7 +109,8 @@ PathTracking::PathTracking():
 	lateral_err_(0),
 	sumlateral_err_(0),
 	vehicle_speed_(0),
-	theta_true_(0)
+	theta_true_(0),
+	isLocationValid(false)
 {
 	car_goal.goal_speed = 0;
 	car_goal.goal_angle = 0;
@@ -237,6 +240,8 @@ void PathTracking::gps_odom_callback(const nav_msgs::Odometry::ConstPtr& msg)
 	current_point_.x = msg->pose.pose.position.x;
 	current_point_.y = msg->pose.pose.position.y;
 	current_point_.yaw = msg->pose.covariance[0];
+	
+	isLocationValid = !msg->pose.covariance[4];
 }
 
 /*
@@ -325,7 +330,7 @@ void PathTracking::run()
 		}
 		float max_curvature = maxCurvatureInRange(path_points_, nearest_point_index_, index);
 		float max_speed = generateMaxTolarateSpeedByCurvature(max_curvature, max_side_accel_);
-		car_goal.goal_speed = track_speed_ > max_speed ? max_speed : track_speed_;
+		goal_speed = goal_speed > max_speed ? max_speed : goal_speed;
     
         if((object_data) && (fabs(t_roadWheelAngle) <= 10))
         {      
@@ -344,6 +349,9 @@ void PathTracking::run()
             if(fabs(now_break) > timeout)
                 object_data = 0;
         }
+        if(!isLocationValid)
+        	goal_speed = 0.0;
+        
         int sign = 1;
         if(t_roadWheelAngle > theta_true_) sign = 1;
         else if(t_roadWheelAngle < theta_true_) sign = -1;
