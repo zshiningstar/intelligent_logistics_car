@@ -281,6 +281,7 @@ void Daoyuan::parse(const uint8_t* buffer)
 		case 32:
 		{	
 			m_wheel.num_satellites	= wheel_data2;
+			m_satelliteNum = wheel_data2;
 			switch (wheel_data1)
 			{
 				case 0:
@@ -361,6 +362,7 @@ void Daoyuan::parse(const uint8_t* buffer)
 		odom.pose.covariance[0] = -deg2rad(m_inspax.azimuth-90.0);
 		odom.pose.covariance[1] = point.longitude;
 		odom.pose.covariance[2] = point.latitude;
+		odom.pose.covariance[3] = m_satelliteNum; //卫星个数
 		
 		
 		odom.pose.pose.orientation.x = quat.x();

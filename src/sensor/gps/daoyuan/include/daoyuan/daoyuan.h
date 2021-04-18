@@ -147,6 +147,7 @@ private:
 	bool m_is_pub_ll2utm;
 	bool m_is_pub_tf;
 	bool m_is_pub_wheel;
+	int  m_satelliteNum;
 	
 	tf2_ros::TransformBroadcaster m_tf_br;
 	std::string m_child_frame_id, m_parent_frame_id;
