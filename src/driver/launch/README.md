@@ -1,25 +1,35 @@
-#### 命令清单
-* 1.记录路径
+## gps
+* record
 ```
-roslaunch driver path_recorder.launch
+ roslaunch driver gps_path_record.launch
 ```
-
-* 2.正向循迹(包含1和5)
+* track forward
 ```
-roslaunch driver path_track.launch
+roslaunch driver path_track_forward.launch
 ```
-
-* 3.倒车循迹(包含1和5)
+* track back
 ```
 roslaunch driver path_track_back.launch
-```
 
-* 4.监听下位机反馈信息,并发布车辆底盘里程计信息以及车辆速度转角等信息
+## slam with gps
+* record
 ```
-roslaunch driver pub_car_state.launch
+roslaunch driver slam_gps_record.launch
 ```
-
-* 5.向下位机发布命令
+* track forward
 ```
-roslaunch driver talk_stm.launch
+roslaunch driver slam_gps_forward.launch
+```
+* track back
+```
+roslaunch driver slam_gps_back.launch
+```
+## pc->stm
+* pc talk stm
+```
+roslaunch driver pc_talk_stm.launch
+```
+* pc listen stm
+```
+roslaunch driver pc_listen_stm.launch
 ```
