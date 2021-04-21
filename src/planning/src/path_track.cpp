@@ -50,7 +50,7 @@ private:
 	boost::shared_ptr<boost::thread> rosSpin_thread_ptr_;
 	std::string path_points_file_;
 	std::vector<gpsMsg_t> path_points_;
-	  std::vector<gpsMsg_t> path_points;
+	  std::vector<gpsMsg_t> path_extend_points;
 	gpsMsg_t current_point_, target_point_;
 	gps_msgs::Inspvax m_inspax;
 	
@@ -221,9 +221,7 @@ bool PathTracking::init_work(ros::NodeHandle nh,ros::NodeHandle nh_private)
  */
 std::vector<gpsMsg_t> PathTracking::extendPath(std::vector<gpsMsg_t> path, float extendDis)
 {
-	path_points = path;
-	int path_length = path_points.size();
-	std::cout << "path_length:" << path_length << std::endl;
+	int path_length = path_points_.size();
 	//取最后一个点与倒数第n个点的连线向后插值
 	//总路径点不足n个,退出
 	int n = 5;
@@ -237,24 +235,24 @@ std::vector<gpsMsg_t> PathTracking::extendPath(std::vector<gpsMsg_t> path, float
     {
 	    int endIndex = path_length-1;
 	
-	    float dx = (path_points[endIndex].x - path_points[endIndex-n].x)/n;
-	    float dy = (path_points[endIndex].y - path_points[endIndex-n].y)/n;
+	    float dx = (path_points_[endIndex].x - path_points_[endIndex-n].x)/n;
+	    float dy = (path_points_[endIndex].y - path_points_[endIndex-n].y)/n;
 	    float ds = sqrt(dx*dx+dy*dy);
 
 	    gpsMsg_t point;
 	    float remaind_dis = 0.0;
 	    for(size_t i=1;;++i)
 	    {
-		    point.x = path_points[endIndex].x + dx*i;
-		    point.y = path_points[endIndex].y + dy*i;
+		    point.x = path_points_[endIndex].x + dx*i;
+		    point.y = path_points_[endIndex].y + dy*i;
 		    point.curvature = 0.0;
-		    path_points.push_back(point);
+		    path_points_.push_back(point);
 		    remaind_dis += ds;
 		    if(remaind_dis > extendDis)
 			    break;
 	    }
 	    IsExtendPath = true;
-	    return path_points;
+	    return path_points_;
     }
 }
 
