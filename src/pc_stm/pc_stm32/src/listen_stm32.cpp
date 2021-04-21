@@ -148,7 +148,6 @@ void Listener::parseIncomingData(uint8_t* buffer,size_t len)
 					pkg_buffer_index = 0;
 					return ;
 				}
-				
 				if((pkg_buffer[2] == 0x02))    //0x02代表下位机向上位机发布的消息包id; 0xe0代表车速信号、制动信号、转角信号有效
 					parseFromStmVehicleState(pkg_buffer);
 				else if(pkg_buffer[2] == 0x05) //PID
@@ -158,8 +157,6 @@ void Listener::parseIncomingData(uint8_t* buffer,size_t len)
 					float kd = ((pkg_buffer[8] * 256 + pkg_buffer[9]) - 30000)/100.0;
 					std::cout << "set pid ok: " << kp << "\t" << ki << "\t" << kd << "\n";
 				}
-					
-					
 				pkg_buffer_index = 0;
 			}
 		}
