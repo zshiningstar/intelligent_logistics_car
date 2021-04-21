@@ -52,6 +52,7 @@ find_package(catkin REQUIRED COMPONENTS
    FILES
    GoalState.msg
    RealState.msg
+   PidParams.msg
  )
 
 ## Generate services in the 'srv' folder
