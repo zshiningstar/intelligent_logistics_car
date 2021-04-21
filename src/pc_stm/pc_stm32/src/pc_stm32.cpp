@@ -68,6 +68,13 @@ bool Listener::init()
 	ros::NodeHandle nh_private("~");
 	odom_pub = nh.advertise<nav_msgs::Odometry>("/wheel_odom", 50);
 	m_pub_state = nh.advertise<logistics_msgs::RealState>(nh_private.param<std::string>("car_state","/car_state"),10);
+	
+	std::string car_goal = nh_private.param<std::string>("car_goal","/car_goal");
+	std::string pid_params = nh_private.param<std::string>("pid_params","/pid_params");
+	
+	m_sub_goal = nh.subscribe(car_goal ,1,&Listener::GoalState_callback, this);
+	m_sub_pid_params = nh.subscribe(pid_params,1,&Listener::Pid_callback, this);
+	
 	std::string port_name = nh_private.param<std::string>("port_name","/dev/pts/23");
 	int baudrate = nh_private.param<int>("baudrate",115200);
 	if(!openSerial(port_name,baudrate))
@@ -271,6 +278,57 @@ void Listener::parseFromStmVehicleState(const unsigned char* buffer)
 		ROS_DEBUG_STREAM("accumulation_x: " << x << "; accumulation_y: " << y <<"; accumulation_th: " << vth);
 		last_time = current_time;
 		r.sleep();
+}
+
+void Listener::GoalState_callback(const logistics_msgs::GoalState::ConstPtr& msg)
+{	
+	static uint8_t buf[11];
+
+	buf[0]  = 0x66;
+	buf[1]  = 0xcc;
+	buf[2]  = 0x01;   //数据包id
+	buf[3]  = 0x07;   //数据长度（包含校验位）
+	buf[4]  = 0x01;
+	
+	uint16_t sum = msg->goal_speed * 100.0 + 30000;
+	buf[5]  = sum >> 8;  
+	buf[6]  = sum;  
+	
+	uint16_t sun = msg->goal_angle * 100.0 + 30000;
+	buf[7]  = sun >> 8;
+	buf[8]  = sun;
+	buf[9]  = msg->goal_light;
+	buf[10] = buf[2] + buf[3] + buf[4] + buf[5] + buf[6] + buf[7] + buf[8] + buf[9];   //校验位
+	
+	m_serial_port-> write(buf,11);
+}
+
+void Listener::Pid_callback(const logistics_msgs::PidParams::ConstPtr& pid)
+{	
+//	is_pid_write =true;
+	static uint8_t buf[11];
+	buf[0]  = 0x66;
+	buf[1]  = 0xcc;
+	buf[2]  = 0x05;   //数据包id
+	buf[3]  = 0x07;   //数据长度（包含校验位）
+	
+	uint16_t sum = pid->kp * 100.0 + 30000;
+	buf[4]  = sum >> 8;  
+	buf[5]  = sum;  
+	
+	uint16_t sun = pid->ki * 100.0 + 30000;
+	buf[6]  = sun >> 8;
+	buf[7]  = sun;
+	
+	uint16_t sup = pid->kd * 100.0 + 30000;
+	buf[8]  = sup >> 8;
+	buf[9]  = sup;
+	
+	buf[10] = buf[2] + buf[3] + buf[4] + buf[5] + buf[6] + buf[7] + buf[8] + buf[9];   //校验位
+	
+	std::cout << "set pid: " << pid->kp << "\t" << pid->ki << "\t" << pid->kd << "\n";
+	
+	m_serial_port-> write(buf,11);
 }
 
 void Listener::stopReading()

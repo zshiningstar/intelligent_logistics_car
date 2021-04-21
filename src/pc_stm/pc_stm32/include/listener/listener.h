@@ -10,6 +10,8 @@
 #include <boost/thread.hpp>
 #include <boost/bind.hpp>
 #include <logistics_msgs/RealState.h>
+#include <logistics_msgs/PidParams.h>
+#include <logistics_msgs/GoalState.h>
 #include <stdio.h>
 #include <tf/transform_broadcaster.h>
 #include <nav_msgs/Odometry.h>
@@ -46,6 +48,8 @@ private:
 	void handle_speed_msg(uint8_t* buffer_data);
 	double generate_real_speed(double& temp1,double& temp2);
 	
+	void GoalState_callback(const logistics_msgs::GoalState::ConstPtr& msg);
+	void Pid_callback(const logistics_msgs::PidParams::ConstPtr& pid);
 private:
 	ros::Publisher m_pub_state;
 	
@@ -58,6 +62,10 @@ private:
 	
 	ros::Subscriber m_sub_state;
 	ros::Publisher odom_pub;
+	
+	ros::Subscriber m_sub_goal;
+	ros::Subscriber m_sub_pid_params;
+	
 	std::string car_state;
 	tf::TransformBroadcaster odom_broadcaster;
 	ros::Time current_time, last_time;

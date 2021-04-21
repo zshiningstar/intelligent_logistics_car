@@ -23,18 +23,18 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
 )
 
-add_executable(listen_stm32 src/listen_stm32.cpp)
-add_dependencies(listen_stm32 ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(listen_stm32 ${catkin_LIBRARIES} )
+add_executable(pc_stm32 src/pc_stm32.cpp)
+add_dependencies(pc_stm32 ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(pc_stm32 ${catkin_LIBRARIES} )
 
-add_executable(talk_stm32 src/talk_stm32.cpp)
-add_dependencies(talk_stm32 ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(talk_stm32 ${catkin_LIBRARIES} )
+#add_executable(talk_stm32 src/talk_stm32.cpp)
+#add_dependencies(talk_stm32 ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+#target_link_libraries(talk_stm32 ${catkin_LIBRARIES} )
 
-add_executable(try src/try.cpp)
-add_dependencies(try ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(try ${catkin_LIBRARIES} )
+#add_executable(try src/try.cpp)
+#add_dependencies(try ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+#target_link_libraries(try ${catkin_LIBRARIES} )
 
-add_executable(try_stm32_pc src/try_stm32_pc.cpp)
-add_dependencies(try_stm32_pc ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(try_stm32_pc ${catkin_LIBRARIES} )
+#add_executable(try_stm32_pc src/try_stm32_pc.cpp)
+#add_dependencies(try_stm32_pc ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+#target_link_libraries(try_stm32_pc ${catkin_LIBRARIES} )
