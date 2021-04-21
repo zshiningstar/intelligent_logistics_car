@@ -10,7 +10,7 @@
 	
 	<node name="path_tracking" pkg="planning" type="path_track" output="screen">
 	
-		<param name="path_points_file" value="$(find recorder)/data/$(arg file_name)"/>
+		<param name="path_points_file" value="$(find record)/data/$(arg file_name)"/>
 		<param name="min_foresight_distance" value="4"/>
 		<param name="max_side_accel" value="1.5"/>
 		
@@ -50,8 +50,8 @@
 		
 	</node>
 	
-	<node name="record_node" pkg="recorder" type="record_node" >
-		<param name="file_path" value="$(find recorder)/data/"/>
+	<node name="record_node" pkg="record" type="record_node" >
+		<param name="file_path" value="$(find record)/data/"/>
 		<param name="file_name" value="$(arg file_name)_res.txt"/>
 		<param name="sample_distance" value="0.1" />
 		<param name="utm_topic" value="/ll2utm_odom" />

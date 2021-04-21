@@ -4,8 +4,8 @@
 	<arg name="file_name" default="path" />
 	<arg name="port" default="/dev/gps"/>
 	
-	<node name="record_node" pkg="recorder" type="record_node" output= "screen">
-		<param name="file_path" value="$(find recorder)/data/"/>
+	<node name="record_node" pkg="record" type="record_node" output= "screen">
+		<param name="file_path" value="$(find record)/data/"/>
 		<param name="file_name" value="$(arg file_name).txt"/>
 		<param name="sample_distance" value="0.1" />
 		<param name="utm_topic" value="/slam_fused_odom" />

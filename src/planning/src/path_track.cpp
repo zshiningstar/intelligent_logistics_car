@@ -50,6 +50,7 @@ private:
 	boost::shared_ptr<boost::thread> rosSpin_thread_ptr_;
 	std::string path_points_file_;
 	std::vector<gpsMsg_t> path_points_;
+	  std::vector<gpsMsg_t> path_points;
 	gpsMsg_t current_point_, target_point_;
 	gps_msgs::Inspvax m_inspax;
 	
@@ -176,7 +177,7 @@ bool PathTracking::init_work(ros::NodeHandle nh,ros::NodeHandle nh_private)
 		    if(is_back_)                                                                                // 如果倒车，翻转路径文件
 			{ 
 			    reverse(path_points_.begin(), path_points_.end());
-			    extendPath(path_points_, 20.0);                                                         //路径拓展延伸
+			    extendPath(path_points_, 20.0);    
 		        if(!IsExtendPath)
 		        {
 		            ROS_ERROR("extend the path failed !!");
@@ -201,7 +202,7 @@ bool PathTracking::init_work(ros::NodeHandle nh,ros::NodeHandle nh_private)
 	    //	std::cout << path_points_[i].x << "\t" << path_points_[i].y << std::endl;
 	    target_point_index_ = findNearestPoint(path_points_,current_point_);                      
 	    std::cout << target_point_index_ << " / "  << path_points_.size() << std::endl;
-	    if(target_point_index_ > path_points_.size() - 10)
+	    if(target_point_index_ > path_points_.size() - 2)
 	    {
 		    ROS_ERROR("target index:%d ?? file read over, No target point was found !!!",target_point_index_);
 		    return false;
@@ -220,8 +221,9 @@ bool PathTracking::init_work(ros::NodeHandle nh,ros::NodeHandle nh_private)
  */
 std::vector<gpsMsg_t> PathTracking::extendPath(std::vector<gpsMsg_t> path, float extendDis)
 {
-    std::vector<gpsMsg_t> path_points = path;
+	path_points = path;
 	int path_length = path_points.size();
+	std::cout << "path_length:" << path_length << std::endl;
 	//取最后一个点与倒数第n个点的连线向后插值
 	//总路径点不足n个,退出
 	int n = 5;
@@ -251,8 +253,8 @@ std::vector<gpsMsg_t> PathTracking::extendPath(std::vector<gpsMsg_t> path, float
 		    if(remaind_dis > extendDis)
 			    break;
 	    }
-	    return path_points;
 	    IsExtendPath = true;
+	    return path_points;
     }
 }
 
