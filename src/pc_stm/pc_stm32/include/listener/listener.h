@@ -40,7 +40,7 @@ private:
 	void closeSerial();
 	void readSerialThread();
 	void parseIncomingData(uint8_t* buffer,size_t len);
-	void parseFromStm(const unsigned char* buffer);
+	void parseFromStmVehicleState(const unsigned char* buffer);
 	bool sumCheck(const unsigned char* pkg_buffer, size_t pkg_len);
 	
 	void handle_speed_msg(uint8_t* buffer_data);

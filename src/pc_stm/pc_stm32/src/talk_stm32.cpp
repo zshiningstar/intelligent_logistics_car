@@ -11,11 +11,21 @@
 #include <logistics_msgs/PidParams.h>
 using namespace std;
 
+//boost::mutex mutex_;
+//...
+//...
+//...
+//{
+//	boost::mutex::scoped_lock l(mutex_);
+//	/***********
+//	被锁定的内容
+//	************/
+//}
+
+
 class Talk
 {
 public:
-	Talk()
-	{};
 	~Talk();
 	bool init();
 private:
@@ -28,10 +38,17 @@ private:
 	ros::Subscriber m_sub_goal;
 	ros::Subscriber m_sub_pid_params;
 	
+	ros::Timer timer_;
 	serial::Serial *m_serial_port;
+	boost::mutex mutex_;
+	
+	bool is_goal_write;
+	bool is_pid_write;
 };
 
-
+//Talk::Talk():is_goal_write(false),is_pid_write(true)
+//{
+//}
 Talk::~Talk()
 {
     this->closeSerial();
@@ -46,11 +63,10 @@ bool Talk::init()
 	ros::NodeHandle nh_private("~");
 	
 	std::string car_goal = nh_private.param<std::string>("car_goal","/car_goal");
-	m_sub_goal = nh.subscribe(car_goal ,1,&Talk::GoalState_callback, this);
-	
 	std::string pid_params = nh_private.param<std::string>("pid_params","/pid_params");
-	m_sub_pid_params = nh.subscribe(pid_params,1,&Talk::Pid_callback, this);
 	
+	m_sub_goal = nh.subscribe(car_goal ,1,&Talk::GoalState_callback, this);
+	m_sub_pid_params = nh.subscribe(pid_params,1,&Talk::Pid_callback, this);
 	std::string port_name = nh_private.param<std::string>("port_name","/dev/ttyUSB0");  // launch文件对应
 	
 	int baudrate = nh_private.param<int>("baudrate",115200);
@@ -59,6 +75,7 @@ bool Talk::init()
 	return true;
 }
 
+
 /*
  *@fuc: 订阅 car_goal,写入串口
  *
@@ -66,6 +83,7 @@ bool Talk::init()
  
 void Talk::GoalState_callback(const logistics_msgs::GoalState::ConstPtr& msg)
 {	
+	is_goal_write = true;
 	static uint8_t buf[11];
 
 	buf[0]  = 0x66;
@@ -89,6 +107,7 @@ void Talk::GoalState_callback(const logistics_msgs::GoalState::ConstPtr& msg)
 
 void Talk::Pid_callback(const logistics_msgs::PidParams::ConstPtr& pid)
 {	
+//	is_pid_write =true;
 	static uint8_t buf[11];
 	buf[0]  = 0x66;
 	buf[1]  = 0xcc;
@@ -108,6 +127,10 @@ void Talk::Pid_callback(const logistics_msgs::PidParams::ConstPtr& pid)
 	buf[9]  = sup;
 	
 	buf[10] = buf[2] + buf[3] + buf[4] + buf[5] + buf[6] + buf[7] + buf[8] + buf[9];   //校验位
+	
+	std::cout << "set pid: " << pid->kp << "\t" << pid->ki << "\t" << pid->kd << "\n";
+	
+	m_serial_port-> write(buf,11);
 }
 /*
  *@fuc:  打开串口

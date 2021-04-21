@@ -143,11 +143,23 @@ void Listener::parseIncomingData(uint8_t* buffer,size_t len)
 			if(pkg_buffer_index == 10)
 			{		
 				pkg_len = pkg_buffer[3];
-				if((pkg_buffer[2] == 0x02) && sumCheck(pkg_buffer,pkg_len))    //0x02代表下位机向上位机发布的消息包id; 0xe0代表车速信号、制动信号、转角信号有效
-				if(1)
+				if(! sumCheck(pkg_buffer,pkg_len))
 				{
-					parseFromStm(pkg_buffer);
-				}					
+					pkg_buffer_index = 0;
+					return ;
+				}
+				
+				if((pkg_buffer[2] == 0x02))    //0x02代表下位机向上位机发布的消息包id; 0xe0代表车速信号、制动信号、转角信号有效
+					parseFromStmVehicleState(pkg_buffer);
+				else if(pkg_buffer[2] == 0x05) //PID
+				{
+					float kp = ((pkg_buffer[4] * 256 + pkg_buffer[5]) - 30000)/100.0;
+					float ki = ((pkg_buffer[6] * 256 + pkg_buffer[7]) - 30000)/100.0;
+					float kd = ((pkg_buffer[8] * 256 + pkg_buffer[9]) - 30000)/100.0;
+					std::cout << "set pid ok: " << kp << "\t" << ki << "\t" << kd << "\n";
+				}
+					
+					
 				pkg_buffer_index = 0;
 			}
 		}
@@ -182,7 +194,7 @@ bool Listener::sumCheck(const unsigned char* pkg_buffer, size_t pkg_len)
 		return true;
 }
 
-void Listener::parseFromStm(const unsigned char* buffer)
+void Listener::parseFromStmVehicleState(const unsigned char* buffer)
 {	
 	m_state.header.stamp = ros::Time::now();
 	m_state.header.frame_id = "car_state";
