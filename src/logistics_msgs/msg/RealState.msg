@@ -7,6 +7,7 @@ float64 real_angle
 float64 real_light
 float64 real_brake
 float64 real_park
+float64 real_touque
 
 
 bool real_speed_valid

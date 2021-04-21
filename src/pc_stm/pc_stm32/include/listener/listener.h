@@ -24,7 +24,7 @@
 #include <string>
 #include <vector>
 
-#define Wheel_Radius  0.25
+#define Wheel_D  0.355
 #define AXIS_DISTANCE 0.88  // 轴距
 
 class Listener
@@ -43,13 +43,20 @@ private:
 	void readSerialThread();
 	void parseIncomingData(uint8_t* buffer,size_t len);
 	void parseFromStmVehicleState(const unsigned char* buffer);
-	bool sumCheck(const unsigned char* pkg_buffer, size_t pkg_len);
+	uint8_t sumCheck(const uint8_t* pkg_buffer, int pkg_len);
 	
 	void handle_speed_msg(uint8_t* buffer_data);
 	double generate_real_speed(double& temp1,double& temp2);
 	
 	void GoalState_callback(const logistics_msgs::GoalState::ConstPtr& msg);
 	void Pid_callback(const logistics_msgs::PidParams::ConstPtr& pid);
+	
+	void print(const uint8_t* buf, int len)
+	{
+		for(int i=0; i< len; ++i)
+			std::cout << std::hex << int(buf[i]) << "\t";
+		std::cout << std::endl;
+	}
 private:
 	ros::Publisher m_pub_state;
 	
@@ -74,7 +81,7 @@ private:
 	
 	bool prase_flag_;
 	double x,y,th,vx,vy,vth;
-	double real_speed_left,real_speed_right,real_angle,real_speed;
+	double real_speed_left,real_speed_right,real_angle,real_speed,real_touque;
 	double left_wheel_speed,right_wheel_speed,speed;
 };
 

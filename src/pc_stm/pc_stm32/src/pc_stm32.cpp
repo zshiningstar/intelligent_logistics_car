@@ -18,8 +18,8 @@ Listener::~Listener()
 
 double Listener::generate_real_speed(double& temp1,double& temp2)
 {	
-	left_wheel_speed = 2 * M_PI * Wheel_Radius * temp1;
-	right_wheel_speed = 2 * M_PI * Wheel_Radius * temp2;
+	left_wheel_speed = M_PI * Wheel_D * temp1 / 60;
+	right_wheel_speed = M_PI * Wheel_D * temp2 / 60;
 	speed = (left_wheel_speed + right_wheel_speed) / 2;
 	return speed;
 }
@@ -118,15 +118,18 @@ void Listener::readSerialThread()
 		parseIncomingData(raw_data_buf, get_len);
 		ros::Duration(0.01).sleep();
 		//boost::this_thread::sleep(boost::posix_time::milliseconds(10));
+		//print(raw_data_buf, get_len);
+		//ROS_INFO("get_len: %d", get_len);
 	}
 	delete [] raw_data_buf;
 }
 
 void Listener::parseIncomingData(uint8_t* buffer,size_t len)
 {	
-	static unsigned char pkg_buffer[11];
+	static unsigned char pkg_buffer[14];
 	static size_t pkg_buffer_index = 0; //数据包缓存定位索引
 	size_t pkg_len = 0;
+	int pkgId;
 	
 	for(size_t i=0; i<len; ++i)
 	{
@@ -147,11 +150,18 @@ void Listener::parseIncomingData(uint8_t* buffer,size_t len)
 		else
 		{
 			pkg_buffer[pkg_buffer_index++] = buffer[i];
-			if(pkg_buffer_index == 10)
-			{		
+			
+			if(pkg_buffer_index == 3)
+				pkgId = pkg_buffer[2];
+			else if(pkg_buffer_index == 4)
 				pkg_len = pkg_buffer[3];
-				if(! sumCheck(pkg_buffer,pkg_len))
+			else if(pkg_buffer_index == pkg_len+5)
+			{
+				//std::cout << "pkg_len: " << pkg_len << std::endl;
+				
+				if(pkg_buffer[pkg_len+4] != sumCheck(pkg_buffer+2,pkg_len+2))
 				{
+					ROS_ERROR("check failed!");
 					pkg_buffer_index = 0;
 					return ;
 				}
@@ -181,21 +191,13 @@ void Listener::run()
 	ros::spin();
 }
 
-bool Listener::sumCheck(const unsigned char* pkg_buffer, size_t pkg_len)
+uint8_t Listener::sumCheck(const uint8_t* buf, int len)
 {	
-	size_t sum = 0;
-	for(int i = 2;i<pkg_len + 3;i++)
-	{	
-		sum = sum + pkg_buffer[i];
-	}
-	if(sum == pkg_buffer[10])
-	{	
-		std::cout << sum << endl;
-		return true;
-	}
-
-	else
-		return true;
+	uint8_t sum = 0;
+	for(int i=0; i<len; i++)
+		sum += buf[i];
+		
+	return sum;
 }
 
 void Listener::parseFromStmVehicleState(const unsigned char* buffer)
@@ -203,21 +205,23 @@ void Listener::parseFromStmVehicleState(const unsigned char* buffer)
 	m_state.header.stamp = ros::Time::now();
 	m_state.header.frame_id = "car_state";
 	
-	m_state.real_speed_left = ((buffer[5]  + buffer[6]* 256) - 30000) * 0.01;
-	m_state.real_speed_right = ((buffer[7]+ buffer[8] * 256 ) - 30000) * 0.01;
-	m_state.real_angle = ((buffer[9] + buffer[10]* 256 ) - 30000) * 0.01;
-	m_state.real_brake = buffer[11] & 0xf0;
-	m_state.real_park  = buffer[11] & 0x0f;
+	m_state.real_speed_left        = ((buffer[5]* 256 + buffer[6]) - 30000);
+	m_state.real_speed_right       = ((buffer[7]* 256 + buffer[8] ) - 30000);
+	m_state.real_angle             = ((buffer[9]* 256 + buffer[10] ) - 30000);
+	m_state.real_brake             = buffer[11] & 0xf0;
+	m_state.real_park              = buffer[11] & 0x0f;
+	m_state.real_touque            = buffer[12];
 	
 	m_pub_state.publish(m_state);
-	printf("speed:%0.2f\t angle:%0.2f\n",m_state.real_speed,m_state.real_angle);
 	
-	real_speed_left = m_state.real_speed_left;
-	real_speed_right = m_state.real_speed_right;
-	real_angle = m_state.real_angle;
-	real_speed = generate_real_speed(real_speed_left,real_speed_right);
+	real_speed_left                = m_state.real_speed_left;
+	real_speed_right               = m_state.real_speed_right;
+	real_speed                     = generate_real_speed(real_speed_left,real_speed_right);
+	real_angle                     = m_state.real_angle;
+	real_touque                    = m_state.real_touque;
 	
-	std::cout << "real_speed: " << real_speed << std::endl;
+	printf("speed:%0.2f\t angle:%0.2f\t touque:%0.2f\n",real_speed,real_angle,real_touque);
+	
 	if(prase_flag_)
 	{
 		double x = 0.0;
@@ -234,8 +238,7 @@ void Listener::parseFromStmVehicleState(const unsigned char* buffer)
 		double delta_x = (vx * cos(th) - vy * sin(th)) * dt;
 		double delta_y = (vx * sin(th) + vy * cos(th)) * dt;
 		double delta_th = vth * dt;
-		ros::Rate r(1.0);
-		ros::spinOnce();               // check for incoming messages
+
 		current_time = ros::Time::now();
 		
 		x += delta_x;
@@ -277,19 +280,14 @@ void Listener::parseFromStmVehicleState(const unsigned char* buffer)
 		odom_pub.publish(odom);
 		ROS_DEBUG_STREAM("accumulation_x: " << x << "; accumulation_y: " << y <<"; accumulation_th: " << vth);
 		last_time = current_time;
-		r.sleep();
 }
 
 void Listener::GoalState_callback(const logistics_msgs::GoalState::ConstPtr& msg)
 {	
-	static uint8_t buf[11];
+	static uint8_t pkgId = 0x01;
+	const uint8_t dataLen = 6;
+	static uint8_t buf[11] = {0x66, 0xcc, pkgId, dataLen };
 
-	buf[0]  = 0x66;
-	buf[1]  = 0xcc;
-	buf[2]  = 0x01;   //数据包id
-	buf[3]  = 0x07;   //数据长度（包含校验位）
-	buf[4]  = 0x01;
-	
 	uint16_t sum = msg->goal_speed * 100.0 + 30000;
 	buf[5]  = sum >> 8;  
 	buf[6]  = sum;  
@@ -298,9 +296,13 @@ void Listener::GoalState_callback(const logistics_msgs::GoalState::ConstPtr& msg
 	buf[7]  = sun >> 8;
 	buf[8]  = sun;
 	buf[9]  = msg->goal_light;
-	buf[10] = buf[2] + buf[3] + buf[4] + buf[5] + buf[6] + buf[7] + buf[8] + buf[9];   //校验位
 	
-	m_serial_port-> write(buf,11);
+	uint8_t checkVal = sumCheck(buf+2, dataLen+2);
+	
+	//std::cout << (buf[2]) << "\t" << dataLen+2 << "\t" << int(checkVal) << std::endl;
+	buf[dataLen+4] = checkVal;
+	//print(buf, dataLen+5);
+	m_serial_port-> write(buf,dataLen+5);
 }
 
 void Listener::Pid_callback(const logistics_msgs::PidParams::ConstPtr& pid)
@@ -310,7 +312,7 @@ void Listener::Pid_callback(const logistics_msgs::PidParams::ConstPtr& pid)
 	buf[0]  = 0x66;
 	buf[1]  = 0xcc;
 	buf[2]  = 0x05;   //数据包id
-	buf[3]  = 0x07;   //数据长度（包含校验位）
+	buf[3]  = 0x06;   //数据长度（bu含校验位）
 	
 	uint16_t sum = pid->kp * 100.0 + 30000;
 	buf[4]  = sum >> 8;  
