@@ -36,7 +36,8 @@ public:
 	void car_state_callback(const logistics_msgs::RealState::ConstPtr& msg);
 	bool is_gps_data_valid(gpsMsg_t& point);
 	void rosSpinThread(){ros::spin();}
-	std::vector<gpsMsg_t> extendPath(std::vector<gpsMsg_t> path, float extendDis);
+    bool extendPath(std::vector<gpsMsg_t>& path, float extendDis);
+//	std::vector<gpsMsg_t> extendPath(std::vector<gpsMsg_t> path, float extendDis);
 private:
 	gpsMsg_t pointOffset(const gpsMsg_t& point,float offset);
 private:
@@ -89,7 +90,6 @@ private:
 	logistics_msgs::GoalState car_goal;
 	logistics_msgs::RealState car_state;
 	bool isLocationValid;
-	bool IsExtendPath;
 };
 
 /*@fuc:     车辆目标状态初始化
@@ -106,8 +106,7 @@ PathTracking::PathTracking():
 	sumlateral_err_(0),
 	vehicle_speed_(0),
 	theta_true_(0),
-	isLocationValid(false),
-	IsExtendPath(false)
+	isLocationValid(false)
 {
 	car_goal.goal_speed = 0;
 	car_goal.goal_angle = 0;
@@ -177,16 +176,14 @@ bool PathTracking::init_work(ros::NodeHandle nh,ros::NodeHandle nh_private)
 		    if(is_back_)                                                                                // 如果倒车，翻转路径文件
 			{ 
 			    reverse(path_points_.begin(), path_points_.end());
-			    extendPath(path_points_, 20.0);    
-		        if(!IsExtendPath)
+		        if(!extendPath(path_points_, 20.0))
 		        {
 		            ROS_ERROR("extend the path failed !!");
 		            return false;
 		        }
 			}
 			else
-			    extendPath(path_points_, 20.0);
-			    if(!IsExtendPath)
+			    if(!extendPath(path_points_, 20.0))
 		        {
 		            ROS_ERROR("extend the path failed !!");
 		            return false;
@@ -219,41 +216,36 @@ bool PathTracking::init_work(ros::NodeHandle nh,ros::NodeHandle nh_private)
 
 /*@fuc:  路径延伸
  */
-std::vector<gpsMsg_t> PathTracking::extendPath(std::vector<gpsMsg_t> path, float extendDis)
+bool PathTracking::extendPath(std::vector<gpsMsg_t>& path, float extendDis)
 {
-	int path_length = path_points_.size();
 	//取最后一个点与倒数第n个点的连线向后插值
 	//总路径点不足n个,退出
 	int n = 5;
-	//std::cout << "extendPath: " << path_points.size() << "\t" << path_points.size()-1 << std::endl;
-	if(path_length-1 < n)
+	//std::cout << "extendPath: " << path.size() << "\t" << path.size()-1 << std::endl;
+	if(path.size()-1 < n)
 	{
-		ROS_ERROR("path points is too few (%lu), extend path failed",path_length-1);
-		IsExtendPath = false;
+		ROS_ERROR("path points is too few (%lu), extend path failed",path.size()-1);
+		return false;
 	}
-    else
-    {
-	    int endIndex = path_length-1;
+	int endIndex = path.size()-1;
 	
-	    float dx = (path_points_[endIndex].x - path_points_[endIndex-n].x)/n;
-	    float dy = (path_points_[endIndex].y - path_points_[endIndex-n].y)/n;
-	    float ds = sqrt(dx*dx+dy*dy);
+	float dx = (path[endIndex].x - path[endIndex-n].x)/n;
+	float dy = (path[endIndex].y - path[endIndex-n].y)/n;
+	float ds = sqrt(dx*dx+dy*dy);
 
-	    gpsMsg_t point;
-	    float remaind_dis = 0.0;
-	    for(size_t i=1;;++i)
-	    {
-		    point.x = path_points_[endIndex].x + dx*i;
-		    point.y = path_points_[endIndex].y + dy*i;
-		    point.curvature = 0.0;
-		    path_points_.push_back(point);
-		    remaind_dis += ds;
-		    if(remaind_dis > extendDis)
-			    break;
-	    }
-	    IsExtendPath = true;
-	    return path_points_;
-    }
+	gpsMsg_t point;
+	float remaind_dis = 0.0;
+	for(size_t i=1;;++i)
+	{
+		point.x = path[endIndex].x + dx*i;
+		point.y = path[endIndex].y + dy*i;
+		point.curvature = 0.0;
+		path.push_back(point);
+		remaind_dis += ds;
+		if(remaind_dis > extendDis)
+			break;
+	}
+	return true;
 }
 
 /*@fuc:    计算获取目标前轮转角和车速
@@ -348,6 +340,10 @@ void PathTracking::run()
 		float goal_angle = theta_true_ + sign * omega_ * dt ;
 	    car_goal.goal_speed = goal_speed;
 		car_goal.goal_angle = goal_angle * 1.3;
+		if(goal_angle>max_roadwheelAngle_)
+		    goal_angle = max_roadwheelAngle_;
+	    else if(goal_angle<(-max_roadwheelAngle_))
+	        goal_angle = (-max_roadwheelAngle_);
 		theta_true_ = goal_angle;
 		if(i%20==0)
 		{
