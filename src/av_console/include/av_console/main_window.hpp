@@ -84,10 +84,6 @@ private:
     QTimer mTimer;
     //CustomTaskDialog* m_customDialog;
     bool m_rosNodesArrayInvalid;
-
-private:
-	Ui::MainWindowDesign ui;
-	QNode qnode;
 };
 
 }  // namespace av_console
