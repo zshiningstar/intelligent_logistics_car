@@ -53,6 +53,7 @@ find_package(catkin REQUIRED COMPONENTS
    GoalState.msg
    RealState.msg
    PidParams.msg
+   ControlCmd2.msg
  )
 
 ## Generate services in the 'srv' folder

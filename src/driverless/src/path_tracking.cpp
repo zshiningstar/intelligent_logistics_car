@@ -52,11 +52,11 @@ bool PathTracking::start()
 		ROS_ERROR("[%s] No global path!",__NAME__);
 		return false;
 	}
-	if(global_path_.park_points.size()==0)
-	{
-		ROS_ERROR("[%s] No parking points!",__NAME__);
-		return false;
-	}
+//	if(global_path_.park_points.size()==0)
+//	{
+//		ROS_ERROR("[%s] No parking points!",__NAME__);
+//		return false;
+//	}
 
 	if(vehicle_params_.validity == false)
 	{

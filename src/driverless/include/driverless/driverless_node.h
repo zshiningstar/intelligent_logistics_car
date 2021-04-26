@@ -8,7 +8,7 @@
 #include <pathplaning_msgs/expected_path.h>
 
 #include <ant_msgs/ControlCmd1.h>
-#include <ant_msgs/ControlCmd2.h>
+#include <logistics_msgs/ControlCmd2.h>
 #include <ant_msgs/State1.h>  //gear
 #include <ant_msgs/State3.h>  //
 #include <ant_msgs/State2.h>  //speed
@@ -50,8 +50,8 @@ private:
     void executeDriverlessCallback(const driverless::DoDriverlessTaskGoalConstPtr& goal);
     bool handleNewGoal(const driverless::DoDriverlessTaskGoalConstPtr& goal);
 
-    ant_msgs::ControlCmd2 driveDecisionMaking();
-    ant_msgs::ControlCmd2 reverseDecisionMaking();
+    logistics_msgs::ControlCmd2 driveDecisionMaking();
+    logistics_msgs::ControlCmd2 reverseDecisionMaking();
     
 
     bool isReverseGear();
@@ -124,7 +124,7 @@ private:
     
     std::mutex cmd1_mutex_, cmd2_mutex_;
 	ant_msgs::ControlCmd1 controlCmd1_;
-	ant_msgs::ControlCmd2 controlCmd2_;
+	logistics_msgs::ControlCmd2 controlCmd2_;
 
     DoDriverlessTaskServer* as_;
     
