@@ -354,7 +354,7 @@ void av_console::MainWindow::on_pushButton_gps_clicked(bool checked)
     else
     {
       changeToCmdDir();
-      system("gnome-terminal -e rosnode kill daoyuan");
+      system("gnome-terminal -x rosnode kill daoyuan");
     }
 }
 
