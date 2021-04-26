@@ -181,6 +181,7 @@ void av_console::MainWindow::on_pushButton_driverlessStart_clicked(bool checked)
     {
         qnode.cancleAllGoals();
         onTaskStateChanged(qnode.Idle);
+        //launchRosNodes("kill_driverless");
     }
 }
 
@@ -759,8 +760,10 @@ void av_console::MainWindow::on_pushButton_selectRecordFile_clicked()
 
 bool av_console::MainWindow::loadRosNodesArrayInfo()
 {
-    std::string file = QCoreApplication::applicationDirPath().toStdString() + "/../cmd/cmd.xml";
-
+    std::string file = QDir::currentPath().toStdString() + "/src/av_console/cmd/cmd.xml";
+    //std::cout << QCoreApplication::applicationDirPath().toStdString() << std::endl;
+    //qnode.stampedLog(QNode::Info ,QDir::currentPath().toStdString());
+    //qnode.stampedLog(QNode::Info ,file);
     tinyxml2::XMLDocument Doc;   //定义xml文件对象
     tinyxml2::XMLError res = Doc.LoadFile(file.c_str());
 
@@ -773,6 +776,11 @@ bool av_console::MainWindow::loadRosNodesArrayInfo()
     {
         qnode.stampedLog(QNode::Error ,std::string("parse ") + file + " failed");
         return false;
+    }
+    else
+    {
+        qnode.stampedLog(QNode::Info ,std::string("parse ") + "cmds successfully");
+        return true;
     }
     tinyxml2::XMLElement *pRoot = Doc.RootElement();
 

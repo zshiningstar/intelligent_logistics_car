@@ -6,12 +6,6 @@
         <Topic name="odom">/odom</Topic>
     </RosNodes>
 
-<!--    <RosNodes name="imu">-->
-<!--        <LaunchCommand>roslaunch novatel novatel_imu.launch & </LaunchCommand>-->
-<!--        <Topic name="raw_imu">/raw_imu</Topic>-->
-<!--        <Topic name="corr_imu">/corr_imu</Topic>-->
-<!--    </RosNodes>-->
-
     <RosNodes name="base_control">
         <LaunchCommand>roslaunch driver pc_stm.launch &</LaunchCommand>
         <Topic name="vehicle_state">/car_state</Topic>

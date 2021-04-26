@@ -161,13 +161,6 @@ void QNode::livox_callback(const sensor_msgs::PointCloud2::ConstPtr& )
     if((++i)%5 == 0) //降低更新时间覆盖频率
         livox.last_update_time = ros::Time::now().toSec();
 }
-//void QNode::diagnostic_callback(const diagnostic_msgs::DiagnosticStatus::ConstPtr& msg)
-//{
-//    if(msg->hardware_id=="esr_radar")
-//        esr.last_update_time = ros::Time::now().toSec();
-//    else if(msg->hardware_id=="camera")
-//        camera1.last_update_time = ros::Time::now().toSec();
-//}
 void QNode::sensorStatusTimer_callback(const ros::TimerEvent& )
 {
     //qDebug() << "sensorStatusTimer_callback\r\n" ;
