@@ -3,7 +3,9 @@
 Record::Record()
 {
 	last_point = {0.0,0.0,0.0,0.0,0.0};     // 上一点的经度、纬度、航向角、x、y坐标（没有道路曲率的赋值）
+	next_point = {0.0,0.0,0.0,0.0,0.0};
 	current_point = last_point;
+	next_point = current_point;
 }
 
 Record::~Record()
@@ -47,13 +49,14 @@ void Record::gps_callback(const nav_msgs::Odometry::ConstPtr& msg)
 	current_point.x = msg->pose.pose.position.x;
 	current_point.y = msg->pose.pose.position.y;
 	current_point.yaw = msg->pose.covariance[0];        // 计算航向角的偏差
+	current_point.curvature = generateCurvature(current_point,next_point);
 	
 	if(sample_distance_*sample_distance_ <= dis2Points(current_point,last_point,false))
 	{
-		fprintf(fp,"%.3f\t%.3f\t%.4f\n",current_point.x,current_point.y,current_point.yaw);
+		fprintf(fp,"%.3f\t%.3f\t%.4f\t%.4f\n",current_point.x,current_point.y,current_point.yaw,current_point.curvature);
 		fflush(fp);                                     //把缓冲区的内容强制输出到fp文件里面
 		
-		ROS_INFO("row:%d\t%.3f\t%.3f\t%.3f",row_num++,current_point.x,current_point.y,current_point.yaw);
+		ROS_INFO("row:%d\t%.3f\t%.3f\t%.3f\t%.3f\n",row_num++,current_point.x,current_point.y,current_point.yaw,current_point.curvature);
 		last_point = current_point;                     // 更新上一个点的信息
 	}
 }

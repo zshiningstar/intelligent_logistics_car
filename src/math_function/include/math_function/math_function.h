@@ -56,6 +56,9 @@ typedef struct
 	double y;
 	float curvature;
 	
+	bool is_turnleft;
+	bool is_turnright;
+
 	float maxOffset_left;
 	float maxOffset_right;
 	uint8_t traffic_sign;

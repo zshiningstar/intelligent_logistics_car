@@ -27,6 +27,13 @@ float dis2Points(const gpsMsg_t& point1, const gpsMsg_t& point2,bool is_sqrt)
 		return sqrt(x*x +y*y);
 	return x*x+y*y;
 }
+float generateCurvature(const gpsMsg_t& point1, const gpsMsg_t& point2)
+{
+	float x = point1.x - point2.x;
+	float y = point1.y - point2.y;
+	
+	return y / x * 1.0;
+}
 class Record
 {
 	private:
@@ -34,7 +41,7 @@ class Record
 		std::string file_path_;
 		std::string	file_name_;
 		FILE *fp;                               // 定义一个文件指针
-		gpsMsg_t last_point , current_point;    // 上一个点，下一个点
+		gpsMsg_t last_point , current_point ,next_point;    // 上一个点，下一个点
 		
 		float sample_distance_;
 		ros::Subscriber sub_gps_;
