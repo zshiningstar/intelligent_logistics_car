@@ -350,11 +350,13 @@ void av_console::MainWindow::on_pushButton_gps_clicked(bool checked)
     {
       changeToCmdDir();
       system("gnome-terminal -x bash -c 'source ~/logistics_ws/devel/setup.bash; roslaunch daoyuan daoyuan.launch'&");
+      ui.lineEdit_gps->setText("launch sucessfully!");
     }
     else
     {
       changeToCmdDir();
       system("gnome-terminal -x rosnode kill daoyuan");
+      ui.lineEdit_gps->setText("close sucessfully!");
     }
 }
 
@@ -364,11 +366,12 @@ void av_console::MainWindow::on_pushButton_cluster_clicked(bool checked)
     {
       changeToCmdDir();
       system("gnome-terminal -x bash -c 'source ~/logistics_ws/devel/setup.bash; roslaunch euclidean_cluster euclidean_cluster.launch'&");
-      ui.lineEdit_cluster->setText("ok");
+      ui.lineEdit_cluster->setText("launch sucessfully!");
     }
     else
     {
-      ui.lineEdit_cluster->setText("");
+      ui.lineEdit_cluster->setText("close sucessfully!");
+      system("gnome-terminal -x rosnode kill euclidean_cluster");
     }
 }
 void av_console::MainWindow::on_pushButton_livox_clicked(bool checked)
@@ -377,11 +380,13 @@ void av_console::MainWindow::on_pushButton_livox_clicked(bool checked)
     {
       changeToCmdDir();
       system("gnome-terminal -x bash -c 'source ~/logistics_ws/devel/setup.bash; roslaunch livox_ros_driver livox_lidar_rviz.launch'&");
+      ui.lineEdit_livox->setText("launch sucessfully!");
     }
     else
     {
       changeToCmdDir();
-      system("gnome-terminal -e rosnode kill livox_lidar_publisher");
+      system("gnome-terminal -x rosnode kill livox_lidar_publisher rviz");
+      ui.lineEdit_livox->setText("close sucessfully!");
     }
 }
 
@@ -391,11 +396,13 @@ void av_console::MainWindow::on_pushButton_lsRadar_clicked(bool checked)
     {
       changeToCmdDir();
       system("gnome-terminal -x bash -c 'source ~/logistics_ws/devel/setup.bash; roslaunch lslidar_c16_decoder lslidar_c16.launch'&");
+      ui.lineEdit_lsRadar->setText("launch sucessfully!");
     }
     else
     {
       changeToCmdDir();
       system("gnome-terminal -e rosnode kill lslidar_c16_driver_node lslidar_c16_decoder_node");
+      ui.lineEdit_lsRadar->setText("close sucessfully!");
     }
 }
 
@@ -605,7 +612,7 @@ void av_console::MainWindow::showEvent(QShowEvent* event)
  */
 void av_console::MainWindow::setPushButtonStylesheet(const QString& style)
 {
-    const QSize BUTTON_SIZE = QSize(120, 40);
+    const QSize BUTTON_SIZE = QSize(130, 40);
     const QSize BUTTON_SIZE1 = QSize(200, 40);
     ui.pushButton_gps->setFixedSize(BUTTON_SIZE);
     ui.pushButton_livox->setFixedSize(BUTTON_SIZE);

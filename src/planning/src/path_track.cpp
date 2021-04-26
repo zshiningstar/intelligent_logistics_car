@@ -286,7 +286,7 @@ gpsMsg_t PathTracking::pointOffset(const gpsMsg_t& point,float offset)
  */
 bool PathTracking::is_gps_data_valid(gpsMsg_t& point)
 {		
-		std::cout << "x:" << point.x << "\t" << "y:" << point.y << std::endl;
+		//std::cout << "x:" << point.x << "\t" << "y:" << point.y << std::endl;
 		if(point.x > 100 && point.y > 100)
 		{
 			return true;

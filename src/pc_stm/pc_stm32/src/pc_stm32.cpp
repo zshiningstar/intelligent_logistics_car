@@ -172,7 +172,7 @@ void Listener::parseIncomingData(uint8_t* buffer,size_t len)
 					float kp = ((pkg_buffer[4] * 256 + pkg_buffer[5]) - 30000)/100.0;
 					float ki = ((pkg_buffer[6] * 256 + pkg_buffer[7]) - 30000)/100.0;
 					float kd = ((pkg_buffer[8] * 256 + pkg_buffer[9]) - 30000)/100.0;
-					std::cout << "set pid ok: " << kp << "\t" << ki << "\t" << kd << "\n";
+					//std::cout << "set pid ok: " << kp << "\t" << ki << "\t" << kd << "\n";
 				}
 				pkg_buffer_index = 0;
 			}
@@ -328,7 +328,7 @@ void Listener::Pid_callback(const logistics_msgs::PidParams::ConstPtr& pid)
 	
 	buf[10] = buf[2] + buf[3] + buf[4] + buf[5] + buf[6] + buf[7] + buf[8] + buf[9];   //校验位
 	
-	std::cout << "set pid: " << pid->kp << "\t" << pid->ki << "\t" << pid->kd << "\n";
+	//std::cout << "set pid: " << pid->kp << "\t" << pid->ki << "\t" << pid->kd << "\n";
 	
 	m_serial_port-> write(buf,11);
 }

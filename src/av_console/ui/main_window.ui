@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>986</width>
-    <height>648</height>
+    <width>1024</width>
+    <height>707</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -758,7 +758,7 @@ padding: 0 3px 0 3px;
                  </size>
                 </property>
                 <property name="text">
-                 <string>LS Radar</string>
+                 <string>Ls Radar</string>
                 </property>
                 <property name="checkable">
                  <bool>true</bool>
@@ -1361,7 +1361,7 @@ padding: 0 3px 0 3px;
            <item>
             <widget class="QLabel" name="label_livoxStatus">
              <property name="text">
-              <string>livox</string>
+              <string>Livox</string>
              </property>
             </widget>
            </item>
@@ -1397,7 +1397,7 @@ padding: 0 3px 0 3px;
            <item>
             <widget class="QLabel" name="label_lidarStatus">
              <property name="text">
-              <string>LS</string>
+              <string>Leishen</string>
              </property>
             </widget>
            </item>
@@ -1433,7 +1433,7 @@ padding: 0 3px 0 3px;
            <item>
             <widget class="QLabel" name="label_camera1Ststus">
              <property name="text">
-              <string>CAMERA</string>
+              <string>Camera</string>
              </property>
             </widget>
            </item>
@@ -1473,8 +1473,8 @@ padding: 0 3px 0 3px;
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>986</width>
-     <height>27</height>
+     <width>1024</width>
+     <height>26</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">

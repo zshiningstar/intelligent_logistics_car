@@ -6,7 +6,7 @@
   <arg name="time_synchronization" default="false" />
 
 
-  <node pkg="lslidar_c16_driver" type="lslidar_c16_driver_node" name="lslidar_c16_driver_node" output="screen">
+  <node pkg="lslidar_c16_driver" type="lslidar_c16_driver_node" name="lslidar_c16_driver_node" >
     <param name="device_ip" value="$(arg device_ip)" />
     <param name="msop_port" value="$(arg msop_port)" />
     <param name="difop_port" value="$(arg difop_port)"/>
@@ -18,7 +18,7 @@
     <param name="time_synchronization" value="$(arg time_synchronization)"/>
   </node>
 
-  <node pkg="lslidar_c16_decoder" type="lslidar_c16_decoder_node" name="lslidar_c16_decoder_node" output="screen">
+  <node pkg="lslidar_c16_decoder" type="lslidar_c16_decoder_node" name="lslidar_c16_decoder_node" >
     <param name="calibration_file" value="$(find lslidar_c16_decoder)/params/lslidar_c16_db.yaml" />
     <param name="min_range" value="0.15"/>
     <param name="max_range" value="150.0"/>
