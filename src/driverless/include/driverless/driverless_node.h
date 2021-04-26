@@ -7,7 +7,6 @@
 #include "extern_control/extern_control.h"
 #include <pathplaning_msgs/expected_path.h>
 
-#include <ant_msgs/ControlCmd1.h>
 #include <logistics_msgs/ControlCmd2.h>
 #include <ant_msgs/State1.h>  //gear
 #include <ant_msgs/State3.h>  //
@@ -42,7 +41,6 @@ private:
     void vehicleState1_callback(const ant_msgs::State1::ConstPtr& msg);
 
     void odom_callback(const nav_msgs::Odometry::ConstPtr& msg);
-    void sendCmd1_callback(const ros::TimerEvent&);
 	void sendCmd2_callback(const ros::TimerEvent&);
     void captureExernCmd_callback(const ros::TimerEvent&);
     void setSendControlCmdEnable(bool flag);
@@ -110,20 +108,19 @@ private:
     std::condition_variable listen_cv_;
     
 
-	ros::Timer cmd1_timer_, cmd2_timer_;
+	ros::Timer cmd2_timer_;
     ros::Timer capture_extern_cmd_timer_;
     ros::Subscriber sub_odom_;
     ros::Subscriber sub_vehicleState1_;
 	ros::Subscriber sub_vehicleState2_;
 	ros::Subscriber sub_vehicleState4_;
 
-    ros::Publisher pub_cmd1_, pub_cmd2_;
+    ros::Publisher pub_cmd2_;
 
     ros::Subscriber sub_new_goal_;   //订阅外部目标任务请求
     ros::Publisher  pub_new_goal_;   //发布目标请求到actionlib服务 
     
-    std::mutex cmd1_mutex_, cmd2_mutex_;
-	ant_msgs::ControlCmd1 controlCmd1_;
+    std::mutex cmd2_mutex_;
 	logistics_msgs::ControlCmd2 controlCmd2_;
 
     DoDriverlessTaskServer* as_;

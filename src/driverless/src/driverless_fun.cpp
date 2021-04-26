@@ -171,186 +171,6 @@ bool AutoDrive::init(ros::NodeHandle nh,ros::NodeHandle nh_private)
 	return true;
 }
 
-
-/* @brief 切换系统状态
- * 根据系统状态设置档位，直到档位设置成功。
-*/
-void AutoDrive::switchSystemState(int state)
-{
-	ROS_ERROR("[%s] NOT ERROR switchSystemState: %s", __NAME__, StateName[state].c_str());
-	if(system_state_ == state) return; //防止重复操作
-	
-	last_system_state_ = system_state_;
-    system_state_ = state;
-
-    //状态为前进，自动驾驶模式开，档位置D
-	if(state == State_Drive) 
-	{
-		if(isDriveGear())
-		{
-			cmd2_mutex_.lock(); //确保指令正确，防止指令已更改状态未更新
-			controlCmd2_.set_gear = controlCmd2_.GEAR_DRIVE;
-			cmd2_mutex_.unlock();
-			return;
-		}
-
-		cmd1_mutex_.lock();
-		controlCmd1_.set_driverlessMode = true;
-		controlCmd1_.set_handBrake = false;
-		cmd1_mutex_.unlock();
-
-		cmd2_mutex_.lock();
-		controlCmd2_.set_gear = controlCmd2_.GEAR_DRIVE;
-		controlCmd2_.set_speed = 0.0;
-		controlCmd2_.set_brake = 0.0;
-		controlCmd2_.set_roadWheelAngle = 0.0;
-		controlCmd2_.set_emergencyBrake = false;
-		cmd2_mutex_.unlock();
-
-        //启动控制指令发送
-		setSendControlCmdEnable(true);
-
-		//等待档位切换成功
-        waitGearOk(ant_msgs::State1::GEAR_DRIVE);
-	}
-    //状态为后退，自动驾驶模式开，档位置R
-	else if(state == State_Reverse) 
-	{
-		if(isReverseGear()) 
-		{
-			cmd2_mutex_.lock(); //确保指令正确，防止指令已更改状态未更新
-			controlCmd2_.set_gear = controlCmd2_.GEAR_REVERSE;
-			cmd2_mutex_.unlock();
-			return;
-		}
-
-		cmd1_mutex_.lock();
-		controlCmd1_.set_driverlessMode = true;
-		controlCmd1_.set_handBrake = false;
-		cmd1_mutex_.unlock();
-
-		cmd2_mutex_.lock();
-		controlCmd2_.set_gear = controlCmd2_.GEAR_REVERSE;
-		controlCmd2_.set_speed = 0.0;
-		controlCmd2_.set_brake = 0.0;
-		controlCmd2_.set_roadWheelAngle = 0.0;
-		controlCmd2_.set_emergencyBrake = false;
-		cmd2_mutex_.unlock();
-
-        //启动控制指令发送
-		setSendControlCmdEnable(true);
-
-		//等待档位切换成功
-        waitGearOk(ant_msgs::State1::GEAR_REVERSE);
-	}
-    //状态为空闲，停止发送控制指令
-	else if(state == State_Idle)  //空闲
-	{
-		cmd2_mutex_.lock();
-		controlCmd2_.set_gear = controlCmd2_.GEAR_INITIAL;
-		controlCmd2_.set_speed = 0.0;
-		controlCmd2_.set_brake = 0.0;
-		controlCmd2_.set_roadWheelAngle = 0.0;
-		controlCmd2_.set_emergencyBrake = false;
-		cmd2_mutex_.unlock();
-
-		//setSendControlCmdEnable(false);
-		setSendControlCmdEnable(true);
-	}
-    //状态为停止，自动驾驶模式开, 速度置零，拉手刹
-    //车辆停止后，切换为空挡
-	else if(state == State_Stop)  
-	{
-		cmd1_mutex_.lock();
-		controlCmd1_.set_driverlessMode = true;
-		controlCmd1_.set_handBrake = false; // true:拉手刹
-		cmd1_mutex_.unlock();
-
-		cmd2_mutex_.lock();
-		//controlCmd2_.set_gear = controlCmd2_.GEAR_NEUTRAL;
-		controlCmd2_.set_speed = 0.0; 
-		controlCmd2_.set_brake = 60;  //
-		controlCmd2_.set_roadWheelAngle = 0.0;
-		controlCmd2_.set_emergencyBrake = false;
-		cmd2_mutex_.unlock();
-		setSendControlCmdEnable(true);
-
-		waitSpeedZero(); //等待汽车速度为0
-		
-        cmd2_mutex_.lock(); //指令预设为N档
-		controlCmd2_.set_gear = controlCmd2_.GEAR_NEUTRAL;
-        cmd2_mutex_.unlock();
-        ROS_ERROR("[%s] NOT ERROR. set_gear: GEAR_NEUTRAL", __NAME__);
-		//等待正在执行的任务彻底退出后，将系统置为空闲
-		while(task_running_) 
-		{
-			ROS_INFO("Waiting %s exit...", StateName[system_state_].c_str());
-			ros::Duration(0.05).sleep();
-		}
-        switchSystemState(State_Idle); //递归调用， 状态置为空闲  !!!!
-	}
-    //准备切换到前进状态
-    else if(state == State_SwitchToDrive)
-    {
-    	setSendControlCmdEnable(true);  //启动控制指令发送
-        //已经D档，直接退出
-        if(isDriveGear())
-        {
-        	cmd2_mutex_.lock(); //确保指令正确，防止指令已更改状态未更新
-			controlCmd2_.set_gear = controlCmd2_.GEAR_DRIVE;
-			cmd2_mutex_.unlock();
-        	system_state_ = State_Drive;
-        	return;
-        }
-        
-        //非D档，速度置0，然后切D档
-        cmd1_mutex_.lock();
-		controlCmd1_.set_driverlessMode = true;
-		controlCmd1_.set_handBrake = false;
-		cmd1_mutex_.unlock();
-
-		cmd2_mutex_.lock();
-		controlCmd2_.set_speed = 0.0;
-		controlCmd2_.set_brake = 0.0;
-		cmd2_mutex_.unlock();
-
-        waitSpeedZero();                //等待速度为0
-        switchSystemState(State_Drive); //递归调用，状态置为前进
-    }
-    //切换到倒车状态
-    else if(state == State_SwitchToReverse)
-    {
-    	setSendControlCmdEnable(true);  //启动控制指令发送
-        //已经为R档，直接返回
-        if(isReverseGear())
-        {
-        	cmd2_mutex_.lock(); //确保指令正确，防止指令已更改状态未更新
-			controlCmd2_.set_gear = controlCmd2_.GEAR_REVERSE;
-			cmd2_mutex_.unlock();
-        	system_state_ = State_Reverse;
-        	return;
-        }
-        
-        //非R档，速度置0，然后切R档
-        cmd1_mutex_.lock();
-		controlCmd1_.set_driverlessMode = true;
-		controlCmd1_.set_handBrake = false;
-		cmd1_mutex_.unlock();
-
-		cmd2_mutex_.lock();
-		controlCmd2_.set_speed = 0.0;
-		controlCmd2_.set_brake = 0.0;
-		cmd2_mutex_.unlock();
-
-        waitSpeedZero();                //等待速度为0
-        switchSystemState(State_Reverse); //递归调用，状态置为倒车
-    }
-	else if(state == State_ForceExternControl)
-	{
-		//No operation
-	}
-}
-
 void AutoDrive::setSendControlCmdEnable(bool flag)
 {
 	static bool last_flag = false;
@@ -360,20 +180,12 @@ void AutoDrive::setSendControlCmdEnable(bool flag)
 
 	if(flag)
 	{
-		cmd1_timer_.start();
 		cmd2_timer_.start();
 	}
 	else
 	{
-		cmd1_timer_.stop();
 		cmd2_timer_.stop();
 	}
-}
-
-void AutoDrive::sendCmd1_callback(const ros::TimerEvent&)
-{
-	std::lock_guard<std::mutex> lock(cmd1_mutex_);
-	pub_cmd1_.publish(controlCmd1_);
 }
 
 void AutoDrive::sendCmd2_callback(const ros::TimerEvent&)
@@ -403,14 +215,9 @@ void AutoDrive::captureExernCmd_callback(const ros::TimerEvent&)
 		if(system_state_ != State_ForceExternControl)
 			switchSystemState(State_ForceExternControl);
 		//extern_cmd_.display("Extern Cmd ");
-		cmd1_mutex_.lock();
-		controlCmd1_.set_handBrake = extern_cmd_.hand_brake;
-		cmd1_mutex_.unlock();
 
 		cmd2_mutex_.lock();
-		controlCmd2_.set_gear = extern_cmd_.gear;
 		controlCmd2_.set_speed = extern_cmd_.speed;
-		controlCmd2_.set_brake = extern_cmd_.brake;
 		controlCmd2_.set_roadWheelAngle = extern_cmd_.roadWheelAngle;
 		cmd2_mutex_.unlock();
 	}
@@ -421,6 +228,89 @@ void AutoDrive::captureExernCmd_callback(const ros::TimerEvent&)
 	extern_cmd_mutex_.unlock();
 }
 
+void AutoDrive::switchSystemState(int state)
+{
+	ROS_ERROR("[%s] NOT ERROR switchSystemState: %s", __NAME__, StateName[state].c_str());
+	if(system_state_ == state) return; //防止重复操作
+	
+	last_system_state_ = system_state_;
+    system_state_ = state;
+
+    //状态为前进，自动驾驶模式开，档位置D
+	if(state == State_Drive) 
+	{
+		cmd2_mutex_.lock();
+		controlCmd2_.set_speed = 0.0;
+		controlCmd2_.set_roadWheelAngle = 0.0;
+		cmd2_mutex_.unlock();
+        //启动控制指令发送
+		setSendControlCmdEnable(true);
+	}
+    //状态为后退，自动驾驶模式开，档位置R
+	else if(state == State_Reverse) 
+	{
+		cmd2_mutex_.lock();
+		controlCmd2_.set_speed = 0.0;
+		controlCmd2_.set_roadWheelAngle = 0.0;
+		cmd2_mutex_.unlock();
+        //启动控制指令发送
+		setSendControlCmdEnable(true);
+	}
+    //状态为空闲，停止发送控制指令
+	else if(state == State_Idle)  //空闲
+	{
+		cmd2_mutex_.lock();
+		controlCmd2_.set_speed = 0.0;
+		controlCmd2_.set_roadWheelAngle = 0.0;
+		cmd2_mutex_.unlock();
+		setSendControlCmdEnable(true);
+	}
+    //状态为停止，自动驾驶模式开, 速度置零，拉手刹
+    //车辆停止后，切换为空挡
+	else if(state == State_Stop)  
+	{
+		cmd2_mutex_.lock();
+		controlCmd2_.set_speed = 0.0; 
+		controlCmd2_.set_roadWheelAngle = 0.0;
+		cmd2_mutex_.unlock();
+		setSendControlCmdEnable(true);
+		waitSpeedZero(); //等待汽车速度为0
+        ROS_ERROR("[%s] NOT ERROR. set_gear: GEAR_NEUTRAL", __NAME__);
+		//等待正在执行的任务彻底退出后，将系统置为空闲
+		while(task_running_) 
+		{
+			ROS_INFO("Waiting %s exit...", StateName[system_state_].c_str());
+			ros::Duration(0.05).sleep();
+		}
+        switchSystemState(State_Idle); //递归调用， 状态置为空闲  !!!!
+	}
+    //准备切换到前进状态
+    else if(state == State_SwitchToDrive)
+    {
+    	setSendControlCmdEnable(true);  //启动控制指令发送
+		cmd2_mutex_.lock();
+		controlCmd2_.set_speed = 0.0;
+		controlCmd2_.set_brake = 0.0;
+		cmd2_mutex_.unlock();
+        waitSpeedZero();                //等待速度为0
+        switchSystemState(State_Drive); //递归调用，状态置为前进
+    }
+    //切换到倒车状态
+    else if(state == State_SwitchToReverse)
+    {
+    	setSendControlCmdEnable(true);  //启动控制指令发送
+		cmd2_mutex_.lock();
+		controlCmd2_.set_speed = 0.0;
+		controlCmd2_.set_brake = 0.0;
+		cmd2_mutex_.unlock();
+        waitSpeedZero();                //等待速度为0
+        switchSystemState(State_Reverse); //递归调用，状态置为倒车
+    }
+	else if(state == State_ForceExternControl)
+	{
+		//No operation
+	}
+}
 void AutoDrive::odom_callback(const nav_msgs::Odometry::ConstPtr& msg)
 {
 	Pose pose;
@@ -461,33 +351,6 @@ void AutoDrive::vehicleSpeed_callback(const ant_msgs::State2::ConstPtr& msg)
 		
 	vehicle_state_.setSpeed(msg->vehicle_speed); //  m/s
 	vehicle_state_.speed_validity = true;
-}
-
-void AutoDrive::vehicleState4_callback(const ant_msgs::State4::ConstPtr& msg)
-{
-	vehicle_state_.setSteerAngle(msg->roadwheelAngle);
-	vehicle_state_.steer_validity = true;
-	//ROS_INFO("[%s] vehicleState4_callback.", __NAME__);
-}
-
-void AutoDrive::vehicleState1_callback(const ant_msgs::State1::ConstPtr& msg)
-{
-	vehicle_state_.setGear(msg->act_gear);
-}
-
-bool AutoDrive::isReverseGear()
-{
-	return vehicle_state_.getGear() == ant_msgs::State1::GEAR_REVERSE;
-}
-
-bool AutoDrive::isDriveGear()
-{
-	return (vehicle_state_.getGear() == ant_msgs::State1::GEAR_DRIVE);
-}
-
-bool AutoDrive::isNeutralGear()
-{
-	return vehicle_state_.getGear() == ant_msgs::State1::GEAR_NEUTRAL;
 }
 
 bool AutoDrive::loadVehicleParams()
@@ -603,16 +466,4 @@ void AutoDrive::waitSpeedZero()
 {
     while(ros::ok() && vehicle_state_.getSpeed(LOCK)!=0.0)
             ros::Duration(0.2).sleep();
-}
-
-/*@brief 等待档位切换成功
- */
-void AutoDrive::waitGearOk(int gear)
-{
-	int try_cnt = 0;
-    while(ros::ok() && vehicle_state_.getGear() != gear && system_state_!= State_Idle)
-    {
-		ros::Duration(0.2).sleep();
-		ROS_INFO("[%s] wait for gear: %d", __NAME__, gear);
-	}
 }

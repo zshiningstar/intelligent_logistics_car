@@ -335,7 +335,6 @@ logistics_msgs::ControlCmd2 AutoDrive::driveDecisionMaking()
 
 	controlCmd2_.set_roadWheelAngle = tracker_cmd_.roadWheelAngle;//前轮转角
 	controlCmd2_.set_speed = tracker_cmd_.speed; //优先使用跟踪器速度指令
-	//controlCmd2_.set_brake = tracker_cmd_.brake;
 	
 	std::lock_guard<std::mutex> lock_extern_cmd(extern_cmd_mutex_);
 	if(extern_cmd_.speed_validity){     //如果外部速度指令有效,则使用外部速度
