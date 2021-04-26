@@ -533,7 +533,7 @@ void av_console::MainWindow::on_tabWidget_currentChanged(int index)
     {
         ui.tabWidget->setCurrentIndex(stackWidgetIndex_driverless);
         showMessgeInStatusBar("please connect to master firstly!", true);
-        qnode.log("please connect to master firstly!");
+        //qnode.log("please connect to master firstly!");
         return;
     }
     if(index == stackWidgetIndex_recorder)
@@ -605,6 +605,20 @@ void av_console::MainWindow::showEvent(QShowEvent* event)
  */
 void av_console::MainWindow::setPushButtonStylesheet(const QString& style)
 {
+    const QSize BUTTON_SIZE = QSize(120, 40);
+    const QSize BUTTON_SIZE1 = QSize(200, 40);
+    ui.pushButton_gps->setFixedSize(BUTTON_SIZE);
+    ui.pushButton_livox->setFixedSize(BUTTON_SIZE);
+    ui.pushButton_lsRadar->setFixedSize(BUTTON_SIZE);
+    ui.pushButton_cluster->setFixedSize(BUTTON_SIZE);
+    ui.pushButton_camera->setFixedSize(BUTTON_SIZE);
+
+ui.lineEdit_cluster->setFixedSize(BUTTON_SIZE1);
+ui.lineEdit_gps->setFixedSize(BUTTON_SIZE1);
+ui.lineEdit_lsRadar->setFixedSize(BUTTON_SIZE1);
+ui.lineEdit_livox->setFixedSize(BUTTON_SIZE1);
+ui.lineEdit_camera->setFixedSize(BUTTON_SIZE1);
+
     ui.pushButton_camera->setStyleSheet(style);
     ui.pushButton_connect->setStyleSheet(style);
     ui.pushButton_driverlessStart->setStyleSheet(style);
