@@ -8,6 +8,7 @@
 #include <pathplaning_msgs/expected_path.h>
 
 #include <logistics_msgs/ControlCmd2.h>
+#include <logistics_msgs/RealState.h>
 #include <ant_msgs/State1.h>  //gear
 #include <ant_msgs/State3.h>  //
 #include <ant_msgs/State2.h>  //speed
@@ -36,9 +37,7 @@ private:
     bool setDriveTaskPathPoints(const driverless::DoDriverlessTaskGoalConstPtr& goal);
 	void publishPathTrackingState();
     bool isGpsPointValid(const GpsPoint& point);
-    void vehicleSpeed_callback(const ant_msgs::State2::ConstPtr& msg);
-    void vehicleState4_callback(const ant_msgs::State4::ConstPtr& msg);
-    void vehicleState1_callback(const ant_msgs::State1::ConstPtr& msg);
+    void vehicleSpeed_callback(const logistics_msgs::RealState::ConstPtr& msg);
 
     void odom_callback(const nav_msgs::Odometry::ConstPtr& msg);
 	void sendCmd2_callback(const ros::TimerEvent&);
@@ -119,6 +118,7 @@ private:
 
     ros::Subscriber sub_new_goal_;   //订阅外部目标任务请求
     ros::Publisher  pub_new_goal_;   //发布目标请求到actionlib服务 
+    ros::Subscriber  sub_vehicle_speed_;
     
     std::mutex cmd2_mutex_;
 	logistics_msgs::ControlCmd2 controlCmd2_;

@@ -53,25 +53,19 @@ bool AutoDrive::init(ros::NodeHandle nh,ros::NodeHandle nh_private)
 	if(!loadVehicleParams())
 	{
 		ROS_ERROR("[%s] Load vehicle parameters failed!", __NAME__);
-		//publishDiagnosticMsg(diagnostic_msgs::DiagnosticStatus::ERROR,"Load vehicle parameters failed!");
 		return false;
 	}
 
 	//订阅公用传感器数据
 	sub_odom_ = nh_.subscribe(odom_topic, 1,&AutoDrive::odom_callback,this);
-	//sub_vehicleState1_ = nh_.subscribe("/vehicleState1",1,&AutoDrive::vehicleState1_callback,this);
-	//sub_vehicleState2_ = nh_.subscribe("/vehicleState2",1,&AutoDrive::vehicleSpeed_callback,this);
-	//sub_vehicleState4_ = nh_.subscribe("/vehicleState4",1,&AutoDrive::vehicleState4_callback,this);
+	sub_vehicle_speed_ = nh_.subscribe("/car_state",1,&AutoDrive::vehicleSpeed_callback,this);
 	sub_new_goal_      = nh_.subscribe("/driverless/expect_path",1,&AutoDrive::goal_callback,this);
 
 	//发布
-	//pub_cmd1_ = nh_.advertise<ant_msgs::ControlCmd1>("/controlCmd1",1);
 	pub_cmd2_ = nh_.advertise<logistics_msgs::ControlCmd2>("/controlCmd2",1);
-	//pub_diagnostic_ = nh_.advertise<diagnostic_msgs::DiagnosticStatus>("/driverless/diagnostic",1);
 	pub_new_goal_ = nh_.advertise<driverless::DoDriverlessTaskActionGoal>("/do_driverless_task/goal", 1);
 	
 	//定时器                                                                           one_shot, auto_start
-	//cmd1_timer_ = nh_.createTimer(ros::Duration(0.02), &AutoDrive::sendCmd1_callback,this, false, false);
 	cmd2_timer_ = nh_.createTimer(ros::Duration(0.01), &AutoDrive::sendCmd2_callback,this, false, false);
 	
 		
@@ -341,15 +335,16 @@ void AutoDrive::goal_callback(const pathplaning_msgs::expected_path::ConstPtr& m
 	ROS_INFO("[%s] Receive expect path from extern path planner.", __NAME__);
 }
 
-void AutoDrive::vehicleSpeed_callback(const ant_msgs::State2::ConstPtr& msg)
+void AutoDrive::vehicleSpeed_callback(const logistics_msgs::RealState::ConstPtr& msg)
 {
-	if(msg->vehicle_speed >20.0)
+	
+	if(msg->real_speed >10.0)
 	{
 		vehicle_state_.speed_validity = false;
 		return;
 	}
 		
-	vehicle_state_.setSpeed(msg->vehicle_speed); //  m/s
+	vehicle_state_.setSpeed(msg->real_speed); //  m/s
 	vehicle_state_.speed_validity = true;
 }
 
