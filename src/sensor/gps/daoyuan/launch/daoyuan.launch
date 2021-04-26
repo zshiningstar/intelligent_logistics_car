@@ -1,0 +1,14 @@
+<!-- -->
+
+<launch>
+	<arg name="port" default="/dev/gps"/>
+	<node name="daoyuan" pkg="daoyuan" type="daoyuan" output="screen">
+		<param name="port_name" value="$(arg port)"/>
+		<param name="baudrate" value="230400"/>
+		<param name="is_ll2utm" value="true"/>
+		<param name="odom_topic" value="/odom"/>
+		<param name="pub_odom" value="true"/>
+		
+		
+	</node>
+</launch>

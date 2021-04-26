@@ -1,7 +1,7 @@
 #!/bin/sh
 
 pwd=`pwd`
-exe=${pwd}/smartcar
+exe=${pwd}/av_console
 icon=${pwd}/car.jpg
 newline="\n"
 

@@ -1,8 +1,0 @@
-[Desktop Entry]
-Type=Application
-Exec=bash -i -c /home/robot/logistics_ws/src/ui/smartcar
-Name=物流车
-GenericName=物流车
-Icon=/home/robot/logistics_ws/src/ui/car.jpg
-Terminal=false
-Categories=Development
