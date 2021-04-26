@@ -1,15 +1,21 @@
 
 #include <QtGui>
 #include <QApplication>
-#include "../include/av_console/main_window.hpp"
+#include "../include/main_window.hpp"
 
-int main(int argc, char **argv) {
+int main(int argc, char **argv)
+{
 
     QApplication app(argc, argv);
     av_console::MainWindow w(argc,argv);
     w.show();
     app.connect(&app, SIGNAL(lastWindowClosed()), &app, SLOT(quit()));
     int result = app.exec();
+
+
+    //app->exit(777);
+    if(result == 777) //restart
+        QProcess::startDetached(qApp->applicationFilePath(), QStringList());
 
 	return result;
 }

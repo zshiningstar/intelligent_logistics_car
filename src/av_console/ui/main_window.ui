@@ -93,7 +93,7 @@ padding: 0 3px 0 3px;
          </layout>
         </item>
         <item>
-         <layout class="QVBoxLayout" name="verticalLayout" stretch="4,8">
+         <layout class="QVBoxLayout" name="verticalLayout" stretch="4,0">
           <item>
            <widget class="QGroupBox" name="groupBox">
             <property name="maximumSize">
@@ -259,7 +259,7 @@ padding: 0 3px 0 3px;
             </property>
             <layout class="QVBoxLayout" name="verticalLayout_12">
              <item>
-              <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,2,1">
+              <layout class="QHBoxLayout" name="horizontalLayout" stretch="2,2,1">
                <item>
                 <layout class="QVBoxLayout" name="verticalLayout_9">
                  <item>
@@ -384,67 +384,57 @@ padding: 0 3px 0 3px;
                    </property>
                    <item>
                     <property name="text">
+                     <string>-3</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>-2.5</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>-2</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>-1.5</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>-1</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>0</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>1</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>1.5</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>2</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>2.5</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
                      <string>3</string>
-                    </property>
-                   </item>
-                   <item>
-                    <property name="text">
-                     <string>5</string>
-                    </property>
-                   </item>
-                   <item>
-                    <property name="text">
-                     <string>10</string>
-                    </property>
-                   </item>
-                   <item>
-                    <property name="text">
-                     <string>15</string>
-                    </property>
-                   </item>
-                   <item>
-                    <property name="text">
-                     <string>20</string>
-                    </property>
-                   </item>
-                   <item>
-                    <property name="text">
-                     <string>25</string>
-                    </property>
-                   </item>
-                   <item>
-                    <property name="text">
-                     <string>30</string>
-                    </property>
-                   </item>
-                   <item>
-                    <property name="text">
-                     <string>35</string>
-                    </property>
-                   </item>
-                   <item>
-                    <property name="text">
-                     <string>40</string>
-                    </property>
-                   </item>
-                   <item>
-                    <property name="text">
-                     <string>45</string>
-                    </property>
-                   </item>
-                   <item>
-                    <property name="text">
-                     <string>50</string>
-                    </property>
-                   </item>
-                   <item>
-                    <property name="text">
-                     <string>55</string>
-                    </property>
-                   </item>
-                   <item>
-                    <property name="text">
-                     <string>60</string>
                     </property>
                    </item>
                   </widget>
@@ -498,7 +488,7 @@ padding: 0 3px 0 3px;
                     <string notr="true">font: 12pt &quot;Sans Serif&quot;;</string>
                    </property>
                    <property name="text">
-                    <string>km/h</string>
+                    <string>m/s</string>
                    </property>
                    <property name="alignment">
                     <set>Qt::AlignCenter</set>
@@ -648,24 +638,11 @@ padding: 0 3px 0 3px;
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_8">
           <item>
-           <spacer name="horizontalSpacer_3">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item>
            <layout class="QVBoxLayout" name="verticalLayout_6">
             <item>
              <layout class="QHBoxLayout" name="horizontalLayout_7">
               <item>
-               <widget class="QPushButton" name="pushButton_rtk">
+               <widget class="QPushButton" name="pushButton_cluster">
                 <property name="minimumSize">
                  <size>
                   <width>0</width>
@@ -673,7 +650,7 @@ padding: 0 3px 0 3px;
                  </size>
                 </property>
                 <property name="text">
-                 <string>RTK</string>
+                 <string>Cluster</string>
                 </property>
                 <property name="checkable">
                  <bool>true</bool>
@@ -681,7 +658,7 @@ padding: 0 3px 0 3px;
                </widget>
               </item>
               <item>
-               <widget class="QLineEdit" name="lineEdit_rtk">
+               <widget class="QLineEdit" name="lineEdit_cluster">
                 <property name="minimumSize">
                  <size>
                   <width>0</width>
@@ -734,6 +711,72 @@ padding: 0 3px 0 3px;
             <item>
              <layout class="QHBoxLayout" name="horizontalLayout_4">
               <item>
+               <widget class="QPushButton" name="pushButton_lsRadar">
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>0</height>
+                 </size>
+                </property>
+                <property name="text">
+                 <string>LS Radar</string>
+                </property>
+                <property name="checkable">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLineEdit" name="lineEdit_lsRadar">
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>0</height>
+                 </size>
+                </property>
+                <property name="readOnly">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_5">
+              <item>
+               <widget class="QPushButton" name="pushButton_livox">
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>0</height>
+                 </size>
+                </property>
+                <property name="text">
+                 <string>Livox</string>
+                </property>
+                <property name="checkable">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLineEdit" name="lineEdit_livox">
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>0</height>
+                 </size>
+                </property>
+                <property name="readOnly">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_6">
+              <item>
                <widget class="QPushButton" name="pushButton_camera">
                 <property name="minimumSize">
                  <size>
@@ -751,72 +794,6 @@ padding: 0 3px 0 3px;
               </item>
               <item>
                <widget class="QLineEdit" name="lineEdit_camera">
-                <property name="minimumSize">
-                 <size>
-                  <width>0</width>
-                  <height>0</height>
-                 </size>
-                </property>
-                <property name="readOnly">
-                 <bool>true</bool>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
-            <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_5">
-              <item>
-               <widget class="QPushButton" name="pushButton_lidar">
-                <property name="minimumSize">
-                 <size>
-                  <width>0</width>
-                  <height>0</height>
-                 </size>
-                </property>
-                <property name="text">
-                 <string>Lidar</string>
-                </property>
-                <property name="checkable">
-                 <bool>true</bool>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QLineEdit" name="lineEdit_lidar">
-                <property name="minimumSize">
-                 <size>
-                  <width>0</width>
-                  <height>0</height>
-                 </size>
-                </property>
-                <property name="readOnly">
-                 <bool>true</bool>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
-            <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_6">
-              <item>
-               <widget class="QPushButton" name="pushButton_esrRadar">
-                <property name="minimumSize">
-                 <size>
-                  <width>0</width>
-                  <height>0</height>
-                 </size>
-                </property>
-                <property name="text">
-                 <string>Esr Radar</string>
-                </property>
-                <property name="checkable">
-                 <bool>true</bool>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QLineEdit" name="lineEdit_esrRadar">
                 <property name="minimumSize">
                  <size>
                   <width>0</width>
@@ -1265,42 +1242,6 @@ padding: 0 3px 0 3px;
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout_9">
            <item>
-            <widget class="ImageSwitch" name="widget_rtkStatus" native="true">
-             <property name="minimumSize">
-              <size>
-               <width>20</width>
-               <height>20</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>65535</width>
-               <height>65535</height>
-              </size>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QLabel" name="label_rtkstus">
-             <property name="text">
-              <string>RTK</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <spacer name="horizontalSpacer_5">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>40</width>
-               <height>20</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-           <item>
             <widget class="ImageSwitch" name="widget_gpsStatus" native="true">
              <property name="minimumSize">
               <size>
@@ -1337,7 +1278,7 @@ padding: 0 3px 0 3px;
             </spacer>
            </item>
            <item>
-            <widget class="ImageSwitch" name="widget_esrStatus" native="true">
+            <widget class="ImageSwitch" name="widget_livoxStatus" native="true">
              <property name="minimumSize">
               <size>
                <width>20</width>
@@ -1353,9 +1294,9 @@ padding: 0 3px 0 3px;
             </widget>
            </item>
            <item>
-            <widget class="QLabel" name="label_esrStatus">
+            <widget class="QLabel" name="label_livoxStatus">
              <property name="text">
-              <string>ESR</string>
+              <string>livox</string>
              </property>
             </widget>
            </item>
@@ -1391,7 +1332,7 @@ padding: 0 3px 0 3px;
            <item>
             <widget class="QLabel" name="label_lidarStatus">
              <property name="text">
-              <string>LIDAR</string>
+              <string>LS</string>
              </property>
             </widget>
            </item>
@@ -1427,7 +1368,7 @@ padding: 0 3px 0 3px;
            <item>
             <widget class="QLabel" name="label_camera1Ststus">
              <property name="text">
-              <string>CAMERA1</string>
+              <string>CAMERA</string>
              </property>
             </widget>
            </item>
@@ -1547,8 +1488,8 @@ padding: 0 3px 0 3px;
    <slot>close()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>859</x>
-     <y>552</y>
+     <x>975</x>
+     <y>605</y>
     </hint>
     <hint type="destinationlabel">
      <x>469</x>

@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<RosNodesArray>
+    <RosNodes name="gps">
+        <LaunchCommand>roslaunch daoyuan daoyuan.launch &</LaunchCommand>
+        <Topic name="inspvax">/gps</Topic>
+        <Topic name="odom">/odom</Topic>
+    </RosNodes>
+
+<!--    <RosNodes name="imu">-->
+<!--        <LaunchCommand>roslaunch novatel novatel_imu.launch & </LaunchCommand>-->
+<!--        <Topic name="raw_imu">/raw_imu</Topic>-->
+<!--        <Topic name="corr_imu">/corr_imu</Topic>-->
+<!--    </RosNodes>-->
+
+    <RosNodes name="base_control">
+        <LaunchCommand>roslaunch driver pc_stm.launch &</LaunchCommand>
+        <Topic name="vehicle_state">/car_state</Topic>
+    </RosNodes>
+    
+    <RosNodes name="driverless">
+        <LaunchCommand>roslaunch driverless driverless.launch &</LaunchCommand>
+    </RosNodes>
+    
+    <RosNodes name="kill_driverless">
+        <LaunchCommand>rosnode kill /pc_stm32 &</LaunchCommand>
+    </RosNodes>
+    
+    
+    
+    <RosNodes name="killros">
+        <LaunchCommand>rosnode kill --all && killall -9 roscore && killall -9 rosmaster</LaunchCommand>
+    </RosNodes>
+
+</RosNodesArray>
