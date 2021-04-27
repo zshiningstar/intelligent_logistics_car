@@ -783,11 +783,11 @@ bool av_console::MainWindow::loadRosNodesArrayInfo()
         qnode.stampedLog(QNode::Error ,std::string("parse ") + file + " failed");
         return false;
     }
+    else if(tinyxml2::XML_SUCCESS == res)
+        qnode.stampedLog(QNode::Info ,std::string("open ") + "cmds file successfully");
     else
-    {
-        qnode.stampedLog(QNode::Info ,std::string("parse ") + "cmds successfully");
-        return true;
-    }
+        return false;
+
     tinyxml2::XMLElement *pRoot = Doc.RootElement();
 
     //第一个子节点 RosNodes
@@ -818,7 +818,7 @@ bool av_console::MainWindow::loadRosNodesArrayInfo()
         pRosNodes = pRosNodes->NextSiblingElement();//转到下一子节点，链表结构
     }
 
-    //this->displayRosNodesArrayInfo();
+    this->displayRosNodesArrayInfo();
     return true;
 }
 

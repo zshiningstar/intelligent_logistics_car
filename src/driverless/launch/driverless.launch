@@ -23,7 +23,8 @@
 	
 	<!-- 上层控制 -->
 	<node name="driverless_node" pkg="driverless" type="driverless_node" output="screen" launch-prefix="gnome-terminal -x"> <!--  -->
-	
+		
+		<rosparam file="$(find driverless)/config/vehicle_params.yaml" command="load"/>
 		<!-- main -->
 		<param name="is_offline_debug" value="false"/>
 		<param name="max_speed" value="$(arg max_speed)"/>
@@ -53,6 +54,7 @@
 		<param name="reverse_path_flip" value="false"/>
 		<param name="reverse_path_file" value="$(arg roadnet_file)"/>
 	</node>
+	
 
 	<!-- 导远GPS -->
 	<include file="$(find daoyuan)/launch/daoyuan.launch"/>
