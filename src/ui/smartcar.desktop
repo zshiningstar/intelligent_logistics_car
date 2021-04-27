@@ -1,8 +1,8 @@
 [Desktop Entry]
 Type=Application
-Exec=bash -i -c /home/robot/logistics_ws/src/ui/av_console
+Exec=bash -i -c /home/zsx/logistics_ws/src/ui/av_console
 Name=物流车
 GenericName=物流车
-Icon=/home/robot/logistics_ws/src/ui/car.jpg
+Icon=/home/zsx/logistics_ws/src/ui/car.jpg
 Terminal=false
 Categories=Development

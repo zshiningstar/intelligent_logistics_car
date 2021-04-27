@@ -51,6 +51,7 @@ public:
     }
     void setPushButtonStylesheet(const QString& style);
 
+
 public Q_SLOTS:
 	void on_actionAbout_triggered();
 	void on_checkbox_use_environment_stateChanged(int state);
