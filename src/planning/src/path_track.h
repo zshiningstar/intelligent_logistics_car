@@ -37,8 +37,6 @@ public:
 	void car_state_callback(const logistics_msgs::RealState::ConstPtr& msg);
 	bool is_gps_data_valid(gpsMsg_t& point);
 	void rosSpinThread(){ros::spin();}
-    bool extendPath(std::vector<gpsMsg_t>& path, float extendDis);
-//	std::vector<gpsMsg_t> extendPath(std::vector<gpsMsg_t> path, float extendDis);
 private:
 	gpsMsg_t pointOffset(const gpsMsg_t& point,float offset);
 private:
@@ -52,7 +50,7 @@ private:
 	boost::shared_ptr<boost::thread> rosSpin_thread_ptr_;
 	std::string path_points_file_;
 	std::vector<gpsMsg_t> path_points_;
-	  std::vector<gpsMsg_t> path_extend_points;
+    std::vector<gpsMsg_t> path_extend_points;
 	gpsMsg_t current_point_, target_point_;
 	gps_msgs::Inspvax m_inspax;
 	

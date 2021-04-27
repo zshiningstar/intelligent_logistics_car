@@ -122,40 +122,6 @@ bool PathTracking::init_work(ros::NodeHandle nh,ros::NodeHandle nh_private)
     }
 }
 
-/*@fuc:  路径延伸
- */
-bool PathTracking::extendPath(std::vector<gpsMsg_t>& path, float extendDis)
-{
-	//取最后一个点与倒数第n个点的连线向后插值
-	//总路径点不足n个,退出
-	int n = 5;
-	//std::cout << "extendPath: " << path.size() << "\t" << path.size()-1 << std::endl;
-	if(path.size()-1 < n)
-	{
-		ROS_ERROR("path points is too few (%lu), extend path failed",path.size()-1);
-		return false;
-	}
-	int endIndex = path.size()-1;
-	
-	float dx = (path[endIndex].x - path[endIndex-n].x)/n;
-	float dy = (path[endIndex].y - path[endIndex-n].y)/n;
-	float ds = sqrt(dx*dx+dy*dy);
-
-	gpsMsg_t point;
-	float remaind_dis = 0.0;
-	for(size_t i=1;;++i)
-	{
-		point.x = path[endIndex].x + dx*i;
-		point.y = path[endIndex].y + dy*i;
-		point.curvature = 0.0;
-		path.push_back(point);
-		remaind_dis += ds;
-		if(remaind_dis > extendDis)
-			break;
-	}
-	return true;
-}
-
 /*@fuc:    计算获取目标前轮转角和车速
  *@param:  t_roadWheelAngle:目标前轮转角
  */
