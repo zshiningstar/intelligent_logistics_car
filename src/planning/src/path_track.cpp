@@ -245,7 +245,7 @@ void PathTracking::run()
         if(t_roadWheelAngle > theta_true_) sign = 1;
         else if(t_roadWheelAngle < theta_true_) sign = -1;
         else sign = 0;
-		float goal_angle = theta_true_ + sign * omega_ * dt ;
+		float goal_angle = t_roadWheelAngle + sign * omega_ * dt ;
 	    car_goal.goal_speed = goal_speed;
 		car_goal.goal_angle = goal_angle * 1.3;
 		if(goal_angle>max_roadwheelAngle_)

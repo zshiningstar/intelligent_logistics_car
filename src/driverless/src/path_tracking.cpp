@@ -3,7 +3,12 @@
 
 PathTracking::PathTracking():
 	AutoDriveBase(__NAME__),
-	expect_speed_(10.0) //defult expect speed
+	I_sumlateral_err_(0.0),
+	lastPoint_err_(0.0),
+	currentPoint_err_(0.0),
+	P_errErr_(0.0),
+	isLocationValid(false),
+	expect_speed_(1.0) //defult expect speed
 {
 	 
 }
@@ -25,7 +30,21 @@ bool PathTracking::init(ros::NodeHandle nh,ros::NodeHandle nh_private)
 	nh_private.param<float>("foreSightDis_latErrCoefficient", foreSightDis_latErrCoefficient_,-1.0);
 	nh_private.param<float>("min_foresight_distance",min_foresight_distance_,5.0);
 	nh_private.param<float>("max_side_accel",max_side_accel_,1.0);
+	nh_private.param<float>("tolerate_laterror", tolerate_laterror_,0.3);
+	nh_private.param<float>("control_rate",control_rate_,30);
+	nh_private.param<float>("d_omega", d_omega_,5.0);
+	nh_private.param<float>("i_ki", i_ki_,0.3);
+	nh_private.param<float>("p_kp", p_kp_,5.0);
+	nh_private.param<float>("steer_clearance", steer_clearance_,0.3);
+	nh_private.param<float>("safety_distance",safety_distance_,4);
+	nh_private.param<float>("timeout",timeout_,0.3);
 	
+    std::string avoid_object = nh_private.param<std::string>("is_object","/is_object");   // 是否有障碍物
+    sub_is_object = nh.subscribe(avoid_object,10,&PathTracking::is_object_callback, this);
+    
+    std::string odom_topic = nh_private.param<std::string>("odom_topic","/odom");   
+    sub_utm_odom  = nh.subscribe(odom_topic, 5,&PathTracking::gps_odom_callback,this);
+    
 	max_target_yaw_err_ = nh_private.param<float>("max_target_yaw_err",50.0)*M_PI/180.0;
 
 	pub_tracking_state_ = nh.advertise<driverless::TrackingState>(tracking_info_topic,1);
@@ -39,6 +58,21 @@ bool PathTracking::init(ros::NodeHandle nh,ros::NodeHandle nh_private)
 	return true;
 }
 
+void PathTracking::is_object_callback(const std_msgs::Float32::ConstPtr& msg)
+{       
+    min_object_distence = msg->data;
+    //std::cout << " 有障碍物体,距离为:" << min_object_distence << std::endl;
+    now = ros::Time::now().toSec();
+}
+
+void PathTracking::gps_odom_callback(const nav_msgs::Odometry::ConstPtr& msg)
+{
+	current_point_.x = msg->pose.pose.position.x;
+	current_point_.y = msg->pose.pose.position.y;
+	current_point_.yaw = msg->pose.covariance[0];
+	
+	isLocationValid = !msg->pose.covariance[4];
+}
 //启动跟踪线程
 bool PathTracking::start()
 {
@@ -76,7 +110,7 @@ void PathTracking::trackingThread()
 	global_path_.pose_index = findNearestPoint(global_path_, vehicle_state_.getPose(LOCK)); 
 	size_t nearest_index = global_path_.pose_index;
 
-	if(nearest_index > global_path_.size() - 10)
+	if(nearest_index > global_path_.size() - 3)
 	{
 		ROS_ERROR("Remaind target path is too short! nearest_point_index:%lu", nearest_index);
 		publishDiagnosticMsg(diagnostic_msgs::DiagnosticStatus::ERROR,"Remaind target path is too short!");
@@ -85,15 +119,21 @@ void PathTracking::trackingThread()
 	}
 
 	ros::Rate loop_rate(30);
-
+	float delta_t = 1.0/control_rate_;
+	
 	size_t cnt =0;
 	while(ros::ok() && is_running_ && !global_path_.finish())
 	{
+		float goal_speed = expect_speed_;
 		const Pose pose = vehicle_state_.getPose(LOCK);
 		const float vehicle_speed = vehicle_state_.getSpeed(LOCK);
-		
+		lastPoint_err_ = currentPoint_err_;
 		//横向偏差,左偏为负,右偏为正
-		float lat_err = calculateDis2path(pose.x, pose.y, global_path_, nearest_index, &nearest_index);
+		lat_err = calculateDis2path(pose.x, pose.y, global_path_, nearest_index, &nearest_index);
+		/**************PID-Kp*****************/
+		currentPoint_err_ = lat_err;
+		P_errErr_ = currentPoint_err_ - lastPoint_err_;
+		I_sumlateral_err_ = limitLateralErr(lat_err,I_sumlateral_err_);
 		global_path_.pose_index = nearest_index; //更新到基类公用变量
 		//航向偏差,左偏为正,右偏为负
 		float yaw_err = global_path_[nearest_index].yaw - pose.yaw;
@@ -131,7 +171,26 @@ void PathTracking::trackingThread()
 		float t_roadWheelAngle = generateRoadwheelAngleByRadius(vehicle_params_.wheel_base, turning_radius);
 		
 		t_roadWheelAngle = limitRoadwheelAngleBySpeed(t_roadWheelAngle, vehicle_speed);
+		t_roadWheelAngle = generateRoadwheelAnglBypid(t_roadWheelAngle, P_errErr_, I_sumlateral_err_, p_kp_, i_ki_, d_omega_);
 		
+		if(min_object_distence)
+        {//判断是否有障碍物
+            if(goal_speed > 0 && min_object_distence < safety_distance_)
+            {   
+                //float acceleration = (track_speed_ * track_speed_) / (2 * fabs(min_object_distence - safety_distance_));
+                //car_goal.goal_speed = track_speed_ - acceleration;
+                //track_speed_ = car_goal.goal_speed;
+                goal_speed = 0;
+            }
+            double now_break = now - ros::Time::now().toSec(); 
+            if(fabs(now_break) > timeout_)
+            {
+                min_object_distence = 0;
+             	goal_speed = expect_speed_;
+         	}
+        }
+        if(!isLocationValid)
+        	goal_speed = 0.0;
 		//float curvature_search_distance = disThreshold_ + 13; //曲率搜索距离
 		float curvature_search_distance = vehicle_speed * vehicle_speed/(2 * 1);
 		float max_curvature = maxCurvatureInRange(global_path_, nearest_index, curvature_search_distance);
@@ -142,7 +201,7 @@ void PathTracking::trackingThread()
 
 		cmd_mutex_.lock();
 		cmd_.validity = true;
-		cmd_.speed = (expect_speed_>max_speed) ? max_speed : expect_speed_;
+		cmd_.speed = (goal_speed>max_speed) ? max_speed : expect_speed_;
 		cmd_.roadWheelAngle = t_roadWheelAngle;
 		cmd_mutex_.unlock();
 		
@@ -289,7 +348,40 @@ float PathTracking::limitSpeedByParkingPoint(const float& speed,const float& acc
 	return speed > maxSpeed ? maxSpeed : speed;
 }
 
-
+/*@brief 由于物流车机械结构待优化,需要通过PID控制循迹
+ *@param kp 
+ *@param ki
+ *@param kd
+ *@return t_roadWheelAngle 前轮转角
+ */
+float PathTracking::generateRoadwheelAnglBypid(float &temp_roadWheelAngle, const float &errerr, const float &sumerr, const float &kp, const float &ki, const float &kd)
+{
+	float roadWheelAngle = temp_roadWheelAngle;
+	float theta_byerrerr = kp * errerr;
+	theta_byerrerr = limitTheta(theta_byerrerr, steer_clearance_);
+	float theta_bysteerclearance = ki * sumerr;
+	theta_bysteerclearance = limitTheta(theta_bysteerclearance, steer_clearance_);
+	float theta_byomega = limitThetaByOmega(roadWheelAngle, kd);
+	roadWheelAngle = theta_byerrerr + theta_bysteerclearance + theta_byomega;
+	return roadWheelAngle;
+}
+/*@brief 计算并限制横向误差
+ *@brief 横向偏差较小时不修正,因为稳态误差不能全部消除,否则会转向激进
+ *@brief 横向偏差变号时,说明行驶靠右/左,总横向偏差需要置0
+ *@param lateral_err_ 当前横向误差
+ *@param sum_err_ 当前总横向误差
+ *@return 当前总横向误差
+ */
+float PathTracking::limitLateralErr(const float &laterr, float &sumlaterr)
+{
+	float lateral_err_ = laterr;
+	float sum_err_ = sumlaterr;
+	if(fabs(lateral_err_) > tolerate_laterror_) 
+		sum_err_ = sum_err_ + lateral_err_;
+	if(sum_err_ * lateral_err_ < 0)
+		sum_err_ = 0;
+	return sum_err_;
+}
 /*@brief 根据当前车速限制车辆前轮转角
  *@brief 算法已经根据路径曲率对车速进行了限制，
  *@brief 但可能出现转弯半径小于路径转弯半径,而导致侧向加速度超限的情况
