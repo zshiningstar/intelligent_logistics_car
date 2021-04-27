@@ -31,10 +31,10 @@
 	      type="livox_ros_driver_node" required="true"
 	      output="screen" args="$(arg cmdline_arg)"/>
 
-	<group if="$(arg rviz_enable)">
-		<node name="rviz" pkg="rviz" type="rviz" respawn="true"
-				args="-d $(find livox_ros_driver)/config/display_lidar_points.rviz"/>
-    </group>
+<!--	<group if="$(arg rviz_enable)">-->
+<!--		<node name="rviz" pkg="rviz" type="rviz" respawn="true"-->
+<!--				args="-d $(find livox_ros_driver)/config/display_lidar_points.rviz"/>-->
+<!--    </group>-->
 
 	<group if="$(arg rosbag_enable)">
     	<node pkg="rosbag" type="record" name="record" output="screen"

@@ -761,11 +761,11 @@ void av_console::MainWindow::on_pushButton_selectRecordFile_clicked()
 bool av_console::MainWindow::loadRosNodesArrayInfo()
 {
 
-    //std::string file = QDir::currentPath().toStdString() + "/src/av_console/cmd/cmd.xml";
-    QString path;
-    QDir dir;
-    path=dir.currentPath();
-    std::string file = path.toStdString() + "/src/av_console/cmd/cmd.xml";
+    std::string file = QCoreApplication::applicationDirPath().toStdString() + "/../cmd/cmd.xml";
+    //QString path;
+    //QDir dir;
+    //path=dir.currentPath();
+    //std::string file = path.toStdString() + "/src/av_console/cmd/cmd.xml";
     //std::cout << QCoreApplication::applicationDirPath().toStdString() << std::endl;
     //qnode.stampedLog(QNode::Info ,QDir::currentPath().toStdString());
     //qnode.stampedLog(QNode::Info ,QCoreApplication::applicationDirPath().toStdString());
