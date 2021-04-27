@@ -8,7 +8,7 @@ find_package(catkin REQUIRED COMPONENTS
   rospy
   std_msgs
   logistics_msgs
-  math_function
+  #math_function
 )
 
 catkin_package(
