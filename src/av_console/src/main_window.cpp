@@ -17,7 +17,8 @@ MainWindow::MainWindow(int argc, char** argv, QWidget *parent):
     qnode(argc,argv),
     m_nodeInited(false),
     m_pathRecorder(nullptr),
-    m_dataRecorder(nullptr)
+    m_dataRecorder(nullptr),
+    m_rosNodesArrayInvalid(false)
 {
     ui.setupUi(this);
 
@@ -188,6 +189,12 @@ void av_console::MainWindow::on_pushButton_driverlessStart_clicked(bool checked)
 //connect
 void MainWindow::on_pushButton_connect_clicked()
 {
+	//载入RosNodesArray信息
+	if(!m_rosNodesArrayInvalid)
+		m_rosNodesArrayInvalid = loadRosNodesArrayInfo();
+	if(!m_rosNodesArrayInvalid)
+		return;
+	
     if(ui.checkbox_use_environment->isChecked())
     {
         if (!qnode.init())
@@ -221,9 +228,6 @@ void MainWindow::on_pushButton_connect_clicked()
 
     //实例化数据记录器
     m_dataRecorder = new RecordData();
-    //载入RosNodesArray信息
-    m_rosNodesArrayInvalid = loadRosNodesArrayInfo();
-
 }
 
 
@@ -768,22 +772,22 @@ bool av_console::MainWindow::loadRosNodesArrayInfo()
     //std::cout << QCoreApplication::applicationDirPath().toStdString() << std::endl;
     //qnode.stampedLog(QNode::Info ,QDir::currentPath().toStdString());
     //qnode.stampedLog(QNode::Info ,QCoreApplication::applicationDirPath().toStdString());
-    qnode.stampedLog(QNode::Info ,file);
+    qnode.log(file);
     tinyxml2::XMLDocument Doc;   //定义xml文件对象
     tinyxml2::XMLError res = Doc.LoadFile(file.c_str());
 
     if(tinyxml2::XML_ERROR_FILE_NOT_FOUND == res)
     {
-        qnode.stampedLog(QNode::Error ,std::string("load ") + file + " failed");
+        qnode.log(std::string("load ") + file + " failed");
         return false;
     }
     else if(tinyxml2::XML_SUCCESS != res)
     {
-        qnode.stampedLog(QNode::Error ,std::string("parse ") + file + " failed");
+        qnode.log(std::string("parse ") + file + " failed");
         return false;
     }
     else if(tinyxml2::XML_SUCCESS == res)
-        qnode.stampedLog(QNode::Info ,std::string("open ") + "cmds file successfully");
+        qnode.log(std::string("open ") + "cmds file successfully");
     else
         return false;
 

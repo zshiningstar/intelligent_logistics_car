@@ -172,7 +172,7 @@ void Listener::parseIncomingData(uint8_t* buffer,size_t len)
 					float kp = ((pkg_buffer[4] * 256 + pkg_buffer[5]) - 30000)/100.0;
 					float ki = ((pkg_buffer[6] * 256 + pkg_buffer[7]) - 30000)/100.0;
 					float kd = ((pkg_buffer[8] * 256 + pkg_buffer[9]) - 30000)/100.0;
-					//std::cout << "set pid ok: " << kp << "\t" << ki << "\t" << kd << "\n";
+					std::cout << "set pid ok: " << kp << "\t" << ki << "\t" << kd << "\n";
 				}
 				pkg_buffer_index = 0;
 			}
@@ -211,14 +211,16 @@ void Listener::parseFromStmVehicleState(const unsigned char* buffer)
 	m_state.real_brake             = buffer[11] & 0xf0;
 	m_state.real_park              = buffer[11] & 0x0f;
 	m_state.real_touque            = buffer[12];
+	m_state.real_speed             = generate_real_speed(m_state.real_speed_left,m_state.real_speed_right);
 	
 	m_pub_state.publish(m_state);
 	
 	real_speed_left                = m_state.real_speed_left;
 	real_speed_right               = m_state.real_speed_right;
-	real_speed                     = generate_real_speed(real_speed_left,real_speed_right);
+	real_speed                     = m_state.real_speed;
 	real_angle                     = m_state.real_angle;
 	real_touque                    = m_state.real_touque;
+	
 	
 	printf("speed:%0.2f\t angle:%0.2f\t touque:%0.2f\n",real_speed,real_angle,real_touque);
 	

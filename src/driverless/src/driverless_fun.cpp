@@ -44,7 +44,7 @@ bool AutoDrive::init(ros::NodeHandle nh,ros::NodeHandle nh_private)
 	nh_private_.param<bool>("use_car_following",use_car_following_,false);
 	nh_private_.param<bool>("use_avoiding",use_avoiding_,false);
 	nh_private_.param<bool>("is_offline_debug",is_offline_debug_,false);
-	nh_private_.param<bool>("use_extern_controller", use_extern_controller_, true);
+	nh_private_.param<bool>("use_extern_controller", use_extern_controller_, false);
 	nh_private_.param<bool>("use_car_follower", use_car_follower_, false);
 	std::string odom_topic = nh_private_.param<std::string>("odom_topic","/ll2utm_odom");
 	
@@ -337,15 +337,15 @@ void AutoDrive::goal_callback(const pathplaning_msgs::expected_path::ConstPtr& m
 
 void AutoDrive::vehicleSpeed_callback(const logistics_msgs::RealState::ConstPtr& msg)
 {
-	
 	if(msg->real_speed >10.0)
 	{
 		vehicle_state_.speed_validity = false;
 		return;
 	}
-		
+	vehicle_state_.setSteerAngle(msg->real_angle);
 	vehicle_state_.setSpeed(msg->real_speed); //  m/s
 	vehicle_state_.speed_validity = true;
+	vehicle_state_.steer_validity = true;
 }
 
 bool AutoDrive::loadVehicleParams()

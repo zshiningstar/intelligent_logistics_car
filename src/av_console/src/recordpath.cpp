@@ -1,7 +1,6 @@
 #include "../include/recordpath.hpp"
 
 RecordPath::RecordPath():
-    odom_topic_("/ll2utm_odom"),
     row_num_(0)
 {
 
@@ -19,6 +18,8 @@ bool RecordPath::start()
     ros::NodeHandle private_nh("~");
 
     private_nh.param<float>("sample_distance",sample_distance_,0.1);
+    
+    odom_topic_ = g_rosNodesArray["gps"].topics["odom"];
     sub_gps_ = nh.subscribe(odom_topic_ ,1,&RecordPath::gps_callback,this);
     connect(&wait_gps_topic_timer_, SIGNAL(timeout()), this, SLOT(waitGpsTopicTimeout()));
 
