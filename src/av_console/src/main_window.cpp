@@ -460,8 +460,7 @@ void av_console::MainWindow::on_pushButton_pathPlanning_clicked(bool checked)
         connect(m_pathRecorder, SIGNAL(loggingUpdated()), this, SLOT(updatePathPlanningLoggingView()));
         if(!m_pathRecorder->start())
         {
-            changeToCmdDir();
-            system("gnome-terminal -x bash -c 'source ~/logistics_ws/devel/setup.bash; roslaunch daoyuan daoyuan.launch'&");
+            launchRosNodes("gps");
             m_pathRecorder->log("INFO","No Location Message Published, Starting GPS Automatically.");
         }
         ui.pushButton_pathPlanning->setText("Stop And Save");

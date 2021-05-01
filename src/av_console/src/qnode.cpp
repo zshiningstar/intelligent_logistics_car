@@ -51,7 +51,7 @@ bool QNode::init()
 
     //subscribe sensor msg to listen its status.
     ros::NodeHandle nh;
-    gps_sub = nh.subscribe("/Rotation",1,&QNode::gpsCheck_callback,this);
+    gps_sub = nh.subscribe("/rotation",1,&QNode::gpsCheck_callback,this);
     lidar_sub =  nh.subscribe("/lslidar_point_cloud",1,&QNode::lidar_callback,this);
     livox_sub =  nh.subscribe("/livox/lidar",1,&QNode::livox_callback,this);
     sensorStatus_timer = nh.createTimer(ros::Duration(1), &QNode::sensorStatusTimer_callback,this);
@@ -89,7 +89,7 @@ void QNode::run()
 
     while(ros::ok() && ros::master::check())
     {
-        //std::cout << ac_->getState().toString() << std::endl;
+        std::cout << "actionlib client state: " <<  ac_->getState().toString() << std::endl;
         ros::Duration(1.0).sleep();
     }
     if(!ros::master::check())
