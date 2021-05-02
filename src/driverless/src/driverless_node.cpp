@@ -381,6 +381,29 @@ logistics_msgs::ControlCmd2 AutoDrive::reverseDecisionMaking()
 	return controlCmd2_;
 }
 
+/*@brief 由于物流车机械结构待优化,需要通过PID控制循迹
+ *@param kp 
+ *@param ki
+ *@param kd
+ *@return t_roadWheelAngle 前轮转角
+ */
+float AutoDrive::steerPidCtrl(float expectAngle, float currentAngle, float err, float deltaT)
+{
+	/*
+	static float lastErr = 0.0;
+	static float lastLastErr = 0.0;
+	static float sumErr = 0.0;
+
+	float err = lateral_err_;
+	sumErr += err;
+
+
+	float theta_byerrerr = steer_kp_ * (err - lastErr) 
+						 + steer_ki_ * sumErr
+						 + steer_kd_ * ;
+    */
+}
+
 
 int main(int argc, char *argv[])
 {

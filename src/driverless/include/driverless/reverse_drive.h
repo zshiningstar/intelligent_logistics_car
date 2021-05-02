@@ -31,6 +31,10 @@ private:
     Path reverse_path_;
     std::mutex working_mutex_;
     float preview_dis_;
+    //param
+	float foreSightDis_speedCoefficient_;
+	float foreSightDis_latErrCoefficient_;
+	float min_foresight_distance_;
 
     ros::Publisher pub_local_path_;
     

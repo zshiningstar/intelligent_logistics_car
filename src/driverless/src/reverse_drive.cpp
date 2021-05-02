@@ -1,14 +1,13 @@
 #include "driverless/reverse_drive.h"
 
 #define __NAME__ "reverse_drive"
-#define MAX_SPEED 5.0 //km/h
+#define MAX_SPEED 2.0 //m/s
 
 /* 倒车控制器
 */
 ReverseDrive::ReverseDrive():
     AutoDriveBase(__NAME__)
 {
-    preview_dis_ = 2.0;
 }
 ReverseDrive::~ReverseDrive()
 {
@@ -23,8 +22,11 @@ bool ReverseDrive::init(ros::NodeHandle nh,ros::NodeHandle nh_private)
     nh_private_ = nh_private;
 
     pub_local_path_ = nh_private_.advertise<nav_msgs::Path>("/local_path",2);
+    nh_private.param<float>("foreSightDis_speedCoefficient", foreSightDis_speedCoefficient_,1.8);
+	nh_private.param<float>("foreSightDis_latErrCoefficient", foreSightDis_latErrCoefficient_,-1.0);
+	nh_private.param<float>("min_foresight_distance",min_foresight_distance_,5.0);
 
-    exp_speed_ = 3.0; //km/h
+    exp_speed_ = 0.5; //km/h
     //启动actionlib 服务器，监听外部请求并执行相应操作
     is_initialed_ = true;
     return true;
@@ -32,6 +34,7 @@ bool ReverseDrive::init(ros::NodeHandle nh,ros::NodeHandle nh_private)
 
 void ReverseDrive::setExpectSpeed(float val)
 {
+    val = fabs(val);
     if(val > MAX_SPEED)
     {
         ROS_ERROR("[%s] The max_speed is fast! Use the defaut value: %.2f.", __NAME__, MAX_SPEED);
@@ -175,6 +178,7 @@ void ReverseDrive::reverseControlThread()
 	{
 		//ROS_INFO("[%s] new cycle.", __NAME__);
 		const Pose pose   = vehicle_state_.getPose(LOCK);
+        const float vehicle_speed = vehicle_state_.getSpeed(LOCK);
         float back_yaw = pose.yaw + M_PI;
 		
 		//横向偏差,左偏为负,右偏为正
@@ -185,6 +189,12 @@ void ReverseDrive::reverseControlThread()
 		yaw_err = reverse_path_[nearest_index].yaw - back_yaw;
 		if(yaw_err > M_PI)       yaw_err -= 2*M_PI;
 		else if(yaw_err < -M_PI) yaw_err += 2*M_PI;
+
+        preview_dis_ = foreSightDis_speedCoefficient_ * fabs(vehicle_speed) 
+                     + foreSightDis_latErrCoefficient_ * fabs(lat_err)
+                     + min_foresight_distance_;
+        if( preview_dis_ < min_foresight_distance_)
+            preview_dis_ = min_foresight_distance_;
 		
         std::pair<float, float> dis_yaw;      //当前点到目标点的距离和航向
         while(ros::ok())
@@ -200,7 +210,7 @@ void ReverseDrive::reverseControlThread()
         if(sin_theta == 0)
         {
             cmd_mutex_.lock();
-            cmd_.speed = exp_speed_;
+            cmd_.speed = -exp_speed_;
             cmd_.roadWheelAngle = 0.0;
             cmd_mutex_.unlock();
             continue;
@@ -219,22 +229,22 @@ void ReverseDrive::reverseControlThread()
 		float t_speed = reverse_path_.remaindDis() * 1.0 + 0.5;
 		if(t_speed > exp_speed_) t_speed = exp_speed_;
 		
-		if(steer_angle_err > 4.0)
-			t_speed = 0.0;
+		//if(steer_angle_err > 4.0)
+		//	t_speed = 0.0;
 
 		cmd_mutex_.lock();
-		cmd_.speed = t_speed;
+		cmd_.speed = -t_speed;
 		cmd_.roadWheelAngle = t_roadWheelAngle;
 		cmd_mutex_.unlock();
 
         if((cnt ++)%10 ==0)
         {
             this->publishLocalPath();
-            ROS_INFO("[%s] lateral error: %.2f.", __NAME__, lat_err);
-            ROS_INFO("[%s] yaw error: %.2f.", __NAME__, yaw_err*180.0/M_PI);
             ROS_INFO("[%s] target index: %lu.  current index: %lu", __NAME__,  target_index, nearest_index);
+            ROS_INFO("[%s] t_speed: %.2f\t t_angle: %.2f", __NAME__, exp_speed_, t_roadWheelAngle);
+            ROS_INFO("[%s] dis2target:%.2f\t yaw_err:%.2f\t lat_err:%.2f",__NAME__, dis_yaw.first,yaw_err*180.0/M_PI,lat_err);
+			ROS_INFO("[%s] disThreshold:%f",__NAME__, preview_dis_);
             ROS_INFO("[%s] dis2end: %.2f.", __NAME__, reverse_path_.remaindDis());
-            ROS_INFO("[%s] expect speed: %.2f\t expect angle: %.2f", __NAME__, exp_speed_, t_roadWheelAngle);
         }
 		
         loop_rate.sleep();

@@ -40,6 +40,7 @@ static std::pair<float, float> getDisAndYaw(const Pose& point1, const Pose& poin
 	dis_yaw.second = atan2(y,x);
 	
 	if(dis_yaw.second <0)
+	
 		dis_yaw.second += 2*M_PI;
 	return dis_yaw;
 }

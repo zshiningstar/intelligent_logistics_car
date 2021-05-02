@@ -13,13 +13,15 @@
 	<arg name="delay_time" default="0.3" />
 	
 	<!-- 底层控制 -->
-	<node pkg="pc_stm32" type="pc_stm32" name="pc_stm32">
-		<param name="car_state" value="/car_state" />
-		<param name="car_goal" value="/car_goal" />
-		<param name="pid_params" value="/pid_params" />
-		<param name="port_name" value="/dev/stm" />
-		<param name="baudrate" value="115200" />
-	</node>
+<!--	<node pkg="pc_stm32" type="pc_stm32" name="pc_stm32">-->
+<!--		<param name="car_state" value="/car_state" />-->
+<!--		<param name="car_goal" value="/car_goal" />-->
+<!--		<param name="pid_params" value="/pid_params" />-->
+<!--		<param name="port_name" value="/dev/stm" />-->
+<!--		<param name="baudrate" value="115200" />-->
+<!--	</node>-->
+	
+	<include file="$(find pc_stm32)/launch/pc_stm.launch"/>
 	
 	<!-- 上层控制 -->
 	<node name="driverless_node" pkg="driverless" type="driverless_node" output="screen" launch-prefix="gnome-terminal -x"> <!--  -->
@@ -32,9 +34,9 @@
 		
 		
 		<!-- path_tracking -->
-		<param name="min_foresight_distance" value="4"/>
+		<param name="min_foresight_distance" value="3.2"/>
 		<param name="max_side_accel" value="1"/>
-		<param name="foreSightDis_speedCoefficient" value = "0.3"/>
+		<param name="foreSightDis_speedCoefficient" value = "1.0"/>
 		<param name="foreSightDis_latErrCoefficient" value = "1.0"/>
 		<param name="car_state" value="/car_state"/>
 

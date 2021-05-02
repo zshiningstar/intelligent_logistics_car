@@ -47,7 +47,14 @@ bool AutoDrive::init(ros::NodeHandle nh,ros::NodeHandle nh_private)
 	nh_private_.param<bool>("use_extern_controller", use_extern_controller_, false);
 	nh_private_.param<bool>("use_car_follower", use_car_follower_, false);
 	std::string odom_topic = nh_private_.param<std::string>("odom_topic","/ll2utm_odom");
-	
+
+	//前轮转角PID控制器参数
+	nh_private.param<float>("tolerate_laterror", tolerate_laterror_,0.3);
+	nh_private.param<float>("d_omega", steer_kd_,5.0);
+	nh_private.param<float>("i_ki", steer_ki_,0.3);
+	nh_private.param<float>("p_kp", steer_kp_,5.0);
+	nh_private.param<float>("steer_clearance", steer_clearance_,0.3);
+
 	initDiagnosticPublisher(nh_,__NAME__);
 
 	if(!loadVehicleParams())
@@ -66,7 +73,7 @@ bool AutoDrive::init(ros::NodeHandle nh,ros::NodeHandle nh_private)
 	pub_new_goal_ = nh_.advertise<driverless::DoDriverlessTaskActionGoal>("/do_driverless_task/goal", 1);
 	
 	//定时器                                                                           one_shot, auto_start
-	cmd2_timer_ = nh_.createTimer(ros::Duration(0.01), &AutoDrive::sendCmd2_callback,this, false, false);
+	cmd2_timer_ = nh_.createTimer(ros::Duration(0.05), &AutoDrive::sendCmd2_callback,this, false, false);
 	
 		
 	// 车辆状态检查，等待初始化

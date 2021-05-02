@@ -20,6 +20,7 @@ protected://子类可访问,实例不可访问
 	static Path local_path_;              //局部路径
 	static VehicleState vehicle_state_;   //汽车状态
 	static VehicleParams vehicle_params_;
+	static std::atomic<float> lateral_err_;//横向偏差
 
 	std::mutex cmd_mutex_;
 	controlCmd_t cmd_;
