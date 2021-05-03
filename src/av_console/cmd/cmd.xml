@@ -3,7 +3,7 @@
     <RosNodes name="gps">
         <LaunchCommand>roslaunch daoyuan daoyuan.launch &</LaunchCommand>
         <Topic name="inspvax">/gps</Topic>
-        <Topic name="odom">/odom</Topic>
+        <Topic name="odom">/slam_fused_odom</Topic>
     </RosNodes>
 
     <RosNodes name="base_control">

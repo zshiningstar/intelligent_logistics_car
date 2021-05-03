@@ -15,6 +15,7 @@
 #include <stdio.h>
 #include <tf/transform_broadcaster.h>
 #include <nav_msgs/Odometry.h>
+#include <logistics_msgs/ControlCmd2.h>
 #include <tf2/LinearMath/Quaternion.h>
 #include <tf2_ros/transform_broadcaster.h>
 #include <geometry_msgs/TransformStamped.h>
@@ -49,6 +50,7 @@ private:
 	double generate_real_speed(double& temp1,double& temp2);
 	
 	void GoalState_callback(const logistics_msgs::GoalState::ConstPtr& msg);
+	void Cmd2_callback(const logistics_msgs::ControlCmd2::ConstPtr& msg);
 	void Pid_callback(const logistics_msgs::PidParams::ConstPtr& pid);
 	
 	void print(const uint8_t* buf, int len)
@@ -68,6 +70,7 @@ private:
 //	logistics_msgs::RealState m_state;
 	
 	ros::Subscriber m_sub_state;
+	ros::Subscriber m_sub_controlCmd2;
 	ros::Publisher odom_pub;
 	
 	ros::Subscriber m_sub_goal;

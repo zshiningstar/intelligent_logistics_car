@@ -18,9 +18,9 @@ Listener::~Listener()
 
 double Listener::generate_real_speed(double& temp1,double& temp2)
 {	
-	left_wheel_speed = M_PI * Wheel_D * temp1 / 60;
-	right_wheel_speed = M_PI * Wheel_D * temp2 / 60;
-	speed = (left_wheel_speed + right_wheel_speed) / 2;
+	left_wheel_speed = M_PI * Wheel_D * temp1 / 60.0;
+	right_wheel_speed = M_PI * Wheel_D * temp2 / 60.0;
+	speed = (left_wheel_speed + right_wheel_speed) / 2.0;
 	return speed;
 }
 
@@ -71,6 +71,10 @@ bool Listener::init()
 	
 	std::string car_goal = nh_private.param<std::string>("car_goal","/car_goal");
 	std::string pid_params = nh_private.param<std::string>("pid_params","/pid_params");
+	
+	std::string controlCmd2_goal = nh_private.param<std::string>("controlCmd2","/controlCmd2");
+	
+	m_sub_controlCmd2 = nh.subscribe(controlCmd2_goal ,1,&Listener::Cmd2_callback, this);
 	
 	m_sub_goal = nh.subscribe(car_goal ,1,&Listener::GoalState_callback, this);
 	m_sub_pid_params = nh.subscribe(pid_params,1,&Listener::Pid_callback, this);
@@ -172,7 +176,7 @@ void Listener::parseIncomingData(uint8_t* buffer,size_t len)
 					float kp = ((pkg_buffer[4] * 256 + pkg_buffer[5]) - 30000)/100.0;
 					float ki = ((pkg_buffer[6] * 256 + pkg_buffer[7]) - 30000)/100.0;
 					float kd = ((pkg_buffer[8] * 256 + pkg_buffer[9]) - 30000)/100.0;
-					//std::cout << "set pid ok: " << kp << "\t" << ki << "\t" << kd << "\n";
+					std::cout << "set pid ok: " << kp << "\t" << ki << "\t" << kd << "\n";
 				}
 				pkg_buffer_index = 0;
 			}
@@ -207,18 +211,20 @@ void Listener::parseFromStmVehicleState(const unsigned char* buffer)
 	
 	m_state.real_speed_left        = ((buffer[5]* 256 + buffer[6]) - 30000);
 	m_state.real_speed_right       = ((buffer[7]* 256 + buffer[8] ) - 30000);
-	m_state.real_angle             = ((buffer[9]* 256 + buffer[10] ) - 30000);
+	m_state.real_angle             = ((buffer[9]* 256 + buffer[10] ) - 30000)/100.0;
 	m_state.real_brake             = buffer[11] & 0xf0;
 	m_state.real_park              = buffer[11] & 0x0f;
 	m_state.real_touque            = buffer[12];
+	m_state.real_speed             = generate_real_speed(m_state.real_speed_left,m_state.real_speed_right);
 	
 	m_pub_state.publish(m_state);
 	
 	real_speed_left                = m_state.real_speed_left;
 	real_speed_right               = m_state.real_speed_right;
-	real_speed                     = generate_real_speed(real_speed_left,real_speed_right);
+	real_speed                     = m_state.real_speed;
 	real_angle                     = m_state.real_angle;
 	real_touque                    = m_state.real_touque;
+	
 	
 	printf("speed:%0.2f\t angle:%0.2f\t touque:%0.2f\n",real_speed,real_angle,real_touque);
 	
@@ -249,7 +255,7 @@ void Listener::parseFromStmVehicleState(const unsigned char* buffer)
 		//首先,创建一个TransformStamped消息,通过tf发送;在current_time发布"odom"坐标到"base_link"的转换
 		geometry_msgs::TransformStamped odom_trans;
 		odom_trans.header.stamp = current_time;
-		odom_trans.header.frame_id = "odom";
+		odom_trans.header.frame_id = "wheel_odom";
 		odom_trans.child_frame_id = "base_link";
 
 		odom_trans.transform.translation.x = x;
@@ -281,6 +287,28 @@ void Listener::parseFromStmVehicleState(const unsigned char* buffer)
 		ROS_DEBUG_STREAM("accumulation_x: " << x << "; accumulation_y: " << y <<"; accumulation_th: " << vth);
 		last_time = current_time;
 }
+void Listener::Cmd2_callback(const logistics_msgs::ControlCmd2::ConstPtr& msg)
+{	
+	static uint8_t pkgId = 0x01;
+	const uint8_t dataLen = 6;
+	static uint8_t buf[11] = {0x66, 0xcc, pkgId, dataLen };
+
+	uint16_t u16_speed = msg->set_speed * 100.0 + 30000;
+	buf[5]  = u16_speed >> 8;  
+	buf[6]  = u16_speed;  
+	
+	uint16_t u16_angle = msg->set_roadWheelAngle * 100.0 + 30000;
+	buf[7]  = u16_angle >> 8;
+	buf[8]  = u16_angle;
+	
+	uint8_t checkVal = sumCheck(buf+2, dataLen+2);
+	
+	//std::cout << (buf[2]) << "\t" << dataLen+2 << "\t" << int(checkVal) << std::endl;
+	buf[dataLen+4] = checkVal;
+	//print(buf, dataLen+5);
+	m_serial_port-> write(buf,dataLen+5);
+}
+
 
 void Listener::GoalState_callback(const logistics_msgs::GoalState::ConstPtr& msg)
 {	

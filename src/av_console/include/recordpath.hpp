@@ -18,6 +18,7 @@
 #include <QStringListModel>
 #include <fstream>
 #include <sstream>
+#include "globalvariables.hpp"
 
 struct gpsPoint
 {

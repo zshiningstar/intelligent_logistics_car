@@ -46,6 +46,7 @@ private:
     void goal_callback(const pathplaning_msgs::expected_path::ConstPtr& msg);
     void executeDriverlessCallback(const driverless::DoDriverlessTaskGoalConstPtr& goal);
     bool handleNewGoal(const driverless::DoDriverlessTaskGoalConstPtr& goal);
+    float steerPidCtrl(float expectAngle, float currentAngle, float err, float deltaT);
 
     logistics_msgs::ControlCmd2 driveDecisionMaking();
     logistics_msgs::ControlCmd2 reverseDecisionMaking();
@@ -143,5 +144,12 @@ private:
 
     //AvoidObstacle avoider_;
     controlCmd_t avoid_cmd_;
+
+    //steering angle PID
+    float tolerate_laterror_;
+	float steer_kp_;
+	float steer_ki_;
+	float steer_kd_;
+	float steer_clearance_;
 };
 

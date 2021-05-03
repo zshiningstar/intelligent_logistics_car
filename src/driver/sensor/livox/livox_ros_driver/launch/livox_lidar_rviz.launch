@@ -8,7 +8,7 @@
 	<arg name="data_src" default="0"/>
 	<arg name="publish_freq" default="10.0"/>
 	<arg name="output_type" default="0"/>
-	<arg name="rviz_enable" default="true"/>
+	<arg name="rviz_enable" default="false"/>
 	<arg name="rosbag_enable" default="false"/>
 	<arg name="cmdline_arg" default="$(arg bd_list)"/>
 	<arg name="msg_frame_id" default="livox_frame"/>
@@ -31,10 +31,10 @@
 	      type="livox_ros_driver_node" required="true"
 	      output="screen" args="$(arg cmdline_arg)"/>
 
-<!--	<group if="$(arg rviz_enable)">-->
-<!--		<node name="rviz" pkg="rviz" type="rviz" respawn="true"-->
-<!--				args="-d $(find livox_ros_driver)/config/display_lidar_points.rviz"/>-->
-<!--    </group>-->
+	<group if="$(arg rviz_enable)">
+		<node name="rviz" pkg="rviz" type="rviz" respawn="false"
+				args="-d $(find livox_ros_driver)/config/display_lidar_points.rviz"/>
+    </group>
 
 	<group if="$(arg rosbag_enable)">
     	<node pkg="rosbag" type="record" name="record" output="screen"

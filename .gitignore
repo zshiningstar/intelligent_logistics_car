@@ -3,3 +3,14 @@ build/
 .catkin_workspace
 src/CMakeLists.txt
 src/ui/install.desktop
+
+.vscode/
+.ycm_extra_conf.py
+.ycm_extra_conf.pyc
+devel_isolated
+el
+
+el_isolated
+
+	
+src/driver/sensor/livox/livox_ros_driver/Livox-SDK
