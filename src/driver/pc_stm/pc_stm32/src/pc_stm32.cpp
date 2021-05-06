@@ -327,7 +327,6 @@ void Listener::GoalState_callback(const logistics_msgs::GoalState::ConstPtr& msg
 	uint16_t sun = msg->goal_angle * 100.0 + 30000;
 	buf[7]  = sun >> 8;
 	buf[8]  = sun;
-	buf[9]  = msg->goal_light;
 	
 	uint8_t checkVal = sumCheck(buf+2, dataLen+2);
 	
