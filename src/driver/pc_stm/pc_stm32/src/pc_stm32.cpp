@@ -212,9 +212,8 @@ void Listener::parseFromStmVehicleState(const unsigned char* buffer)
 	m_state.real_speed_left        = ((buffer[5]* 256 + buffer[6]) - 30000);
 	m_state.real_speed_right       = ((buffer[7]* 256 + buffer[8] ) - 30000);
 	m_state.real_angle             = ((buffer[9]* 256 + buffer[10] ) - 30000)/100.0;
-	m_state.real_brake             = buffer[11] & 0xf0;
-	m_state.real_park              = buffer[11] & 0x0f;
-	m_state.real_touque            = buffer[12];
+	
+	m_state.real_touque            = buffer[11] *256 + buffer[12] - 30000;
 	m_state.real_speed             = generate_real_speed(m_state.real_speed_left,m_state.real_speed_right);
 	
 	m_pub_state.publish(m_state);
