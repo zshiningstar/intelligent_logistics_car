@@ -1,11 +1,12 @@
 #include"pc_stm.h"
 
 using namespace std;
+#define MAX_ARRAY 500
 	
 Listener::Listener():
 	m_reading_status(false),
 	prase_flag_(true),
-	m_pkg_buffer(new uint8_t[500])
+	m_pkg_buffer(new uint8_t[MAX_ARRAY])
 {
 }
 
@@ -161,8 +162,12 @@ void Listener::parseIncomingData(uint8_t* buffer,size_t len)
 				pkg_len = pkg_buffer[3];
 			else if(pkg_buffer_index == pkg_len+5)
 			{
+				if(pkg_buffer_index > MAX_ARRAY)
+				{
+					ROS_ERROR("subscript out of bounds!");
+					return;
+				}
 				//std::cout << "pkg_len: " << pkg_len << std::endl;
-				
 				if(pkg_buffer[pkg_len+4] != sumCheck(pkg_buffer+2,pkg_len+2))
 				{
 					ROS_ERROR("check failed!");
