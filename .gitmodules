@@ -1,0 +1,3 @@
+[submodule "src/driver/sensor/gps_driver"]
+	path = src/driver/sensor/gps_driver
+	url = https://github.com/zsx-star/gps_driver.git

@@ -18,6 +18,7 @@ typedef struct ControlCmd
 		validity = false;
 		speed_validity = false;
 		speed = 0.0;
+		steer_validity = false;
 		roadWheelAngle = 0.0;
 		hand_brake = false;
 		turnLight = 0;
@@ -28,6 +29,7 @@ typedef struct ControlCmd
 	bool  validity;       //指令的全局有效性
 	bool  speed_validity; //仅速度指令的有效性
 	float speed;
+	bool  steer_validity; //转向指令有效
 	float roadWheelAngle;
 
 	bool hand_brake;

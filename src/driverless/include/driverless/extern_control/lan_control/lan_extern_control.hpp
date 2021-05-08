@@ -144,6 +144,8 @@ private:
 			{
 				cmd_mutex_.lock();
 				cmd_.validity = true;
+				cmd_.speed_validity = true;
+				cmd_.steer_validity = false;
 				cmd_.speed = extern_cmd->data[0];
 				cmd_mutex_.unlock();
 				answer = std::string("speed:") + std::to_string(extern_cmd->data[0]) + std::string("km/h");
@@ -152,11 +154,17 @@ private:
 			{
 				cmd_mutex_.lock();
 				cmd_.validity = false;
+				cmd_.speed_validity = false;
+				cmd_.steer_validity = false;
 				cmd_mutex_.unlock();
 				answer = "disabled";
 			}
 			else if(extern_cmd->type == ExternCmdType_turnLight)
 			{
+				cmd_.validity = false;
+				cmd_.speed_validity = false;
+				cmd_.steer_validity = false;
+				
 				cmd_mutex_.lock();
 				cmd_.turnLight = extern_cmd->data[0];
 				cmd_mutex_.unlock();

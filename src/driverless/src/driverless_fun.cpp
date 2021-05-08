@@ -216,11 +216,6 @@ void AutoDrive::captureExernCmd_callback(const ros::TimerEvent&)
 		if(system_state_ != State_ForceExternControl)
 			switchSystemState(State_ForceExternControl);
 		//extern_cmd_.display("Extern Cmd ");
-
-		cmd2_mutex_.lock();
-		controlCmd2_.set_speed = extern_cmd_.speed;
-		controlCmd2_.set_roadWheelAngle = extern_cmd_.roadWheelAngle;
-		cmd2_mutex_.unlock();
 	}
 	if(!extern_cmd_.validity && last_validity) //当前无效，上次有效，切换为历史状态
 		switchSystemState(last_system_state_);

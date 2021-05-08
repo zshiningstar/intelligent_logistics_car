@@ -3,8 +3,8 @@
 
 	<arg name="roadnet_file" default=""/>     <!--默认为空-->
 	<arg name="max_speed" default="1" />
-	<arg name="use_extern_controller" default="false"/>
-	<arg name="which_extern_controller" default="wan_controller"/>
+	<arg name="use_extern_controller" default="true"/>
+	<arg name="which_extern_controller" default="lan_controller"/>
 	<arg name="use_car_follower" default="false"/>
 	<arg name="use_avoiding" default="false"/>
 	
@@ -21,10 +21,10 @@
 <!--		<param name="baudrate" value="115200" />-->
 <!--	</node>-->
 	
-	<include file="$(find pc_stm32)/launch/pc_stm.launch"/>
+	<include file="$(find pc_stm32)/launch/pc_stm.launch" />
 	
 	<!-- 上层控制 -->
-	<node name="driverless_node" pkg="driverless" type="driverless_node" output="screen" launch-prefix="gnome-terminal -x"> <!--  -->
+	<node name="driverless_node" pkg="driverless" type="driverless_node" output="screen" launch-prefix="gnome-terminal -x"> <!-- launch-prefix="gnome-terminal -x" -->
 		
 		<rosparam file="$(find driverless)/config/vehicle_params.yaml" command="load"/>
 		<!-- main -->
@@ -32,13 +32,24 @@
 		<param name="max_speed" value="$(arg max_speed)"/>
 		<param name="odom_topic" value="/slam_fused_odom"/>  #slam_fused_odom gps_odom
 		
-		
 		<!-- path_tracking -->
 		<param name="min_foresight_distance" value="3.2"/>
 		<param name="max_side_accel" value="1"/>
 		<param name="foreSightDis_speedCoefficient" value = "1.0"/>
 		<param name="foreSightDis_latErrCoefficient" value = "1.0"/>
 		<param name="car_state" value="/car_state"/>
+
+		<!-- extern_control -->
+		<param name="use_extern_controller" value="$(arg use_extern_controller)"/>
+		<param name="which_extern_controller" value="$(arg which_extern_controller)"/>
+		<param name="lan_control/local_ip" value="0.0.0.0"/>
+		<param name="lan_control/local_port" value="8080"/>
+		<param name="wan_control/image" value="/usb_cam/image_raw"/>
+		<param name="wan_control/server_ip" value="192.168.8.101"/>  <!--192.168.8.101  192.168.8.115  xhw36.155.113.13   wd62.234.114.48-->
+		<param name="wan_control/sever_port" value="8617"/>
+		<param name="wan_control/image_cut_up" value="100"/>
+		<param name="wan_control/image_cut_down" value="30"/>
+		<param name="wan_control/image_quality" value="50"/>
 
 			<!-- PID -->
 		<param name="d_omega" value="10.0"/>
@@ -62,10 +73,10 @@
 	<include file="$(find daoyuan)/launch/daoyuan.launch"/>
 	
 	<!-- 镭神雷达 -->
-	<include file="$(find lslidar_c16_decoder)/launch/lslidar_c16.launch"/>
+<!--	<include file="$(find lslidar_c16_decoder)/launch/lslidar_c16.launch"/>-->
 
 	<!-- 大疆雷达 聚类-->
-	<include file="$(find livox_ros_driver)/launch/livox_lidar_rviz.launch"/>
-	<include file="$(find euclidean_cluster)/launch/euclidean_cluster.launch"/>
+<!--	<include file="$(find livox_ros_driver)/launch/livox_lidar_rviz.launch"/>-->
+<!--	<include file="$(find euclidean_cluster)/launch/euclidean_cluster.launch"/>-->
 
 </launch>

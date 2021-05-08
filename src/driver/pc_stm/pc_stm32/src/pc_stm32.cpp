@@ -1,7 +1,7 @@
 #include"pc_stm.h"
 
 using namespace std;
-#define MAX_ARRAY 500
+#define MAX_ARRAY 50
 	
 Listener::Listener():
 	m_reading_status(false),
@@ -154,6 +154,13 @@ void Listener::parseIncomingData(uint8_t* buffer,size_t len)
 		}
 		else
 		{
+			if(pkg_buffer_index >= MAX_ARRAY)
+			{
+				ROS_ERROR("subscript out of bounds!");
+				pkg_buffer_index = 0;
+				return;
+			}
+				
 			pkg_buffer[pkg_buffer_index++] = buffer[i];
 			
 			if(pkg_buffer_index == 3)
@@ -162,11 +169,6 @@ void Listener::parseIncomingData(uint8_t* buffer,size_t len)
 				pkg_len = pkg_buffer[3];
 			else if(pkg_buffer_index == pkg_len+5)
 			{
-				if(pkg_buffer_index > MAX_ARRAY)
-				{
-					ROS_ERROR("subscript out of bounds!");
-					return;
-				}
 				//std::cout << "pkg_len: " << pkg_len << std::endl;
 				if(pkg_buffer[pkg_len+4] != sumCheck(pkg_buffer+2,pkg_len+2))
 				{
@@ -240,6 +242,7 @@ void Listener::parseFromStmVehicleState(const unsigned char* buffer)
 		last_time = ros::Time::now();
 		prase_flag_ = false;
 	}
+	/*
 		double dt = (current_time - last_time).toSec();
 		vx = real_speed; // forward
 		vy = 0;
@@ -290,6 +293,7 @@ void Listener::parseFromStmVehicleState(const unsigned char* buffer)
 		odom_pub.publish(odom);
 		ROS_DEBUG_STREAM("accumulation_x: " << x << "; accumulation_y: " << y <<"; accumulation_th: " << vth);
 		last_time = current_time;
+		*/
 }
 void Listener::Cmd2_callback(const logistics_msgs::ControlCmd2::ConstPtr& msg)
 {	
