@@ -62,7 +62,11 @@ void PathTracking::gps_odom_callback(const nav_msgs::Odometry::ConstPtr& msg)
 	current_point_.y = msg->pose.pose.position.y;
 	current_point_.yaw = msg->pose.covariance[0];
 	
-	isLocationValid = !msg->pose.covariance[4];
+	int gps_state = msg->pose.covariance[4];
+	if(gps_state >= 9)
+		isLocationValid = 1;
+	else
+		isLocationValid = 0;
 }
 //启动跟踪线程
 bool PathTracking::start()
