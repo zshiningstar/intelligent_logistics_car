@@ -242,7 +242,7 @@ void AutoDrive::doDriveWork()
 		tracker_cmd_ = tracker_.getControlCmd();
 		follower_cmd_= car_follower_.getControlCmd();
 		
-		auto cmd = this->driveDecisionMaking();
+		auto cmd = this->decisionMaking(true);
 
 		if(as_->isActive()) //判断action server是否为活动，防止函数的非服务调用导致的错误
 		{
@@ -289,7 +289,7 @@ void AutoDrive::doReverseWork()
 		//ROS_INFO("[%s] speed: %.2f\t angle: %.2f", __NAME__, reverse_cmd_.speed, reverse_cmd_.roadWheelAngle);
 		
 		if(reverse_cmd_.validity)
-			reverseDecisionMaking();
+			decisionMaking(false);
 		
 		//如果actionlib服务器处于活跃状态，则进行状态反馈并判断是否外部请求中断
 		//如果actionlib服务器未active表明是其他方式请求的工作，比如测试例
@@ -326,13 +326,21 @@ void AutoDrive::doReverseWork()
                 ②避障速度控制
 				③跟车速度控制
  */
-logistics_msgs::ControlCmd2 AutoDrive::driveDecisionMaking()
-{
-	std::lock_guard<std::mutex> lock2(cmd2_mutex_);
-
-	controlCmd2_.set_roadWheelAngle = tracker_cmd_.roadWheelAngle;//前轮转角
-	controlCmd2_.set_speed = tracker_cmd_.speed; //优先使用跟踪器速度指令
-
+ 
+ logistics_msgs::ControlCmd2 AutoDrive::decisionMaking(bool isDrive)
+ {
+ 	std::lock_guard<std::mutex> lock2(cmd2_mutex_);
+ 	if(isDrive)
+ 	{
+ 		controlCmd2_.set_roadWheelAngle = tracker_cmd_.roadWheelAngle;//前轮转角
+		controlCmd2_.set_speed = tracker_cmd_.speed; //优先使用跟踪器速度指令
+ 	}
+ 	else
+ 	{
+ 		controlCmd2_.set_speed = reverse_cmd_.speed;
+		controlCmd2_.set_roadWheelAngle = reverse_cmd_.roadWheelAngle;
+ 	}
+ 	
 	//若当前状态为强制使用外部控制指令，则忽悠其他指令源
 	if(system_state_ == State_ForceExternControl)
 	{
@@ -342,42 +350,19 @@ logistics_msgs::ControlCmd2 AutoDrive::driveDecisionMaking()
 
 		if(extern_cmd_.steer_validity)
 			controlCmd2_.set_roadWheelAngle = extern_cmd_.roadWheelAngle;
+	}
+	//非外部控制工况且定位状态无效，停车！
+	else if(!vehicle_state_.getPoseValid())
+	{
+		controlCmd2_.set_speed = 0;
 	}
 	
-//	if(avoid_cmd_.speed_validity){      //如果避障速度有效，选用最小速度
-//		controlCmd2_.set_speed = std::min(controlCmd2_.set_speed, avoid_cmd_.speed);
-//		controlCmd2_.set_brake = max(controlCmd2_.set_brake, avoid_cmd_.brake);
-//	}
-//	if(follower_cmd_.speed_validity){   //如果跟车速度有效，选用最小速度
-//		controlCmd2_.set_speed = std::min(controlCmd2_.set_speed, follower_cmd_.speed);
-//		controlCmd2_.set_brake = max(controlCmd2_.set_brake, follower_cmd_.brake);
-//	}
+	controlCmd2_.set_roadWheelAngle = steerPidCtrl(controlCmd2_.set_roadWheelAngle);
+	
 	return controlCmd2_;
-}
+ 	
+ }
 
-/*@brief 倒车指令决策
- */
-logistics_msgs::ControlCmd2 AutoDrive::reverseDecisionMaking()
-{
-	std::lock_guard<std::mutex> lock2(cmd2_mutex_);
-
-	controlCmd2_.set_speed = reverse_cmd_.speed;
-	controlCmd2_.set_roadWheelAngle = reverse_cmd_.roadWheelAngle;
-
-	//若当前状态为强制使用外部控制指令，则忽悠其他指令源
-	if(system_state_ == State_ForceExternControl)
-	{
-		std::lock_guard<std::mutex> lock_extern_cmd(extern_cmd_mutex_);
-		if(extern_cmd_.speed_validity)
-			controlCmd2_.set_speed = extern_cmd_.speed;
-
-		if(extern_cmd_.steer_validity)
-			controlCmd2_.set_roadWheelAngle = extern_cmd_.roadWheelAngle;
-		return controlCmd2_;
-	}
-
-	return controlCmd2_;
-}
 
 /*@brief 由于物流车机械结构待优化,需要通过PID控制循迹
  *@param kp 
@@ -385,21 +370,30 @@ logistics_msgs::ControlCmd2 AutoDrive::reverseDecisionMaking()
  *@param kd
  *@return t_roadWheelAngle 前轮转角
  */
-float AutoDrive::steerPidCtrl(float expectAngle, float currentAngle, float err, float deltaT)
+float AutoDrive::steerPidCtrl(float expectAngle)
 {
-	/*
+	static float steerPidKi = nh_private_.param<float>("steer_pid_ki", 0.1);
+	static float tolerateLatErr = nh_private_.param<float>("tolerate_laterr", 0.05);
+	
 	static float lastErr = 0.0;
 	static float lastLastErr = 0.0;
 	static float sumErr = 0.0;
+	
+	float angle_now = vehicle_state_.getSteerAngle(LOCK);
+	float err = lateral_err_; //from global var
+	
+	if(fabs(err) > tolerateLatErr)		//横向偏差较小时不修正,因为稳态误差不能全部消除,否则会转向激进
+		sumErr = sumErr + err;
+	if(sumErr * err < 0)				//横向偏差变号时,说明行驶靠右/左,总横向偏差需要置0
+		sumErr = 0;
 
-	float err = lateral_err_;
-	sumErr += err;
+	float theta = steerPidKi * sumErr;	// 假想转角和总横向偏差为线性模型
+    if(theta > vehicle_params_.steer_clearance)
+    	theta = vehicle_params_.steer_clearance;
+    else if(theta < -vehicle_params_.steer_clearance)
+    	theta = -vehicle_params_.steer_clearance;
 
-
-	float theta_byerrerr = steer_kp_ * (err - lastErr) 
-						 + steer_ki_ * sumErr
-						 + steer_kd_ * ;
-    */
+    return expectAngle - theta;
 }
 
 

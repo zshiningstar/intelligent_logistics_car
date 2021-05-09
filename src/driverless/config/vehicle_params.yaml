@@ -8,3 +8,4 @@ vehicle:
    wheel_track: 0.5
    width:       1.5
    length:      2.5
+   steer_clearance: 1.0

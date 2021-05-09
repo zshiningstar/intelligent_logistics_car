@@ -50,6 +50,12 @@ void RecordPath::gps_callback(const nav_msgs::Odometry::ConstPtr& msg)
   current_point.x = msg->pose.pose.position.x;
   current_point.y = msg->pose.pose.position.y;
   current_point.yaw = msg->pose.covariance[0];
+  
+  if(msg->pose.covariance[4] < 9)
+  {
+    log("WARN","No valid location!");
+  	return;
+  }
 
   if(sample_distance_*sample_distance_ <= dis2Points(current_point,last_point_,false))
   {

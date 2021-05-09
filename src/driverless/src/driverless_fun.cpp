@@ -40,20 +40,13 @@ bool AutoDrive::init(ros::NodeHandle nh,ros::NodeHandle nh_private)
 	nh_ = nh;  nh_private_ = nh_private;
 
 	//获取参数
-	nh_private_.param<float>("max_speed",expect_speed_,10.0);//km/h
+	nh_private_.param<float>("max_speed",expect_speed_,5.0);// m/s
 	nh_private_.param<bool>("use_car_following",use_car_following_,false);
 	nh_private_.param<bool>("use_avoiding",use_avoiding_,false);
 	nh_private_.param<bool>("is_offline_debug",is_offline_debug_,false);
 	nh_private_.param<bool>("use_extern_controller", use_extern_controller_, false);
 	nh_private_.param<bool>("use_car_follower", use_car_follower_, false);
 	std::string odom_topic = nh_private_.param<std::string>("odom_topic","/ll2utm_odom");
-
-	//前轮转角PID控制器参数
-	nh_private.param<float>("tolerate_laterror", tolerate_laterror_,0.3);
-	nh_private.param<float>("d_omega", steer_kd_,5.0);
-	nh_private.param<float>("i_ki", steer_ki_,0.3);
-	nh_private.param<float>("p_kp", steer_kp_,5.0);
-	nh_private.param<float>("steer_clearance", steer_clearance_,0.3);
 
 	initDiagnosticPublisher(nh_,__NAME__);
 
@@ -314,6 +307,7 @@ void AutoDrive::odom_callback(const nav_msgs::Odometry::ConstPtr& msg)
 	pose.y =  msg->pose.pose.position.y;
 	pose.yaw = msg->pose.covariance[0];
 	
+	vehicle_state_.setPoseValid(msg->pose.covariance[4] >= 9);
 	vehicle_state_.setPose(pose);
 }
 
@@ -361,6 +355,8 @@ bool AutoDrive::loadVehicleParams()
 	vehicle_params_.wheel_track = nh_private_.param<float>("vehicle/wheel_track",0.0);
 	vehicle_params_.width = nh_private_.param<float>("vehicle/width",0.0);
 	vehicle_params_.length = nh_private_.param<float>("vehicle/length",0.0);
+	vehicle_params_.steer_clearance = nh_private_.param<float>("vehicle/steer_clearance",0.0);
+	
 	std::string node = ros::this_node::getName();
 	if(vehicle_params_.max_roadwheel_angle == 0.0)
 	{

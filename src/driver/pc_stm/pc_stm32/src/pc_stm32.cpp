@@ -2,6 +2,7 @@
 
 using namespace std;
 #define MAX_ARRAY 50
+#define MAX_STEER_ANGLE 12.3
 	
 Listener::Listener():
 	m_reading_status(false),
@@ -305,7 +306,13 @@ void Listener::Cmd2_callback(const logistics_msgs::ControlCmd2::ConstPtr& msg)
 	buf[5]  = u16_speed >> 8;  
 	buf[6]  = u16_speed;  
 	
-	uint16_t u16_angle = msg->set_roadWheelAngle * 100.0 + 30000;
+	float float_angle = msg->set_roadWheelAngle;
+	if(float_angle > MAX_STEER_ANGLE)
+		float_angle = MAX_STEER_ANGLE;
+	else if(float_angle < -MAX_STEER_ANGLE)
+		float_angle = -MAX_STEER_ANGLE;
+	
+	uint16_t u16_angle = float_angle * 100.0 + 30000;
 	buf[7]  = u16_angle >> 8;
 	buf[8]  = u16_angle;
 	

@@ -35,7 +35,6 @@ private:
 	float limitSpeedByParkingPoint(const float& speed,const float& acc=5);
 	float limitRoadwheelAngleBySpeed(const float& angle, const float& speed);
 	void  is_object_callback(const std_msgs::Float32::ConstPtr& msg);
-	void  gps_odom_callback(const nav_msgs::Odometry::ConstPtr& msg);
 	
 	
 	float generateMaxTolarateSpeedByCurvature(const std::vector<GpsPoint>& path_points,
@@ -66,7 +65,6 @@ private:
 		
 	float min_object_distence;
 	double now;
-	bool isLocationValid;
 	//param
 	float foreSightDis_speedCoefficient_;
 	float foreSightDis_latErrCoefficient_;
@@ -78,6 +76,4 @@ private:
 
 	float safety_distance_;
 	float timeout_;
-	
-	GpsPoint current_point_;
 };

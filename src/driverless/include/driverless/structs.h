@@ -233,6 +233,7 @@ public:
 	float wheel_track;
 	float width;
 	float length;
+	float steer_clearance;
 
 	bool validity;
 	VehicleParams()
@@ -278,6 +279,12 @@ public:
 		WriteLock writeLock(wr_mutex);
 		pose = val;
 	}
+	
+	void setPoseValid(bool flag)
+	{
+		WriteLock writeLock(wr_mutex);
+		pose_validity = flag;
+	}
 
 	void setGear(uint8_t g)
 	{
@@ -308,6 +315,11 @@ public:
 			return steer_angle;
 		}
 		return steer_angle;
+	}
+	
+	bool getPoseValid() const
+	{
+		return pose_validity;
 	}
 
 	Pose getPose(bool lock = UNLOCK)
@@ -357,14 +369,11 @@ public:
 			info += "Vehicle steer angle is invalidity!\t";
 			ok = false;
 		}
-		if(pose.x <100 || pose.y <100) //the pose from gps is invailed!
+		if(!pose_validity)
 		{
 			info += "Vehicle pose is invalidity!";
 			ok = false;
-			pose_validity = false;
 		}
-		else
-			pose_validity = true;
 		return ok;
 	}
 
