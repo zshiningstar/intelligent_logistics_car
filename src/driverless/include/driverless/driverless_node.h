@@ -143,5 +143,7 @@ private:
 
     //AvoidObstacle avoider_;
     controlCmd_t avoid_cmd_;
+    
+    float steer_offset_;
 };
 

@@ -325,8 +325,8 @@ static size_t findNearestPoint(const Path& path, const Pose& pose)
 		else if(yawErr < -M_PI)
 			yawErr += 2*M_PI;
 				
-		if(fabs(yawErr) > M_PI/2)
-			continue;
+//		if(fabs(yawErr) > M_PI/2)
+//			continue;
 		float dis2 = dis2Points(path_points[i],pose,false);
 		if(dis2 < min_dis2)
 		{
@@ -410,8 +410,9 @@ static float calculateDis2path(const double& x,const double& y,
 	if(nearest_point_index_ptr != NULL)
 		*nearest_point_index_ptr = ref_point_index;
 	//float dis2anchor = sqrt((x-anchor_x)*(x-anchor_x)+(y-anchor_y)*(y-anchor_y));
-	float dx = (x-anchor_x)*cos(anchor_yaw) - (y-anchor_y) * sin(anchor_yaw);
-	return dx;
+	//float dx = (x-anchor_x)*cos(anchor_yaw) - (y-anchor_y) * sin(anchor_yaw);
+	float dy = -(x-anchor_x)*sin(anchor_yaw) + (y-anchor_y) * cos(anchor_yaw);
+	return dy;
 }
 
 /*@brief 计算目标点到达路径的距离,点在路径左侧为负,右侧为正
@@ -493,7 +494,8 @@ static float calculateDis2path(const double& x,const double& y,
 	
 	//printf("dx:%.2f\tdy:%.2f\tref_point_index:%d\n",dx,dy,ref_point_index);
 	
-	return (x-anchor_x)*cos(anchor_yaw) - (y-anchor_y) * sin(anchor_yaw);
+	//return (x-anchor_x)*cos(anchor_yaw) - (y-anchor_y) * sin(anchor_yaw);
+	return -(x-anchor_x)*sin(anchor_yaw) + (y-anchor_y) * cos(anchor_yaw);
 }
 
 static float limitSpeedByLateralAndYawErr(float speed,float latErr,float yawErr)

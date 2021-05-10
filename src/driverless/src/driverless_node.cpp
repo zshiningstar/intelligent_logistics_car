@@ -357,7 +357,7 @@ void AutoDrive::doReverseWork()
 		controlCmd2_.set_speed = 0;
 	}
 	
-	controlCmd2_.set_roadWheelAngle = steerPidCtrl(controlCmd2_.set_roadWheelAngle);
+	controlCmd2_.set_roadWheelAngle = steerPidCtrl(controlCmd2_.set_roadWheelAngle) + steer_offset_;
 	
 	return controlCmd2_;
  	

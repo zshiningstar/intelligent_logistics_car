@@ -3,6 +3,8 @@
 using namespace std;
 #define MAX_ARRAY 50
 #define MAX_STEER_ANGLE 12.3
+
+#define __NAME__ "base_control"
 	
 Listener::Listener():
 	m_reading_status(false),
@@ -184,7 +186,8 @@ void Listener::parseIncomingData(uint8_t* buffer,size_t len)
 					float kp = ((pkg_buffer[4] * 256 + pkg_buffer[5]) - 30000)/100.0;
 					float ki = ((pkg_buffer[6] * 256 + pkg_buffer[7]) - 30000)/100.0;
 					float kd = ((pkg_buffer[8] * 256 + pkg_buffer[9]) - 30000)/100.0;
-					std::cout << "set pid ok: " << kp << "\t" << ki << "\t" << kd << "\n";
+					
+					ROS_ERROR("[%s] NOT ERROR, vehicle speed pid: %.3f, %.3f,%.3f", __NAME__, kp,ki,kd);
 				}
 				pkg_buffer_index = 0;
 			}
@@ -217,11 +220,12 @@ void Listener::parseFromStmVehicleState(const unsigned char* buffer)
 	m_state.header.stamp = ros::Time::now();
 	m_state.header.frame_id = "car_state";
 	
-	m_state.real_speed_left        = ((buffer[5]* 256 + buffer[6]) - 30000);
-	m_state.real_speed_right       = ((buffer[7]* 256 + buffer[8] ) - 30000);
-	m_state.real_angle             = ((buffer[9]* 256 + buffer[10] ) - 30000)/100.0;
+	m_state.real_speed_left        = ((buffer[4]* 256 + buffer[5]) - 30000);
+	m_state.real_speed_right       = ((buffer[6]* 256 + buffer[7] ) - 30000);
+	m_state.real_angle             = ((buffer[8]* 256 + buffer[9] ) - 30000)/100.0;
 	
-	m_state.real_touque            = buffer[11] *256 + buffer[12] - 30000;
+	m_state.real_touque            = buffer[10] *256 + buffer[11] - 30000;
+	m_state.real_brake             = buffer[12];
 	m_state.real_speed             = generate_real_speed(m_state.real_speed_left,m_state.real_speed_right);
 	
 	m_pub_state.publish(m_state);
@@ -232,8 +236,7 @@ void Listener::parseFromStmVehicleState(const unsigned char* buffer)
 	real_angle                     = m_state.real_angle;
 	real_touque                    = m_state.real_touque;
 	
-	
-	printf("speed:%0.2f\t angle:%0.2f\t touque:%0.2f\n",real_speed,real_angle,real_touque);
+//	printf("speed:%0.2f\t angle:%0.2f\t touque:%0.2f\n",real_speed,real_angle,real_touque);
 	
 	if(prase_flag_)
 	{
@@ -349,8 +352,14 @@ void Listener::GoalState_callback(const logistics_msgs::GoalState::ConstPtr& msg
 
 void Listener::Pid_callback(const logistics_msgs::PidParams::ConstPtr& pid)
 {	
-//	is_pid_write =true;
-	static uint8_t buf[11];
+	if(!pid->set) //only query
+	{
+		uint8_t buf[5] = {0x66, 0xcc, 0x06, 0x00, 0x06};
+		m_serial_port-> write(buf,5);
+		return;
+	}
+
+	uint8_t buf[11];
 	buf[0]  = 0x66;
 	buf[1]  = 0xcc;
 	buf[2]  = 0x05;   //数据包id

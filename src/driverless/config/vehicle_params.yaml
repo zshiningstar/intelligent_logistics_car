@@ -9,3 +9,4 @@ vehicle:
    width:       1.5
    length:      2.5
    steer_clearance: 1.0
+   steer_offset: 0.0

@@ -5,9 +5,6 @@
 	<arg name="max_speed" default="1" />
 	<arg name="use_extern_controller" default="true"/>
 	<arg name="which_extern_controller" default="lan_controller"/>
-	<arg name="use_car_follower" default="false"/>
-	<arg name="use_avoiding" default="false"/>
-	
 	
 	<arg name="rate" default="30" />
 	<arg name="delay_time" default="0.3" />
@@ -52,7 +49,7 @@
 		<param name="wan_control/image_quality" value="50"/>
 
 			<!-- PID -->
-		<param name="steer_pid_ki" value="0.5"/>
+		<param name="steer_pid_ki" value="-0.6"/>
 		<param name="tolerate_laterr" value = "0.05"/>	<!-- 容忍横向偏差 -->
 			<!-- livox -->
 		<param name="is_object" value="/min_dis_obj"/>

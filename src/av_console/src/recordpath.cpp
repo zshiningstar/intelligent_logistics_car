@@ -59,9 +59,27 @@ void RecordPath::gps_callback(const nav_msgs::Odometry::ConstPtr& msg)
 
   if(sample_distance_*sample_distance_ <= dis2Points(current_point,last_point_,false))
   {
+  	static bool temp_file_opened = false;
+	static std::ofstream outTempFile;
+	if(!temp_file_opened)
+	{
+		auto file_name = QDir::current().absolutePath().toStdString() + "/backup_path.txt";
+		outTempFile.open(file_name.c_str());
+		log("INFO",file_name);
+		
+		temp_file_opened = true;
+	}
+	
+	
+  
     path_points_.push_back(current_point);
     //fprintf(fp,"%.3f\t%.3f\t%.4f\n",current_point.x,current_point.y,current_point.yaw);
     last_point_ = current_point;
+    
+    outTempFile << std::fixed << std::setprecision(3)
+        << current_point.x << "\t"
+        << current_point.y << "\t"
+        << current_point.yaw << std::endl;
 
     std::stringstream msg;
     msg << ++row_num_ << "\t" << std::fixed << std::setprecision(2)
@@ -98,22 +116,22 @@ bool RecordPath::savePathPoints(const std::string& file_name)
    this->log("INFO",ss.str());
 
    // generate curvature
-   FILE * fp =  popen("rospack find av_console", "r");
-   char buf[50] ;
-   fscanf(fp,"%s",buf);
-   pclose(fp);
-   QDir cmdDir = QDir::current();//获取当前工作目录
-   cmdDir.cd(QString(buf));      //修改目录，仅修改了目录名，未切换
-   cmdDir.cd("scripts");
-   QDir::setCurrent(cmdDir.absolutePath()); //切换目录
+//   FILE * fp =  popen("rospack find av_console", "r");
+//   char buf[50] ;
+//   fscanf(fp,"%s",buf);
+//   pclose(fp);
+//   QDir cmdDir = QDir::current();//获取当前工作目录
+//   cmdDir.cd(QString(buf));      //修改目录，仅修改了目录名，未切换
+//   cmdDir.cd("scripts");
+//   QDir::setCurrent(cmdDir.absolutePath()); //切换目录
 
-   std::string tool_file = "generate_curvature.py";
-   std::string cmd = std::string("python ") + tool_file + " " + file_name ;
-   std::cout << "\n=====================================================\n";
-   std::cout << "start to generate curvature... "<< std::endl;
-   system(cmd.c_str());
-   std::cout << "generate curvature complete..." << std::endl;
-   std::cout << "=====================================================\n";
+//   std::string tool_file = "generate_curvature.py";
+//   std::string cmd = std::string("python ") + tool_file + " " + file_name ;
+//   std::cout << "\n=====================================================\n";
+//   std::cout << "start to generate curvature... "<< std::endl;
+//   system(cmd.c_str());
+//   std::cout << "generate curvature complete..." << std::endl;
+//   std::cout << "=====================================================\n";
 
    return true;
 }

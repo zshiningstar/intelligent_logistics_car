@@ -356,6 +356,7 @@ bool AutoDrive::loadVehicleParams()
 	vehicle_params_.width = nh_private_.param<float>("vehicle/width",0.0);
 	vehicle_params_.length = nh_private_.param<float>("vehicle/length",0.0);
 	vehicle_params_.steer_clearance = nh_private_.param<float>("vehicle/steer_clearance",0.0);
+	steer_offset_ = nh_private_.param<float>("vehicle/steer_offset", 0.0);
 	
 	std::string node = ros::this_node::getName();
 	if(vehicle_params_.max_roadwheel_angle == 0.0)
