@@ -73,6 +73,7 @@ def main(argv):
 		
 	path_points = Points()
 	path_points.load(file_name)
+	path_points.dump(file_name+'.raw')
 	
 	path_points.calculateCurvature()
 	path_points.curvatureFilter(15)

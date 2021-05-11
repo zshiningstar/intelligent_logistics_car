@@ -2,6 +2,9 @@
 
 using namespace std;
 #define MAX_ARRAY 50
+#define MAX_STEER_ANGLE 12.3
+
+#define __NAME__ "base_control"
 	
 Listener::Listener():
 	m_reading_status(false),
@@ -183,7 +186,8 @@ void Listener::parseIncomingData(uint8_t* buffer,size_t len)
 					float kp = ((pkg_buffer[4] * 256 + pkg_buffer[5]) - 30000)/100.0;
 					float ki = ((pkg_buffer[6] * 256 + pkg_buffer[7]) - 30000)/100.0;
 					float kd = ((pkg_buffer[8] * 256 + pkg_buffer[9]) - 30000)/100.0;
-					std::cout << "set pid ok: " << kp << "\t" << ki << "\t" << kd << "\n";
+					
+					ROS_ERROR("[%s] NOT ERROR, vehicle speed pid: %.3f, %.3f,%.3f", __NAME__, kp,ki,kd);
 				}
 				pkg_buffer_index = 0;
 			}
@@ -216,23 +220,21 @@ void Listener::parseFromStmVehicleState(const unsigned char* buffer)
 	m_state.header.stamp = ros::Time::now();
 	m_state.header.frame_id = "car_state";
 	
-	m_state.real_speed_left        = ((buffer[5]* 256 + buffer[6]) - 30000);
-	m_state.real_speed_right       = ((buffer[7]* 256 + buffer[8] ) - 30000);
-	m_state.real_angle             = ((buffer[9]* 256 + buffer[10] ) - 30000)/100.0;
+	m_state.left_wheel_speed        = ((buffer[4]* 256 + buffer[5]) - 30000);
+	m_state.right_wheel_speed       = ((buffer[6]* 256 + buffer[7] ) - 30000);
+	m_state.real_angle              = ((buffer[8]* 256 + buffer[9] ) - 30000)/100.0;
 	
-	m_state.real_touque            = buffer[11] *256 + buffer[12] - 30000;
-	m_state.real_speed             = generate_real_speed(m_state.real_speed_left,m_state.real_speed_right);
+	m_state.real_touque             = buffer[10] *256 + buffer[11] - 30000;
+	m_state.real_brake              = buffer[12];
+	m_state.real_speed              = generate_real_speed(m_state.left_wheel_speed,m_state.right_wheel_speed);
 	
 	m_pub_state.publish(m_state);
 	
-	real_speed_left                = m_state.real_speed_left;
-	real_speed_right               = m_state.real_speed_right;
-	real_speed                     = m_state.real_speed;
-	real_angle                     = m_state.real_angle;
-	real_touque                    = m_state.real_touque;
-	
-	
-	printf("speed:%0.2f\t angle:%0.2f\t touque:%0.2f\n",real_speed,real_angle,real_touque);
+	float left_speed            		    = m_state.left_wheel_speed;
+	float right_speed             		= m_state.right_wheel_speed;
+	real_speed                      = m_state.real_speed;
+	real_angle                      = m_state.real_angle;
+	real_touque                     = m_state.real_touque;
 	
 	if(prase_flag_)
 	{
@@ -246,7 +248,7 @@ void Listener::parseFromStmVehicleState(const unsigned char* buffer)
 		double dt = (current_time - last_time).toSec();
 		vx = real_speed; // forward
 		vy = 0;
-		vth = (right_wheel_speed - left_wheel_speed) / AXIS_DISTANCE;  //左转角度为正
+		vth = (right_speed - left_speed) / AXIS_DISTANCE;  //左转角度为正
 		
 		double delta_x = (vx * cos(th) - vy * sin(th)) * dt;
 		double delta_y = (vx * sin(th) + vy * cos(th)) * dt;
@@ -305,7 +307,13 @@ void Listener::Cmd2_callback(const logistics_msgs::ControlCmd2::ConstPtr& msg)
 	buf[5]  = u16_speed >> 8;  
 	buf[6]  = u16_speed;  
 	
-	uint16_t u16_angle = msg->set_roadWheelAngle * 100.0 + 30000;
+	float float_angle = msg->set_roadWheelAngle;
+	if(float_angle > MAX_STEER_ANGLE)
+		float_angle = MAX_STEER_ANGLE;
+	else if(float_angle < -MAX_STEER_ANGLE)
+		float_angle = -MAX_STEER_ANGLE;
+	
+	uint16_t u16_angle = float_angle * 100.0 + 30000;
 	buf[7]  = u16_angle >> 8;
 	buf[8]  = u16_angle;
 	
@@ -316,7 +324,6 @@ void Listener::Cmd2_callback(const logistics_msgs::ControlCmd2::ConstPtr& msg)
 	//print(buf, dataLen+5);
 	m_serial_port-> write(buf,dataLen+5);
 }
-
 
 void Listener::GoalState_callback(const logistics_msgs::GoalState::ConstPtr& msg)
 {	
@@ -342,8 +349,14 @@ void Listener::GoalState_callback(const logistics_msgs::GoalState::ConstPtr& msg
 
 void Listener::Pid_callback(const logistics_msgs::PidParams::ConstPtr& pid)
 {	
-//	is_pid_write =true;
-	static uint8_t buf[11];
+	if(!pid->set) //only query
+	{
+		uint8_t buf[5] = {0x66, 0xcc, 0x06, 0x00, 0x06};
+		m_serial_port-> write(buf,5);
+		return;
+	}
+
+	uint8_t buf[11];
 	buf[0]  = 0x66;
 	buf[1]  = 0xcc;
 	buf[2]  = 0x05;   //数据包id

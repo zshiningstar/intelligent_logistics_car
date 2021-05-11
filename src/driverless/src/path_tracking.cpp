@@ -3,7 +3,6 @@
 
 PathTracking::PathTracking():
 	AutoDriveBase(__NAME__),
-	isLocationValid(false),
 	expect_speed_(1.0) //defult expect speed
 {
 	 
@@ -33,9 +32,6 @@ bool PathTracking::init(ros::NodeHandle nh,ros::NodeHandle nh_private)
     std::string avoid_object = nh_private.param<std::string>("is_object","/is_object");   // 是否有障碍物
     sub_is_object = nh.subscribe(avoid_object,10,&PathTracking::is_object_callback, this);
     
-    std::string odom_topic = nh_private.param<std::string>("odom_topic","/odom");   
-    sub_utm_odom  = nh.subscribe(odom_topic, 5,&PathTracking::gps_odom_callback,this);
-    
 	max_target_yaw_err_ = nh_private.param<float>("max_target_yaw_err",50.0)*M_PI/180.0;
 
 	pub_tracking_state_ = nh.advertise<driverless::TrackingState>(tracking_info_topic,1);
@@ -56,18 +52,6 @@ void PathTracking::is_object_callback(const std_msgs::Float32::ConstPtr& msg)
     now = ros::Time::now().toSec();
 }
 
-void PathTracking::gps_odom_callback(const nav_msgs::Odometry::ConstPtr& msg)
-{
-	current_point_.x = msg->pose.pose.position.x;
-	current_point_.y = msg->pose.pose.position.y;
-	current_point_.yaw = msg->pose.covariance[0];
-	
-	int gps_state = msg->pose.covariance[4];
-	if(gps_state >= 9)
-		isLocationValid = 1;
-	else
-		isLocationValid = 0;
-}
 //启动跟踪线程
 bool PathTracking::start()
 {
@@ -181,8 +165,6 @@ void PathTracking::trackingThread()
              	goal_speed = expect_speed_;
          	}
         }
-        if(!isLocationValid)
-        	goal_speed = 0.0;
 		//float curvature_search_distance = disThreshold_ + 13; //曲率搜索距离
 		float curvature_search_distance = vehicle_speed * vehicle_speed/(2 * 1);
 		float max_curvature = maxCurvatureInRange(global_path_, nearest_index, curvature_search_distance);
@@ -205,7 +187,7 @@ void PathTracking::trackingThread()
 		{
 			ROS_INFO("min_r:%.3f\t max_speed:%.1f",1.0/max_curvature, max_speed);
 			ROS_INFO("max_v: expect:%.1f curve:%.1f  park:%.1f",expect_speed_, max_speed_by_curve, max_speed_by_park);
-			ROS_INFO("set_v:%f\t true_v:%f",cmd_.speed ,vehicle_speed*3.6);
+			ROS_INFO("set_v:%f m/s\t true_v:%f m/s",cmd_.speed ,vehicle_speed);
 			ROS_INFO("yaw: %.2f\t targetYaw:%.2f", pose.yaw*180.0/M_PI , dis_yaw.second *180.0/M_PI);
 			ROS_INFO("dis2target:%.2f\t yaw_err:%.2f\t lat_err:%.2f",dis_yaw.first,yaw_err_*180.0/M_PI,lat_err);
 			ROS_INFO("disThreshold:%f\t expect roadwheel angle:%.2f",disThreshold_,t_roadWheelAngle);

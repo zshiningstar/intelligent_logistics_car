@@ -143,7 +143,7 @@ void QNode::gpsCheck_callback(const gps_msgs::Rotation::ConstPtr& gps_msg)
 {
     //qDebug() << "gpsFix_callback ";
     double time = ros::Time::now().toSec();
-    if(gps_msg->num_satellites > 25)
+    if(gps_msg->num_satellites > 18)
         gps.last_update_time = time;
 }
 
