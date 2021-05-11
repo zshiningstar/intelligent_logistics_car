@@ -3,24 +3,26 @@
 using namespace std;
 #define MAX_ARRAY 50
 #define MAX_STEER_ANGLE 12.3
+#define Wheel_D  0.355
+#define AXIS_DISTANCE 0.88
 
 #define __NAME__ "base_control"
 	
-Listener::Listener():
+Uppercontrol::Uppercontrol():
 	m_reading_status(false),
 	prase_flag_(true),
 	m_pkg_buffer(new uint8_t[MAX_ARRAY])
 {
 }
 
-Listener::~Listener()
+Uppercontrol::~Uppercontrol()
 {
 	this->closeSerial();
 	if(m_pkg_buffer!=NULL)
 	delete [] m_pkg_buffer;
 }
 
-double Listener::generate_real_speed(double& temp1,double& temp2)
+double Uppercontrol::generate_real_speed(double& temp1,double& temp2)
 {	
 	left_wheel_speed = M_PI * Wheel_D * temp1 / 60.0;
 	right_wheel_speed = M_PI * Wheel_D * temp2 / 60.0;
@@ -28,7 +30,7 @@ double Listener::generate_real_speed(double& temp1,double& temp2)
 	return speed;
 }
 
-bool Listener::openSerial(const std::string& port,int baudrate)
+bool Uppercontrol::openSerial(const std::string& port,int baudrate)
 {
 	try
 	{
@@ -57,7 +59,7 @@ bool Listener::openSerial(const std::string& port,int baudrate)
 	return true;
 }     
 
-void Listener::closeSerial()
+void Uppercontrol::closeSerial()
 {
 	if(m_serial_port!=NULL)
 	{
@@ -66,7 +68,7 @@ void Listener::closeSerial()
 	}
 }
 
-bool Listener::init()
+bool Uppercontrol::init()
 {
 	ros::NodeHandle nh;
 	ros::NodeHandle nh_private("~");
@@ -78,10 +80,10 @@ bool Listener::init()
 	
 	std::string controlCmd2_goal = nh_private.param<std::string>("controlCmd2","/controlCmd2");
 	
-	m_sub_controlCmd2 = nh.subscribe(controlCmd2_goal ,1,&Listener::Cmd2_callback, this);
+	m_sub_controlCmd2 = nh.subscribe(controlCmd2_goal ,1,&Uppercontrol::Cmd2_callback, this);
 	
-	m_sub_goal = nh.subscribe(car_goal ,1,&Listener::GoalState_callback, this);
-	m_sub_pid_params = nh.subscribe(pid_params,1,&Listener::Pid_callback, this);
+	m_sub_goal = nh.subscribe(car_goal ,1,&Uppercontrol::GoalState_callback, this);
+	m_sub_pid_params = nh.subscribe(pid_params,1,&Uppercontrol::Pid_callback, this);
 	
 	std::string port_name = nh_private.param<std::string>("port_name","/dev/pts/23");
 	int baudrate = nh_private.param<int>("baudrate",115200);
@@ -90,14 +92,14 @@ bool Listener::init()
 	return true;
 }
 
-void Listener::startReading()
+void Uppercontrol::startReading()
 {
 	if(m_reading_status)
 		return ;
-	m_read_thread_ptr = boost::shared_ptr<boost::thread>(new boost::thread(&Listener::readSerialThread,this));   // 智能指针赋值时 调用读取线程函数
+	m_read_thread_ptr = boost::shared_ptr<boost::thread>(new boost::thread(&Uppercontrol::readSerialThread,this));   // 智能指针赋值时 调用读取线程函数
 }
 
-void Listener::readSerialThread()
+void Uppercontrol::readSerialThread()
 {
 	m_reading_status = true;
 	
@@ -132,7 +134,7 @@ void Listener::readSerialThread()
 	delete [] raw_data_buf;
 }
 
-void Listener::parseIncomingData(uint8_t* buffer,size_t len)
+void Uppercontrol::parseIncomingData(uint8_t* buffer,size_t len)
 {	
 	static unsigned char pkg_buffer[14];
 	static size_t pkg_buffer_index = 0; //数据包缓存定位索引
@@ -195,7 +197,7 @@ void Listener::parseIncomingData(uint8_t* buffer,size_t len)
 	}
 }
 
-void Listener::run()
+void Uppercontrol::run()
 {
 	if(init())
 	{	
@@ -206,7 +208,7 @@ void Listener::run()
 	ros::spin();
 }
 
-uint8_t Listener::sumCheck(const uint8_t* buf, int len)
+uint8_t Uppercontrol::sumCheck(const uint8_t* buf, int len)
 {	
 	uint8_t sum = 0;
 	for(int i=0; i<len; i++)
@@ -215,7 +217,7 @@ uint8_t Listener::sumCheck(const uint8_t* buf, int len)
 	return sum;
 }
 
-void Listener::parseFromStmVehicleState(const unsigned char* buffer)
+void Uppercontrol::parseFromStmVehicleState(const unsigned char* buffer)
 {	
 	m_state.header.stamp = ros::Time::now();
 	m_state.header.frame_id = "car_state";
@@ -297,7 +299,7 @@ void Listener::parseFromStmVehicleState(const unsigned char* buffer)
 		last_time = current_time;
 		*/
 }
-void Listener::Cmd2_callback(const logistics_msgs::ControlCmd2::ConstPtr& msg)
+void Uppercontrol::Cmd2_callback(const logistics_msgs::ControlCmd2::ConstPtr& msg)
 {	
 	static uint8_t pkgId = 0x01;
 	const uint8_t dataLen = 6;
@@ -325,7 +327,7 @@ void Listener::Cmd2_callback(const logistics_msgs::ControlCmd2::ConstPtr& msg)
 	m_serial_port-> write(buf,dataLen+5);
 }
 
-void Listener::GoalState_callback(const logistics_msgs::GoalState::ConstPtr& msg)
+void Uppercontrol::GoalState_callback(const logistics_msgs::GoalState::ConstPtr& msg)
 {	
 	static uint8_t pkgId = 0x01;
 	const uint8_t dataLen = 6;
@@ -347,7 +349,7 @@ void Listener::GoalState_callback(const logistics_msgs::GoalState::ConstPtr& msg
 	m_serial_port-> write(buf,dataLen+5);
 }
 
-void Listener::Pid_callback(const logistics_msgs::PidParams::ConstPtr& pid)
+void Uppercontrol::Pid_callback(const logistics_msgs::PidParams::ConstPtr& pid)
 {	
 	if(!pid->set) //only query
 	{
@@ -381,14 +383,14 @@ void Listener::Pid_callback(const logistics_msgs::PidParams::ConstPtr& pid)
 	m_serial_port-> write(buf,11);
 }
 
-void Listener::stopReading()
+void Uppercontrol::stopReading()
 {
 	m_reading_status = false;
 }
 
 int main(int argc,char** argv)
 {
-	ros::init(argc,argv,"listener_node");
-	Listener lis;
-	lis.run();
+	ros::init(argc,argv,"Uppercontrol_node");
+	Uppercontrol con;
+	con.run();
 }
