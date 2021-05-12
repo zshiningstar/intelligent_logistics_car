@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Exec=bash -i -c /home/ubuntu/projects/logistics_ws/src/av_console/av_console_app/app/av_console
+Name=av_console
+GenericName=AV_CONSOLE
+Icon=/home/ubuntu/projects/logistics_ws/src/av_console/av_console_app/icon/icon.jpg
+Terminal=false
+Categories=Development

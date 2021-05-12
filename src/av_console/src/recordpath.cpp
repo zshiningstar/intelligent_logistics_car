@@ -51,9 +51,13 @@ void RecordPath::gps_callback(const nav_msgs::Odometry::ConstPtr& msg)
   current_point.y = msg->pose.pose.position.y;
   current_point.yaw = msg->pose.covariance[0];
   
+  bool gpsValid = msg->pose.covariance[4] > 9;
+  
+  std::cout << msg->pose.covariance[4] << std::endl;
+  
   if(msg->pose.covariance[4] < 9)
   {
-    log("WARN","No valid location!");
+    log("WARN","No valid location! state: " + std::to_string(msg->pose.covariance[4]) );
   	return;
   }
 

@@ -302,12 +302,16 @@ void AutoDrive::switchSystemState(int state)
 }
 void AutoDrive::odom_callback(const nav_msgs::Odometry::ConstPtr& msg)
 {
+	bool odom_valid = msg->pose.covariance[4] >= 9;
+	
+	vehicle_state_.setPoseValid(odom_valid);
+	if(!odom_valid)
+		return ;
+	
 	Pose pose;
 	pose.x =  msg->pose.pose.position.x;
 	pose.y =  msg->pose.pose.position.y;
 	pose.yaw = msg->pose.covariance[0];
-	
-	vehicle_state_.setPoseValid(msg->pose.covariance[4] >= 9);
 	vehicle_state_.setPose(pose);
 }
 
