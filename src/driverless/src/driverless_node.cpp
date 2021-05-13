@@ -230,7 +230,6 @@ void AutoDrive::doDriveWork()
 	tracker_.setExpectSpeed(expect_speed_);
 	tracker_.start();//路径跟踪控制器
 	//配置跟车控制器
-	car_follower_.start(); //跟车控制器
 
 	ros::Rate loop_rate(20);
 	

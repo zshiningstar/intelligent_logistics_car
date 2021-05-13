@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <RosNodesArray>
     <RosNodes name="gps">
-        <LaunchCommand>roslaunch daoyuan daoyuan.launch &</LaunchCommand>
+        <LaunchCommand>roslaunch daoyuan daoyuan.launch </LaunchCommand>
         <Topic name="inspvax">/gps</Topic>
         <Topic name="odom">/slam_fused_odom</Topic>  #gps_odom
     </RosNodes>

@@ -241,10 +241,9 @@ void ReverseDrive::reverseControlThread()
         {
             this->publishLocalPath();
             ROS_INFO("[%s] target index: %lu.  current index: %lu", __NAME__,  target_index, nearest_index);
-            ROS_INFO("[%s] t_speed: %.2f\t t_angle: %.2f", __NAME__, exp_speed_, t_roadWheelAngle);
-            ROS_INFO("[%s] dis2target:%.2f\t yaw_err:%.2f\t lat_err:%.2f",__NAME__, dis_yaw.first,yaw_err*180.0/M_PI,lat_err);
-			ROS_INFO("[%s] disThreshold:%f",__NAME__, preview_dis_);
-            ROS_INFO("[%s] dis2end: %.2f.", __NAME__, reverse_path_.remaindDis());
+            ROS_INFO("[%s] t_speed: %.2f  t_angle: %.2f", __NAME__, exp_speed_, t_roadWheelAngle);
+            ROS_INFO("[%s] dis2target:%.2f  yaw_err:%.2f   lat_err:%.2f",__NAME__, dis_yaw.first,yaw_err*180.0/M_PI,lat_err);
+			ROS_INFO("[%s] disThreshold:%f  dis2end: %.2f.",__NAME__, preview_dis_, reverse_path_.remaindDis());
         }
 		
         loop_rate.sleep();

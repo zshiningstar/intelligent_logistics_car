@@ -185,12 +185,11 @@ void PathTracking::trackingThread()
 		
 		if((++cnt)%10==1)
 		{
-			ROS_INFO("min_r:%.3f\t max_speed:%.1f",1.0/max_curvature, max_speed);
 			ROS_INFO("max_v: expect:%.1f curve:%.1f  park:%.1f",expect_speed_, max_speed_by_curve, max_speed_by_park);
 			ROS_INFO("set_v:%f m/s\t true_v:%f m/s",cmd_.speed ,vehicle_speed);
 			ROS_INFO("yaw: %.2f\t targetYaw:%.2f", pose.yaw*180.0/M_PI , dis_yaw.second *180.0/M_PI);
-			ROS_INFO("dis2target:%.2f\t yaw_err:%.2f\t lat_err:%.2f",dis_yaw.first,yaw_err_*180.0/M_PI,lat_err);
-			ROS_INFO("disThreshold:%f\t expect roadwheel angle:%.2f",disThreshold_,t_roadWheelAngle);
+			ROS_INFO("dis2target:%.2f  yaw_err:%.2f  lat_err:%.2f",dis_yaw.first,yaw_err_*180.0/M_PI,lat_err);
+			ROS_INFO("disThreshold:%f   expect angle:%.2f",disThreshold_,t_roadWheelAngle);
 			publishDiagnosticMsg(diagnostic_msgs::DiagnosticStatus::OK,"Running");
 			publishLocalPath();
 			ROS_INFO("near_index:%lu\t goal_index:%lu\t final_index:%lu",
@@ -393,6 +392,7 @@ float PathTracking::limitSpeedByCurrentRoadwheelAngle(float speed,float angle)
 	return (speed>max_speed? max_speed: speed)*3.6;
 }
 
+
 void PathTracking::publishLocalPath()
 {
     nav_msgs::Path path;
@@ -406,6 +406,8 @@ void PathTracking::publishLocalPath()
 	Pose origin_point = vehicle_state_.getPose(LOCK);
 
 	path.poses.reserve(endIndex-startIndex+1);
+	
+	std::cout << origin_point.x << "\t" << origin_point.y << "\t" << origin_point.yaw << std::endl;
 	
 	for(size_t i=startIndex; i<endIndex; ++i)
 	{

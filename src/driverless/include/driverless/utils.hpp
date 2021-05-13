@@ -580,8 +580,8 @@ static float maxCurvatureInRange(const Path& path,  size_t startIndex,size_t end
  *@param local_x,local_y   点在局部坐标系下的坐标
  *@return      点在全局坐标系下的坐标
  */
-static std::pair<float, float> 
-local2global(float origin_x,float origin_y,float theta, float local_x,float local_y)
+static std::pair<double, double> 
+local2global(double origin_x,double origin_y,float theta, float local_x,float local_y)
 {
 	std::pair<float, float> global;
 	global.first  = local_x*cos(theta) - local_y*sin(theta) + origin_x;
@@ -596,7 +596,7 @@ local2global(float origin_x,float origin_y,float theta, float local_x,float loca
  *@return      点在全局坐标系下的坐标
  */
 static std::pair<float, float> 
-global2local(float origin_x,float origin_y,float theta, float global_x,float global_y)
+global2local(double origin_x,double origin_y,float theta, double global_x,double global_y)
 {
 	std::pair<float, float> local;
 	local.first  = (global_x-origin_x)*cos(theta) + (global_y-origin_y)*sin(theta);
