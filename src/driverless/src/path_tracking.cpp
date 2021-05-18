@@ -28,9 +28,6 @@ bool PathTracking::init(ros::NodeHandle nh,ros::NodeHandle nh_private)
 
 	nh_private.param<float>("safety_distance",safety_distance_,4);
 	nh_private.param<float>("timeout",timeout_,0.3);
-	
-    std::string avoid_object = nh_private.param<std::string>("is_object","/is_object");   // 是否有障碍物
-    sub_is_object = nh.subscribe(avoid_object,10,&PathTracking::is_object_callback, this);
     
 	max_target_yaw_err_ = nh_private.param<float>("max_target_yaw_err",50.0)*M_PI/180.0;
 
@@ -43,13 +40,6 @@ bool PathTracking::init(ros::NodeHandle nh,ros::NodeHandle nh_private)
 	is_ready_ = true;
 		
 	return true;
-}
-
-void PathTracking::is_object_callback(const std_msgs::Float32::ConstPtr& msg)
-{       
-    min_object_distence = msg->data;
-    //std::cout << " 有障碍物体,距离为:" << min_object_distence << std::endl;
-    now = ros::Time::now().toSec();
 }
 
 //启动跟踪线程
@@ -149,22 +139,6 @@ void PathTracking::trackingThread()
 		
 		t_roadWheelAngle = limitRoadwheelAngleBySpeed(t_roadWheelAngle, vehicle_speed);
 	
-		if(min_object_distence)
-        {//判断是否有障碍物
-            if(goal_speed > 0 && min_object_distence < safety_distance_)
-            {   
-                //float acceleration = (track_speed_ * track_speed_) / (2 * fabs(min_object_distence - safety_distance_));
-                //car_goal.goal_speed = track_speed_ - acceleration;
-                //track_speed_ = car_goal.goal_speed;
-                goal_speed = 0;
-            }
-            double now_break = now - ros::Time::now().toSec(); 
-            if(fabs(now_break) > timeout_)
-            {
-                min_object_distence = 0;
-             	goal_speed = expect_speed_;
-         	}
-        }
 		//float curvature_search_distance = disThreshold_ + 13; //曲率搜索距离
 		float curvature_search_distance = vehicle_speed * vehicle_speed/(2 * 1);
 		float max_curvature = maxCurvatureInRange(global_path_, nearest_index, curvature_search_distance);
@@ -175,7 +149,7 @@ void PathTracking::trackingThread()
 
 		cmd_mutex_.lock();
 		cmd_.validity = true;
-		cmd_.speed = (goal_speed>max_speed) ? max_speed : expect_speed_;
+		cmd_.speed = (goal_speed>max_speed) ? max_speed : goal_speed;
 		cmd_.roadWheelAngle = t_roadWheelAngle;
 		cmd_mutex_.unlock();
 		

@@ -357,7 +357,22 @@ void AutoDrive::doReverseWork()
 	}
 	
 	controlCmd2_.set_roadWheelAngle = steerPidCtrl(controlCmd2_.set_roadWheelAngle) + steer_offset_;
-	
+
+
+	static float safety_distance_ = 4.0;
+	if(avoid_min_obj_distance_)
+	{//判断是否有障碍物
+		if(controlCmd2_.set_speed > 0 && avoid_min_obj_distance_ < safety_distance_)
+		{   
+			//float acceleration = (track_speed_ * track_speed_) / (2 * fabs(avoid_min_obj_distance_ - safety_distance_));
+			//car_goal.goal_speed = track_speed_ - acceleration;
+			//track_speed_ = car_goal.goal_speed;
+			controlCmd2_.set_speed = 0;
+		}
+		if(ros::Time::now().toSec() - last_valid_obj_time_ > 0.3) //timeout 0.3s
+			avoid_min_obj_distance_ = 0;
+	}
+
 	return controlCmd2_;
  	
  }

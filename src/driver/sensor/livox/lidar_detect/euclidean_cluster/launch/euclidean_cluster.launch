@@ -12,11 +12,11 @@
 		<param name="y_max"  type="double"  value="8"/>
 		<param name="y_min"  type="double"  value="-8"/>
 		<param name="x_max"  type="double"  value="20.0"/>
-		<param name="x_min"  type="double"  value="-15.0"/>
+		<param name="x_min"  type="double"  value="0"/>
 		<param name="z_max"  type="double"  value="2.3"/>
-		<param name="z_min"  type="double"  value="-0.5"/>
+		<param name="z_min"  type="double"  value="-0.1"/>
 
-		<param name="min_cluster_size"  type="int"  value="20"/>
+		<param name="min_cluster_size"  type="int"  value="10"/>
 		<param name="max_cluster_size"  type="int"  value="50000"/>
 		
 		<!-- 是否发布滤波后的最近障碍物距离消息 -->

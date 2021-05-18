@@ -60,6 +60,8 @@ bool AutoDrive::init(ros::NodeHandle nh,ros::NodeHandle nh_private)
 	sub_odom_ = nh_.subscribe(odom_topic, 1,&AutoDrive::odom_callback,this);
 	sub_vehicle_speed_ = nh_.subscribe("/car_state",1,&AutoDrive::vehicleSpeed_callback,this);
 	sub_new_goal_      = nh_.subscribe("/driverless/expect_path",1,&AutoDrive::goal_callback,this);
+	sub_is_object_ = nh.subscribe(nh_private.param<std::string>("is_object","/is_object"),10,
+								  &AutoDrive::is_object_callback, this);
 
 	//发布
 	pub_cmd2_ = nh_.advertise<logistics_msgs::ControlCmd2>("/controlCmd2",1);
@@ -163,6 +165,13 @@ bool AutoDrive::init(ros::NodeHandle nh,ros::NodeHandle nh_private)
 	
 	is_initialed_ = true;
 	return true;
+}
+
+
+void AutoDrive::is_object_callback(const std_msgs::Float32::ConstPtr& msg)
+{       
+	avoid_min_obj_distance_ = msg->data;
+    last_valid_obj_time_ = ros::Time::now().toSec();
 }
 
 void AutoDrive::setSendControlCmdEnable(bool flag)

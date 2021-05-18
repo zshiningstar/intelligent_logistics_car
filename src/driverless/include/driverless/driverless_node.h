@@ -39,6 +39,7 @@ private:
     bool isGpsPointValid(const GpsPoint& point);
     void vehicleSpeed_callback(const logistics_msgs::RealState::ConstPtr& msg);
 
+    void is_object_callback(const std_msgs::Float32::ConstPtr& msg);
     void odom_callback(const nav_msgs::Odometry::ConstPtr& msg);
 	void sendCmd2_callback(const ros::TimerEvent&);
     void captureExernCmd_callback(const ros::TimerEvent&);
@@ -106,6 +107,10 @@ private:
     std::mutex listen_cv_mutex_;
     std::condition_variable listen_cv_;
     
+    //avoid
+    float avoid_min_obj_distance_;
+	double last_valid_obj_time_;
+    
 
 	ros::Timer cmd2_timer_;
     ros::Timer capture_extern_cmd_timer_;
@@ -113,6 +118,8 @@ private:
     ros::Subscriber sub_vehicleState1_;
 	ros::Subscriber sub_vehicleState2_;
 	ros::Subscriber sub_vehicleState4_;
+
+    ros::Subscriber sub_is_object_;
 
     ros::Publisher pub_cmd2_;
 

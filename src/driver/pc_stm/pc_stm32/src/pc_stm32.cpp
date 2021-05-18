@@ -19,7 +19,7 @@ Uppercontrol::~Uppercontrol()
 {
 	this->closeSerial();
 	if(m_pkg_buffer!=NULL)
-	delete [] m_pkg_buffer;
+		delete [] m_pkg_buffer;
 }
 
 double Uppercontrol::generate_real_speed(double& temp1,double& temp2)
@@ -43,16 +43,14 @@ bool Uppercontrol::openSerial(const std::string& port,int baudrate)
     }
 	if (!m_serial_port->isOpen())
 	{
-		std::stringstream output;
-        output << "Serial port: " << port << " failed to open." << std::endl;
+        std::cout << "Serial port: " << port << " failed to open." << std::endl;
 		delete m_serial_port;
 		m_serial_port = NULL;
 		return false;
 	} 
 	else 
 	{
-		std::stringstream output;
-		output << "Serial port: " << port << " opened successfully." << std::endl;
+		std::cout << "Serial port: " << port << " opened successfully." << std::endl;
 	}
 
 	m_serial_port->flush();
@@ -63,6 +61,7 @@ void Uppercontrol::closeSerial()
 {
 	if(m_serial_port!=NULL)
 	{
+		m_serial_port->close();
 		delete m_serial_port;
 		m_serial_port = NULL;
 	}

@@ -349,8 +349,8 @@ void EuClusterCore::cluster_by_distance2(pcl::PointCloud<pcl::PointXYZ>::Ptr in_
 void EuClusterCore::point_cb(const sensor_msgs::PointCloud2ConstPtr &in_cloud_ptr)
 {
 	bbox_array_.boxes.clear();
-        marker_array_.markers.clear();
-        polygon_array_.polygons.clear();
+	marker_array_.markers.clear();
+	polygon_array_.polygons.clear();
 
 	point_cloud_header_ = in_cloud_ptr->header;
 	

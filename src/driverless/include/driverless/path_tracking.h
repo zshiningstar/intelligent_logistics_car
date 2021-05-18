@@ -63,8 +63,7 @@ private:
 	std::atomic<float> yaw_err_;
 	size_t target_point_index_;
 		
-	float min_object_distence;
-	double now;
+	
 	//param
 	float foreSightDis_speedCoefficient_;
 	float foreSightDis_latErrCoefficient_;
