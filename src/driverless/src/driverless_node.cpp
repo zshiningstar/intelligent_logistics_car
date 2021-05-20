@@ -363,7 +363,7 @@ void AutoDrive::doReverseWork()
 	if(avoid_min_obj_distance_)
 	{//判断是否有障碍物
 		if(controlCmd2_.set_speed > 0 && avoid_min_obj_distance_ < safety_distance_)
-		{   
+		{ 
 			//float acceleration = (track_speed_ * track_speed_) / (2 * fabs(avoid_min_obj_distance_ - safety_distance_));
 			//car_goal.goal_speed = track_speed_ - acceleration;
 			//track_speed_ = car_goal.goal_speed;

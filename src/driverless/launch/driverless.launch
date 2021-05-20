@@ -22,7 +22,7 @@
 		<!-- main -->
 		<param name="is_offline_debug" value="false"/>
 		<param name="max_speed" value="$(arg max_speed)"/>
-		<param name="odom_topic" value="/gps_odom"/>  #slam_fused_odom gps_odom
+		<param name="odom_topic" value="/slam_fused_odom"/>  #slam_fused_odom gps_odom
 		
 		<!-- path_tracking -->
 		<param name="min_foresight_distance" value="2.5"/>

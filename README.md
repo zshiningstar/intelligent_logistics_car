@@ -1,4 +1,12 @@
 ## 0 新电脑
+
+### dependencies
+
+```
+git clone https://github.com/leethomason/tinyxml2.git
+cd tinyxml2 && sudo make install
+```
+
 * 安装雷达相关驱动
 ```
 git clone https://github.com/Livox-SDK/Livox-SDK.git
