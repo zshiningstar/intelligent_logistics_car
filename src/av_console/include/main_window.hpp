@@ -40,6 +40,7 @@ public:
 
 	void showNoMasterMessage();
     bool changeToCmdDir(bool mode=false);
+    void initWidgetSize();
     void initSensorStatusWidget();
     void showMessgeInStatusBar(const QString& msg, bool warnning=false);
 

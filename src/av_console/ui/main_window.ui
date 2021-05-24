@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1024</width>
-    <height>707</height>
+    <width>882</width>
+    <height>679</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -43,7 +43,7 @@
        <bool>false</bool>
       </property>
       <property name="styleSheet">
-       <string notr="true">QTabBar::tab{min-height: 35px; min-width:150px; font: 14pt &quot;Sans Serif&quot;}</string>
+       <string notr="true">QTabBar::tab{min-height: 45px; min-width:150px; font: 14pt &quot;Sans Serif&quot;}</string>
       </property>
       <property name="locale">
        <locale language="English" country="Australia"/>
@@ -93,7 +93,7 @@ padding: 0 3px 0 3px;
          </layout>
         </item>
         <item>
-         <layout class="QVBoxLayout" name="verticalLayout" stretch="4,0">
+         <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0,0">
           <item>
            <widget class="QGroupBox" name="groupBox">
             <property name="maximumSize">
@@ -192,42 +192,51 @@ padding: 0 3px 0 3px;
               </widget>
              </item>
              <item>
-              <layout class="QHBoxLayout" name="horizontalLayout_12">
-               <item>
-                <widget class="QPushButton" name="pushButton_connect">
-                 <property name="enabled">
-                  <bool>true</bool>
-                 </property>
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="minimumSize">
-                  <size>
-                   <width>0</width>
-                   <height>0</height>
-                  </size>
-                 </property>
-                 <property name="toolTip">
-                  <string/>
-                 </property>
-                 <property name="statusTip">
-                  <string/>
-                 </property>
-                 <property name="styleSheet">
-                  <string notr="true">font: 14pt &quot;Sans Serif&quot;;</string>
-                 </property>
-                 <property name="text">
-                  <string>connect</string>
-                 </property>
-                </widget>
-               </item>
-              </layout>
+              <widget class="QPushButton" name="pushButton_connect">
+               <property name="enabled">
+                <bool>true</bool>
+               </property>
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>0</height>
+                </size>
+               </property>
+               <property name="toolTip">
+                <string/>
+               </property>
+               <property name="statusTip">
+                <string/>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">font: 14pt &quot;Sans Serif&quot;;</string>
+               </property>
+               <property name="text">
+                <string>connect</string>
+               </property>
+              </widget>
              </item>
             </layout>
            </widget>
+          </item>
+          <item>
+           <spacer name="verticalSpacer_11">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>40</height>
+             </size>
+            </property>
+           </spacer>
           </item>
           <item>
            <widget class="QGroupBox" name="groupBox_2">
@@ -259,7 +268,7 @@ padding: 0 3px 0 3px;
             </property>
             <layout class="QVBoxLayout" name="verticalLayout_12">
              <item>
-              <layout class="QHBoxLayout" name="horizontalLayout" stretch="2,2,1">
+              <layout class="QHBoxLayout" name="horizontalLayout" stretch="3,10,1">
                <item>
                 <layout class="QVBoxLayout" name="verticalLayout_9">
                  <item>
@@ -534,19 +543,6 @@ padding: 0 3px 0 3px;
                 </widget>
                </item>
               </layout>
-             </item>
-             <item>
-              <spacer name="verticalSpacer">
-               <property name="orientation">
-                <enum>Qt::Vertical</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>20</width>
-                 <height>89</height>
-                </size>
-               </property>
-              </spacer>
              </item>
             </layout>
            </widget>
@@ -1473,8 +1469,8 @@ padding: 0 3px 0 3px;
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1024</width>
-     <height>27</height>
+     <width>882</width>
+     <height>19</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">

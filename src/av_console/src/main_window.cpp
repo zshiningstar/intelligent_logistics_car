@@ -34,6 +34,7 @@ MainWindow::MainWindow(int argc, char** argv, QWidget *parent):
     QObject::connect(&mTimer, SIGNAL(timeout()), this, SLOT(onTimeout()));
 
     this->initSensorStatusWidget();
+    this->initWidgetSize();
 
     //launchDrivelessNode();
 }
@@ -42,7 +43,19 @@ MainWindow::~MainWindow()
 {
     if(m_dataRecorder != nullptr)
         delete m_dataRecorder;
+}
 
+void MainWindow::initWidgetSize()
+{
+    int height = 50;
+    ui.pushButton_connect->setFixedHeight(height);
+    ui.pushButton_driverlessStart->setFixedHeight(height);
+    ui.pushButton_openRoadNet->setFixedHeight(height);
+    ui.pushButton_quit->setFixedHeight(height);
+    ui.lineEdit_roadNet->setFixedHeight(height);
+    ui.comboBox_driverSpeed->setFixedHeight(height);
+    ui.comboBox_goalType->setFixedHeight(height);
+    ui.comboBox_taskType->setFixedHeight(height);
 
 }
 
