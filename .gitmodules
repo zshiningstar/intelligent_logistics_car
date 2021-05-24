@@ -4,3 +4,6 @@
 [submodule "src/rtcm3.2"]
 	path = src/rtcm3.2
 	url = https://github.com/CastielLiu/rtcm3.2.git
+[submodule "src/av_op"]
+	path = src/av_op
+	url = https://github.com/CastielLiu/av_console.git
