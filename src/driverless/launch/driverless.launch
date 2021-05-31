@@ -58,6 +58,12 @@
 		<param name="reverse_path_file" value="$(arg roadnet_file)"/>
 	</node>
 	
+	<!-- rtk -->
+	<node name="rtk_node" pkg="rtk" type="rtk_node" output="screen"/>
+	
+	<!--slam location -->
+	<include file="$(find lego_loam_bor)/launch/c16/location_c16.launch"/>
+	
 	<!-- 导远GPS -->
 	<include file="$(find daoyuan)/launch/daoyuan.launch"/>
 	
