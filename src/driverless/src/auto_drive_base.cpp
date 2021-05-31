@@ -5,4 +5,5 @@ Path AutoDriveBase::local_path_;              //局部路径
 VehicleState AutoDriveBase::vehicle_state_;   //汽车状态
 VehicleParams AutoDriveBase::vehicle_params_; //汽车参数
 
-std::atomic<float> AutoDriveBase::lateral_err_;              //横向偏差
+std::atomic<float> AutoDriveBase::g_lateral_err_; //横向偏差
+std::atomic<float> AutoDriveBase::g_yaw_err_;     //航向偏差

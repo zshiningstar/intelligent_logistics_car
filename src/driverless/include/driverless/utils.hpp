@@ -637,4 +637,11 @@ static float generateRoadwheelAngleByRadius(float wheel_base, float radius)
 	return atan(wheel_base/radius)*180/M_PI;    //correct algorithm 
 }
 
+static int sign(float val)
+{
+	if(val > 0) return 1;
+	else if(val <0) return -1;
+	return 0;
+}
+
 #endif

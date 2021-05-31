@@ -14,7 +14,8 @@ AutoDrive::AutoDrive():
 	last_system_state_(State_Idle),
 	has_new_task_(false),
 	request_listen_(false),
-	as_(nullptr)
+	as_(nullptr),
+	decisionMakingDuration_(0.05)
 {
 	controlCmd2_.set_speed = 0.0;
 	controlCmd2_.set_roadWheelAngle = 0.0;
@@ -47,6 +48,8 @@ bool AutoDrive::init(ros::NodeHandle nh,ros::NodeHandle nh_private)
 	nh_private_.param<bool>("use_extern_controller", use_extern_controller_, false);
 	nh_private_.param<bool>("use_car_follower", use_car_follower_, false);
 	std::string odom_topic = nh_private_.param<std::string>("odom_topic","/ll2utm_odom");
+	std::string tracking_info_topic = nh_private.param<std::string>("tracking_info_topic","/driverless/state");
+	pub_driverless_state_ = nh.advertise<driverless::State>(tracking_info_topic,1);
 
 	initDiagnosticPublisher(nh_,__NAME__);
 
@@ -69,6 +72,7 @@ bool AutoDrive::init(ros::NodeHandle nh,ros::NodeHandle nh_private)
 	
 	//定时器                                                                           one_shot, auto_start
 	cmd2_timer_ = nh_.createTimer(ros::Duration(0.05), &AutoDrive::sendCmd2_callback,this, false, false);
+	timer_100ms_ = nh_.createTimer(ros::Duration(0.1), &AutoDrive::timer100ms_callback,this);
 	
 		
 	// 车辆状态检查，等待初始化
@@ -195,6 +199,11 @@ void AutoDrive::sendCmd2_callback(const ros::TimerEvent&)
 {
 	std::lock_guard<std::mutex> lock(cmd2_mutex_);
 	pub_cmd2_.publish(controlCmd2_);
+}
+
+void AutoDrive::timer100ms_callback(const ros::TimerEvent&)
+{
+	publishDriverlessState();
 }
 
 
@@ -473,4 +482,26 @@ void AutoDrive::waitSpeedZero()
 {
     while(ros::ok() && vehicle_state_.getSpeed(LOCK)!=0.0)
             ros::Duration(0.2).sleep();
+}
+
+/*@brief 发布自动驾驶状态信息
+*/
+void AutoDrive::publishDriverlessState()
+{
+	if(pub_driverless_state_.getNumSubscribers())
+	{
+		const Pose pose = vehicle_state_.getPose(LOCK);
+		const float speed = vehicle_state_.getSpeed(LOCK);
+		driverless_state_.header.stamp = ros::Time::now();
+		driverless_state_.position_x = pose.x;
+		driverless_state_.position_y = pose.y;
+		driverless_state_.yaw = pose.yaw;
+		driverless_state_.vehicle_speed =  speed;
+		driverless_state_.roadwheel_angle = vehicle_state_.getSteerAngle(LOCK);
+		driverless_state_.lateral_error = g_lateral_err_;
+		driverless_state_.yaw_error = g_yaw_err_;
+		driverless_state_.state_mechine = system_state_;
+
+		pub_driverless_state_.publish(driverless_state_);
+	}
 }

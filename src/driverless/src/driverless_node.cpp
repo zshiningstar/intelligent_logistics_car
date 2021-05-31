@@ -231,7 +231,7 @@ void AutoDrive::doDriveWork()
 	tracker_.start();//路径跟踪控制器
 	//配置跟车控制器
 
-	ros::Rate loop_rate(20);
+	ros::Rate loop_rate(1.0/decisionMakingDuration_);
 	
 	ROS_ERROR("NOT ERROR: doDriveWork-> task_running_= true");
 	task_running_ = true;
@@ -276,7 +276,7 @@ void AutoDrive::doReverseWork()
 	reverse_controler_.setExpectSpeed(expect_speed_);
 	reverse_controler_.start();
 	
-	ros::Rate loop_rate(20);
+	ros::Rate loop_rate(1.0/decisionMakingDuration_);
 	
 	ROS_ERROR("NOT ERROR: doReverseWork-> task_running_= true");
 	task_running_ = true;
@@ -325,18 +325,17 @@ void AutoDrive::doReverseWork()
                 ②避障速度控制
 				③跟车速度控制
  */
- 
  logistics_msgs::ControlCmd2 AutoDrive::decisionMaking(bool isDrive)
  {
  	std::lock_guard<std::mutex> lock2(cmd2_mutex_);
- 	if(isDrive)
+ 	if(isDrive)  //drive
  	{
  		controlCmd2_.set_roadWheelAngle = tracker_cmd_.roadWheelAngle;//前轮转角
-		controlCmd2_.set_speed = tracker_cmd_.speed; //优先使用跟踪器速度指令
+		controlCmd2_.set_speed = fabs(tracker_cmd_.speed); //优先使用跟踪器速度指令
  	}
- 	else
+ 	else //reverse
  	{
- 		controlCmd2_.set_speed = reverse_cmd_.speed;
+ 		controlCmd2_.set_speed = fabs(reverse_cmd_.speed);
 		controlCmd2_.set_roadWheelAngle = reverse_cmd_.roadWheelAngle;
  	}
  	
@@ -358,23 +357,37 @@ void AutoDrive::doReverseWork()
 	
 	controlCmd2_.set_roadWheelAngle = steerPidCtrl(controlCmd2_.set_roadWheelAngle) + steer_offset_;
 
+	static float lastCtrlSpeed = controlCmd2_.set_speed;
+	float speed_now = vehicle_state_.getSpeed(LOCK);
+	float deltaT = decisionMakingDuration_;
+	static float safety_distance_ = 4.0; //m
 
-	static float safety_distance_ = 4.0;
-	if(avoid_min_obj_distance_)
-	{//判断是否有障碍物
-		if(controlCmd2_.set_speed > 0 && avoid_min_obj_distance_ < safety_distance_)
-		{ 
-			//float acceleration = (track_speed_ * track_speed_) / (2 * fabs(avoid_min_obj_distance_ - safety_distance_));
-			//car_goal.goal_speed = track_speed_ - acceleration;
-			//track_speed_ = car_goal.goal_speed;
-			controlCmd2_.set_speed = 0;
-		}
-		if(ros::Time::now().toSec() - last_valid_obj_time_ > 0.3) //timeout 0.3s
-			avoid_min_obj_distance_ = 0;
-	}
+	float maxAccel = 1.0;
+	float minAccel = -2.0;
+	float expectAccel = 0.0; //m/s
+
+	int accelSign = sign(avoid_min_obj_distance_- safety_distance_ - speed_now*speed_now/(2*maxAccel));
+	
+	if(accelSign > 0)
+		expectAccel = maxAccel;
+	else if(accelSign < 0)
+		expectAccel = minAccel;
+	
+	float expectSpeed = lastCtrlSpeed + expectAccel*deltaT;
+
+	if(expectSpeed <= 0) 
+		expectSpeed = 0;
+	else if(expectSpeed > controlCmd2_.set_speed)
+		expectSpeed = controlCmd2_.set_speed;
+	controlCmd2_.set_speed = expectSpeed;
+	lastCtrlSpeed = controlCmd2_.set_speed;
+
+	if(isDrive) controlCmd2_.set_speed = fabs(controlCmd2_.set_speed);
+	else controlCmd2_.set_speed = -fabs(controlCmd2_.set_speed);
+
+	//std::cout << controlCmd2_.set_speed << "\t" << expectSpeed << "\t" << deltaT << "\t" << expectAccel << std::endl;
 
 	return controlCmd2_;
- 	
  }
 
 
@@ -394,7 +407,7 @@ float AutoDrive::steerPidCtrl(float expectAngle)
 	static float sumErr = 0.0;
 	
 	float angle_now = vehicle_state_.getSteerAngle(LOCK);
-	float err = lateral_err_; //from global var
+	float err = g_lateral_err_; //from global var
 	
 	if(fabs(err) > tolerateLatErr)		//横向偏差较小时不修正,因为稳态误差不能全部消除,否则会转向激进
 		sumErr = sumErr + err;

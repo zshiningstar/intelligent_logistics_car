@@ -1,5 +1,6 @@
 std_msgs/Header header
 
+uint8 state_mechine
 float64 position_x
 float64 position_y
 float64 yaw

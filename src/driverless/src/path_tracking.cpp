@@ -19,8 +19,6 @@ bool PathTracking::setExpectSpeed(float speed)
 
 bool PathTracking::init(ros::NodeHandle nh,ros::NodeHandle nh_private)
 {
-	std::string tracking_info_topic = 
-	nh_private.param<std::string>("tracking_info_topic","/tracking_state");
 	nh_private.param<float>("foreSightDis_speedCoefficient", foreSightDis_speedCoefficient_,1.8);
 	nh_private.param<float>("foreSightDis_latErrCoefficient", foreSightDis_latErrCoefficient_,-1.0);
 	nh_private.param<float>("min_foresight_distance",min_foresight_distance_,5.0);
@@ -30,8 +28,6 @@ bool PathTracking::init(ros::NodeHandle nh,ros::NodeHandle nh_private)
 	nh_private.param<float>("timeout",timeout_,0.3);
     
 	max_target_yaw_err_ = nh_private.param<float>("max_target_yaw_err",50.0)*M_PI/180.0;
-
-	pub_tracking_state_ = nh.advertise<driverless::TrackingState>(tracking_info_topic,1);
 	pub_nearest_index_  = nh.advertise<std_msgs::UInt32>("/driverless/nearest_index",1);
 	pub_local_path_ = nh_private_.advertise<nav_msgs::Path>("/local_path",2);
 
@@ -105,9 +101,8 @@ void PathTracking::trackingThread()
 		if(yaw_err > M_PI)       yaw_err -= 2*M_PI;
 		else if(yaw_err < -M_PI) yaw_err += 2*M_PI;
 
-		yaw_err_ = yaw_err; //update the member var
-		lat_err_ = lat_err; //update the member var
-		lateral_err_ = lat_err; //更新到基类公用变量
+		g_lateral_err_ = lat_err; //更新到基类公用变量
+		g_yaw_err_ = yaw_err; //更新到基类公用变量
 		
 		disThreshold_ = foreSightDis_speedCoefficient_ * vehicle_speed 
 		              + foreSightDis_latErrCoefficient_ * fabs(lat_err)
@@ -153,7 +148,6 @@ void PathTracking::trackingThread()
 		cmd_.roadWheelAngle = t_roadWheelAngle;
 		cmd_mutex_.unlock();
 		
-		publishPathTrackingState();
 		publishNearestIndex();
 		
 		
@@ -183,25 +177,6 @@ void PathTracking::trackingThread()
 	cmd_mutex_.unlock();
 	
 	is_running_ = false;
-}
-
-void PathTracking::publishPathTrackingState()
-{
-	if(pub_tracking_state_.getNumSubscribers())
-	{
-		const Pose pose = vehicle_state_.getPose(LOCK);
-		const float speed = vehicle_state_.getSpeed(LOCK);
-		tracking_state_.header.stamp = ros::Time::now();
-		tracking_state_.position_x = pose.x;
-		tracking_state_.position_y = pose.y;
-		tracking_state_.yaw = pose.yaw;
-		tracking_state_.vehicle_speed =  speed;
-		tracking_state_.roadwheel_angle = vehicle_state_.getSteerAngle(LOCK);
-		tracking_state_.lateral_error = lat_err_;
-		tracking_state_.yaw_error = yaw_err_;
-	
-		pub_tracking_state_.publish(tracking_state_);
-	}
 }
 
 void PathTracking::publishNearestIndex()

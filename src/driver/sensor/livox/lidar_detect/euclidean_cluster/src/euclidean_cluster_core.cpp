@@ -381,15 +381,19 @@ void EuClusterCore::point_cb(const sensor_msgs::PointCloud2ConstPtr &in_cloud_pt
         pub_polygon_.publish(polygon_array_);
     }
 
+    
+
     if(bbox_array_.boxes.size())
     {
         bbox_array_.header = point_cloud_header_;
         pub_bounding_boxs_.publish(bbox_array_);
-        if(is_min_dection_long)
+        //if(is_min_dection_long)
         {
 		    min_dis_object_.data =  *min_element(dis_list.begin(), dis_list.end());
-		    pub_min_dis_obj_.publish(min_dis_object_);
 		    dis_list.clear();
         }
     }
+    else
+        min_dis_object_.data = 2000.0;
+    pub_min_dis_obj_.publish(min_dis_object_);
 }

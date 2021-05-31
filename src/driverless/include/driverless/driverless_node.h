@@ -15,6 +15,7 @@
 #include <ant_msgs/State4.h>  //steerAngle
 #include "auto_drive_base.h"
 #include <condition_variable>
+#include <driverless/State.h>
 #include <actionlib/client/simple_action_client.h>
 #include <actionlib/server/simple_action_server.h>
 #include <driverless/DoDriverlessTaskAction.h>   // Note: "Action" is appended
@@ -42,6 +43,7 @@ private:
     void is_object_callback(const std_msgs::Float32::ConstPtr& msg);
     void odom_callback(const nav_msgs::Odometry::ConstPtr& msg);
 	void sendCmd2_callback(const ros::TimerEvent&);
+    void timer100ms_callback(const ros::TimerEvent&);
     void captureExernCmd_callback(const ros::TimerEvent&);
     void setSendControlCmdEnable(bool flag);
     void goal_callback(const pathplaning_msgs::expected_path::ConstPtr& msg);
@@ -62,7 +64,9 @@ private:
 
     void waitGearOk(int gear);
     void waitSpeedZero();
+    void publishDriverlessState();
 
+    //状态机,数字决不可改变,如需添加，向后排序
     enum State
     {
         State_Stop    = 0,  //停止,速度置零/切空挡/拉手刹/车辆停止后跳转到空闲模式
@@ -78,6 +82,7 @@ private:
                                    //②若当前为D档，速度置零->切N档->切R档
                                    //跳转到后退模式
         State_ForceExternControl=6, //强制使用外部控制器状态
+        
     };
     
     std::vector<std::string> StateName = {"State_Stop", "State_Drive", "State_Reverse",
@@ -111,8 +116,7 @@ private:
     float avoid_min_obj_distance_;
 	double last_valid_obj_time_;
     
-
-	ros::Timer cmd2_timer_;
+	ros::Timer cmd2_timer_, timer_100ms_;
     ros::Timer capture_extern_cmd_timer_;
     ros::Subscriber sub_odom_;
     ros::Subscriber sub_vehicleState1_;
@@ -122,6 +126,7 @@ private:
     ros::Subscriber sub_is_object_;
 
     ros::Publisher pub_cmd2_;
+    ros::Publisher pub_driverless_state_;
 
     ros::Subscriber sub_new_goal_;   //订阅外部目标任务请求
     ros::Publisher  pub_new_goal_;   //发布目标请求到actionlib服务 
@@ -152,5 +157,8 @@ private:
     controlCmd_t avoid_cmd_;
     
     float steer_offset_;
+
+    driverless::State driverless_state_;
+    float decisionMakingDuration_;
 };
 

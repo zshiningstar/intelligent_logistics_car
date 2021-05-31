@@ -36,7 +36,7 @@ include_directories(  ${catkin_INCLUDE_DIRS}  ${OpenCV_INCLUDE_DIRS} )
 ## Generate messages in the 'msg' folder
 add_message_files(
    FILES
-   TrackingState.msg
+   State.msg
  )
 
 ## Generate actions in the 'action' folder

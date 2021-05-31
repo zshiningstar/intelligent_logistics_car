@@ -13,7 +13,6 @@
 #include <geometry_msgs/Quaternion.h>
 #include <tf/transform_datatypes.h>
 #include "utils.hpp"
-#include <driverless/TrackingState.h>
 #include <std_msgs/Float32.h>
 
 
@@ -29,7 +28,6 @@ public:
 private:
 	void  trackingThread();
 	GpsPoint pointOffset(const GpsPoint& point,float offset);
-	void  publishPathTrackingState();
 	void  publishNearestIndex();
 	float disToParkingPoint(const ParkingPoint& ParkingPoint);
 	float limitSpeedByParkingPoint(const float& speed,const float& acc=5);
@@ -47,14 +45,11 @@ private:
 
 private:
 	ros::Timer timer_;
-	ros::Publisher pub_tracking_state_;
 	ros::Publisher pub_nearest_index_;
 	ros::Publisher pub_local_path_;
 	
 	ros::Subscriber sub_is_object;
 	ros::Subscriber sub_utm_odom;
-
-	driverless::TrackingState tracking_state_;
 	
 	//state
 	float expect_speed_;
