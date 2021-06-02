@@ -85,9 +85,9 @@ private:
         
     };
     
-    std::vector<std::string> StateName = {"State_Stop", "State_Drive", "State_Reverse",
-    									  "State_Idle", "State_SwitchToDrive", "State_SwitchToReverse",
-    									  "State_ForceExternControl"};
+    std::vector<std::string> StateName = {"Stop", "Drive", "Reverse",
+    									  "Idle", "SwitchToDrive", "SwitchToReverse",
+    									  "ForceExternControl"};
     
     void switchSystemState(int state);
     

@@ -500,7 +500,7 @@ void AutoDrive::publishDriverlessState()
 		driverless_state_.roadwheel_angle = vehicle_state_.getSteerAngle(LOCK);
 		driverless_state_.lateral_error = g_lateral_err_;
 		driverless_state_.yaw_error = g_yaw_err_;
-		driverless_state_.state_mechine = system_state_;
+		driverless_state_.task_state = StateName[system_state_];
 
 		pub_driverless_state_.publish(driverless_state_);
 	}

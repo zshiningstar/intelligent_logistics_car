@@ -17,6 +17,8 @@ extern "C"{
 
 //#define _QXWZ_TEST_START_STOP
 int fd_rtcm;
+std::string g_rtk_status;
+int g_status_code;
 
 qxwz_account_info *p_account_info = NULL;
 void  get_qxwz_sdk_account_info(void);
@@ -32,28 +34,61 @@ void qxwz_rtcm_response_callback(qxwz_rtcm data){
     write(fd_rtcm, data.buffer, data.length);
 }
 
-
 void qxwz_status_response_callback(qxwz_rtcm_status code)
 {
+	static std::string accountInfo = "Unknown";
+	static std::string logInfo = "Unknown";
+	static std::string dataInfo = "Unknown";
+
 	struct tm *ptr = NULL;
 	//test account expire
+	g_status_code = code;
 	if(code == QXWZ_STATUS_OPENAPI_ACCOUNT_TOEXPIRE)
+	{
 		get_qxwz_sdk_account_info();
+		accountInfo = "Will Expire";
+	}
 	else if(code == QXWZ_STATUS_OPENAPI_ACCOUNT_EXPIRED)
+	{
 		printf("账号到期\n");
+		accountInfo = "Expired";
+	}
 	else if(code == QXWZ_STATUS_APPKEY_IDENTIFY_FAIL)
+	{
 		printf("验证失败\n");
+		logInfo = "Identify fail";
+	}
 	else if(code == QXWZ_STATUS_APPKEY_IDENTIFY_SUCCESS)
+	{
 		printf("验证成功\n");
+		logInfo = "Identify succese";
+	}
 	else if(code == QXWZ_STATUS_GGA_SEND_NOT_AVAIABLE)
+	{
 		printf("非法的GPGGA数据\n");
+		dataInfo = "Error gpgga";
+	}
 	else if(code == QXWZ_STATUS_NTRIP_RECEIVING_DATA)
+	{
 		printf("正在接收服务器数据\n");
+		dataInfo = "Receiving from server";
+	}
 	else if(code == QXWZ_STATUS_NTRIP_CONNECTED)
+	{
 		printf("连接服务器成功\n");
+		logInfo = "Connected";
+	}
+	else if(code ==QXWZ_STATUS_NTRIP_DISCONNECTED)
+	{
+		printf("服务器断开\n");
+		logInfo = "Disconnect";
+	}
 	else
-		QXLOGI("QXWZ_RTCM_STATUS:%d\n",code);;
-		
+	{
+		QXLOGI("QXWZ_RTCM_STATUS:%d\n",code);
+	}
+
+	g_rtk_status =  accountInfo + "\t" + logInfo + "\t" + dataInfo;
 }
 
 void  get_qxwz_sdk_account_info(void)
@@ -136,7 +171,7 @@ int main(int argc, char * argv[])
 		
 		qxwz_rtcm_sendGGAWithGGAString(gpggaMsg);
 		
-		msg.data = gpggaMsg;
+		msg.data = g_rtk_status;
 		pub.publish(msg);
     }
     QXLOGI("qxwz_rtcm_stop here\r\n");

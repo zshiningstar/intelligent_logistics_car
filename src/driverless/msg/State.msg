@@ -1,6 +1,6 @@
 std_msgs/Header header
 
-uint8 state_mechine
+string task_state
 float64 position_x
 float64 position_y
 float64 yaw
