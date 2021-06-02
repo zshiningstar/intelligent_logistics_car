@@ -36,9 +36,9 @@ void qxwz_rtcm_response_callback(qxwz_rtcm data){
 
 void qxwz_status_response_callback(qxwz_rtcm_status code)
 {
-	static std::string accountInfo = "Unknown";
-	static std::string logInfo = "Unknown";
-	static std::string dataInfo = "Unknown";
+	static std::string accountInfo = "Account";
+	static std::string logInfo = "Log";
+	static std::string dataInfo = "Data";
 
 	struct tm *ptr = NULL;
 	//test account expire
@@ -71,7 +71,7 @@ void qxwz_status_response_callback(qxwz_rtcm_status code)
 	else if(code == QXWZ_STATUS_NTRIP_RECEIVING_DATA)
 	{
 		printf("正在接收服务器数据\n");
-		dataInfo = "Receiving from server";
+		dataInfo = "Receiving";
 	}
 	else if(code == QXWZ_STATUS_NTRIP_CONNECTED)
 	{
@@ -88,7 +88,7 @@ void qxwz_status_response_callback(qxwz_rtcm_status code)
 		QXLOGI("QXWZ_RTCM_STATUS:%d\n",code);
 	}
 
-	g_rtk_status =  accountInfo + "\t" + logInfo + "\t" + dataInfo;
+	g_rtk_status =  accountInfo + " | " + logInfo + " | " + dataInfo;
 }
 
 void  get_qxwz_sdk_account_info(void)
