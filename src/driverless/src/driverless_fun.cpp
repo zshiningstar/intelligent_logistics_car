@@ -501,6 +501,8 @@ void AutoDrive::publishDriverlessState()
 		driverless_state_.lateral_error = g_lateral_err_;
 		driverless_state_.yaw_error = g_yaw_err_;
 		driverless_state_.task_state = StateName[system_state_];
+		driverless_state_.nearest_object_distance = avoid_min_obj_distance_;
+		driverless_state_.command_speed = controlCmd2_.set_speed;
 
 		pub_driverless_state_.publish(driverless_state_);
 	}

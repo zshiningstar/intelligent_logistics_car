@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE QtCreatorProject>
-<!-- Written by QtCreator 4.4.1, 2021-05-31T16:29:03. -->
+<!-- Written by QtCreator 4.4.1, 2021-06-02T19:47:19. -->
 <qtcreator>
  <data>
   <variable>EnvironmentId</variable>
-  <value type="QByteArray">{3335b0f0-c6d2-418b-9571-53a65bf13830}</value>
+  <value type="QByteArray">{ed1de10e-8de8-47da-b274-ba31b7cbfef7}</value>
  </data>
  <data>
   <variable>ProjectExplorer.Project.ActiveTarget</variable>
@@ -61,7 +61,7 @@
   <valuemap type="QVariantMap">
    <value type="QString" key="ProjectExplorer.ProjectConfiguration.DefaultDisplayName">Desktop</value>
    <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName">Desktop</value>
-   <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">{0c8a99bb-1fb7-490a-8d26-7b679f166aa6}</value>
+   <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">{bcbf08f3-f133-4bd7-b1cf-69bc781ab4b0}</value>
    <value type="int" key="ProjectExplorer.Target.ActiveBuildConfiguration">1</value>
    <value type="int" key="ProjectExplorer.Target.ActiveDeployConfiguration">0</value>
    <value type="int" key="ProjectExplorer.Target.ActiveRunConfiguration">0</value>
@@ -102,23 +102,40 @@
     <value type="int" key="ProjectExplorer.BuildConfiguration.BuildStepListCount">2</value>
     <value type="bool" key="ProjectExplorer.BuildConfiguration.ClearSystemEnvironment">false</value>
     <valuelist type="QVariantList" key="ProjectExplorer.BuildConfiguration.UserEnvironmentChanges">
-     <value type="QString">CMAKE_PREFIX_PATH=/home/ubuntu/projects/logistics_ws/devel:/home/ubuntu/projects/slam_ws/devel:/opt/ros/kinetic</value>
-     <value type="QString">LD_LIBRARY_PATH=/home/ubuntu/projects/logistics_ws/devel/lib:/home/ubuntu/projects/slam_ws/devel/lib:/opt/ros/kinetic/lib:/opt/ros/kinetic/lib/x86_64-linux-gnu</value>
-     <value type="QString">PATH=/opt/ros/kinetic/bin:/home/ubuntu/bin:/home/ubuntu/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin</value>
-     <value type="QString">PKG_CONFIG_PATH=/home/ubuntu/projects/logistics_ws/devel/lib/pkgconfig:/home/ubuntu/projects/slam_ws/devel/lib/pkgconfig:/opt/ros/kinetic/lib/pkgconfig:/opt/ros/kinetic/lib/x86_64-linux-gnu/pkgconfig</value>
-     <value type="QString">PWD=/home/ubuntu/projects/logistics_ws</value>
-     <value type="QString">PYTHONPATH=/home/ubuntu/projects/logistics_ws/devel/lib/python2.7/dist-packages:/home/ubuntu/projects/slam_ws/devel/lib/python2.7/dist-packages:/opt/ros/kinetic/lib/python2.7/dist-packages</value>
+     <value type="QString">CMAKE_PREFIX_PATH=/home/wendao/projects/logistics_ws/devel:/home/wendao/projects/socket_ws/devel:/home/wendao/new_ws/devel:/home/wendao/projects/robot_ws/devel:/home/wendao/projects/tractor_ws/devel:/opt/ros/kinetic</value>
+     <value type="QString">LD_LIBRARY_PATH=/home/wendao/projects/logistics_ws/devel/lib:/home/wendao/projects/socket_ws/devel/lib:/home/wendao/new_ws/devel/lib:/home/wendao/projects/robot_ws/devel/lib:/home/wendao/projects/tractor_ws/devel/lib:/opt/ros/kinetic/lib:/opt/ros/kinetic/lib/x86_64-linux-gnu</value>
+     <value type="QString">PATH=/opt/ros/kinetic/bin:/home/wendao/bin:/home/wendao/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin</value>
+     <value type="QString">PKG_CONFIG_PATH=/home/wendao/projects/logistics_ws/devel/lib/pkgconfig:/home/wendao/projects/socket_ws/devel/lib/pkgconfig:/home/wendao/new_ws/devel/lib/pkgconfig:/home/wendao/projects/robot_ws/devel/lib/pkgconfig:/home/wendao/projects/tractor_ws/devel/lib/pkgconfig:/opt/ros/kinetic/lib/pkgconfig:/opt/ros/kinetic/lib/x86_64-linux-gnu/pkgconfig</value>
+     <value type="QString">PWD=/home/wendao/projects/logistics_ws</value>
+     <value type="QString">PYTHONPATH=/home/wendao/projects/logistics_ws/devel/lib/python2.7/dist-packages:/home/wendao/new_ws/devel/lib/python2.7/dist-packages:/home/wendao/projects/robot_ws/devel/lib/python2.7/dist-packages:/home/wendao/projects/tractor_ws/devel/lib/python2.7/dist-packages:/opt/ros/kinetic/lib/python2.7/dist-packages</value>
      <value type="QString">QTDIR</value>
-     <value type="QString">ROSLISP_PACKAGE_DIRECTORIES=/home/ubuntu/projects/logistics_ws/devel/share/common-lisp:/home/ubuntu/projects/slam_ws/devel/share/common-lisp</value>
+     <value type="QString">ROSLISP_PACKAGE_DIRECTORIES=/home/wendao/projects/logistics_ws/devel/share/common-lisp:/home/wendao/projects/socket_ws/devel/share/common-lisp:/home/wendao/new_ws/devel/share/common-lisp:/home/wendao/projects/robot_ws/devel/share/common-lisp:/home/wendao/projects/tractor_ws/devel/share/common-lisp</value>
      <value type="QString">ROS_DISTRO=kinetic</value>
      <value type="QString">ROS_ETC_DIR=/opt/ros/kinetic/etc/ros</value>
      <value type="QString">ROS_MASTER_URI=http://localhost:11311</value>
-     <value type="QString">ROS_PACKAGE_PATH=/home/ubuntu/projects/logistics_ws/src:/home/ubuntu/projects/slam_ws/src:/opt/ros/kinetic/share</value>
+     <value type="QString">ROS_PACKAGE_PATH=/home/wendao/projects/logistics_ws/src:/home/wendao/projects/socket_ws/src:/home/wendao/new_ws/src:/home/wendao/projects/robot_ws/src:/home/wendao/projects/tractor_ws/src:/opt/ros/kinetic/share</value>
      <value type="QString">ROS_PYTHON_VERSION=2</value>
      <value type="QString">ROS_ROOT=/opt/ros/kinetic/share/ros</value>
      <value type="QString">ROS_VERSION=1</value>
      <value type="QString">SHLVL=2</value>
      <value type="QString">TERM=xterm</value>
+     <value type="QString">TURTLEBOT_3D_SENSOR=astra</value>
+     <value type="QString">TURTLEBOT_BASE=kobuki</value>
+     <value type="QString">TURTLEBOT_BATTERY=/sys/class/power_supply/BAT1</value>
+     <value type="QString">TURTLEBOT_GAZEBO_MAP_FILE=/opt/ros/kinetic/share/turtlebot_gazebo/maps/playground.yaml</value>
+     <value type="QString">TURTLEBOT_GAZEBO_WORLD_FILE=/opt/ros/kinetic/share/turtlebot_gazebo/worlds/playground.world</value>
+     <value type="QString">TURTLEBOT_INTERACTIONS_LIST=[turtlebot_bringup/admin.interactions, turtlebot_bringup/documentation.interactions, turtlebot_bringup/pairing.interactions, turtlebot_bringup/visualisation.interactions]</value>
+     <value type="QString">TURTLEBOT_MAP_FILE=/opt/ros/kinetic/share/turtlebot_navigation/maps/willow-2010-02-18-0.10.yaml</value>
+     <value type="QString">TURTLEBOT_NAME=turtlebot</value>
+     <value type="QString">TURTLEBOT_RAPP_PACKAGE_BLACKLIST=[]</value>
+     <value type="QString">TURTLEBOT_RAPP_PACKAGE_WHITELIST=[rocon_apps, turtlebot_rapps]</value>
+     <value type="QString">TURTLEBOT_SERIAL_PORT=/dev/kobuki</value>
+     <value type="QString">TURTLEBOT_SIMULATION=false</value>
+     <value type="QString">TURTLEBOT_STACKS=hexagons</value>
+     <value type="QString">TURTLEBOT_STAGE_MAP_FILE=/opt/ros/kinetic/share/turtlebot_stage/maps/maze.yaml</value>
+     <value type="QString">TURTLEBOT_STAGE_WORLD_FILE=/opt/ros/kinetic/share/turtlebot_stage/maps/stage/maze.world</value>
+     <value type="QString">TURTLEBOT_STDR_MAP_FILE=/opt/ros/kinetic/share/turtlebot_stdr/maps/sparse_obstacles.yaml</value>
+     <value type="QString">TURTLEBOT_TYPE=turtlebot</value>
      <value type="QString">_=/usr/bin/env</value>
     </valuelist>
     <value type="QString" key="ProjectExplorer.ProjectConfiguration.DefaultDisplayName">Debug</value>
@@ -164,23 +181,40 @@
     <value type="int" key="ProjectExplorer.BuildConfiguration.BuildStepListCount">2</value>
     <value type="bool" key="ProjectExplorer.BuildConfiguration.ClearSystemEnvironment">false</value>
     <valuelist type="QVariantList" key="ProjectExplorer.BuildConfiguration.UserEnvironmentChanges">
-     <value type="QString">CMAKE_PREFIX_PATH=/home/ubuntu/projects/logistics_ws/devel:/home/ubuntu/projects/slam_ws/devel:/opt/ros/kinetic</value>
-     <value type="QString">LD_LIBRARY_PATH=/home/ubuntu/projects/logistics_ws/devel/lib:/home/ubuntu/projects/slam_ws/devel/lib:/opt/ros/kinetic/lib:/opt/ros/kinetic/lib/x86_64-linux-gnu</value>
-     <value type="QString">PATH=/opt/ros/kinetic/bin:/home/ubuntu/bin:/home/ubuntu/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin</value>
-     <value type="QString">PKG_CONFIG_PATH=/home/ubuntu/projects/logistics_ws/devel/lib/pkgconfig:/home/ubuntu/projects/slam_ws/devel/lib/pkgconfig:/opt/ros/kinetic/lib/pkgconfig:/opt/ros/kinetic/lib/x86_64-linux-gnu/pkgconfig</value>
-     <value type="QString">PWD=/home/ubuntu/projects/logistics_ws</value>
-     <value type="QString">PYTHONPATH=/home/ubuntu/projects/logistics_ws/devel/lib/python2.7/dist-packages:/home/ubuntu/projects/slam_ws/devel/lib/python2.7/dist-packages:/opt/ros/kinetic/lib/python2.7/dist-packages</value>
+     <value type="QString">CMAKE_PREFIX_PATH=/home/wendao/projects/logistics_ws/devel:/home/wendao/projects/socket_ws/devel:/home/wendao/new_ws/devel:/home/wendao/projects/robot_ws/devel:/home/wendao/projects/tractor_ws/devel:/opt/ros/kinetic</value>
+     <value type="QString">LD_LIBRARY_PATH=/home/wendao/projects/logistics_ws/devel/lib:/home/wendao/projects/socket_ws/devel/lib:/home/wendao/new_ws/devel/lib:/home/wendao/projects/robot_ws/devel/lib:/home/wendao/projects/tractor_ws/devel/lib:/opt/ros/kinetic/lib:/opt/ros/kinetic/lib/x86_64-linux-gnu</value>
+     <value type="QString">PATH=/opt/ros/kinetic/bin:/home/wendao/bin:/home/wendao/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin</value>
+     <value type="QString">PKG_CONFIG_PATH=/home/wendao/projects/logistics_ws/devel/lib/pkgconfig:/home/wendao/projects/socket_ws/devel/lib/pkgconfig:/home/wendao/new_ws/devel/lib/pkgconfig:/home/wendao/projects/robot_ws/devel/lib/pkgconfig:/home/wendao/projects/tractor_ws/devel/lib/pkgconfig:/opt/ros/kinetic/lib/pkgconfig:/opt/ros/kinetic/lib/x86_64-linux-gnu/pkgconfig</value>
+     <value type="QString">PWD=/home/wendao/projects/logistics_ws</value>
+     <value type="QString">PYTHONPATH=/home/wendao/projects/logistics_ws/devel/lib/python2.7/dist-packages:/home/wendao/new_ws/devel/lib/python2.7/dist-packages:/home/wendao/projects/robot_ws/devel/lib/python2.7/dist-packages:/home/wendao/projects/tractor_ws/devel/lib/python2.7/dist-packages:/opt/ros/kinetic/lib/python2.7/dist-packages</value>
      <value type="QString">QTDIR</value>
-     <value type="QString">ROSLISP_PACKAGE_DIRECTORIES=/home/ubuntu/projects/logistics_ws/devel/share/common-lisp:/home/ubuntu/projects/slam_ws/devel/share/common-lisp</value>
+     <value type="QString">ROSLISP_PACKAGE_DIRECTORIES=/home/wendao/projects/logistics_ws/devel/share/common-lisp:/home/wendao/projects/socket_ws/devel/share/common-lisp:/home/wendao/new_ws/devel/share/common-lisp:/home/wendao/projects/robot_ws/devel/share/common-lisp:/home/wendao/projects/tractor_ws/devel/share/common-lisp</value>
      <value type="QString">ROS_DISTRO=kinetic</value>
      <value type="QString">ROS_ETC_DIR=/opt/ros/kinetic/etc/ros</value>
      <value type="QString">ROS_MASTER_URI=http://localhost:11311</value>
-     <value type="QString">ROS_PACKAGE_PATH=/home/ubuntu/projects/logistics_ws/src:/home/ubuntu/projects/slam_ws/src:/opt/ros/kinetic/share</value>
+     <value type="QString">ROS_PACKAGE_PATH=/home/wendao/projects/logistics_ws/src:/home/wendao/projects/socket_ws/src:/home/wendao/new_ws/src:/home/wendao/projects/robot_ws/src:/home/wendao/projects/tractor_ws/src:/opt/ros/kinetic/share</value>
      <value type="QString">ROS_PYTHON_VERSION=2</value>
      <value type="QString">ROS_ROOT=/opt/ros/kinetic/share/ros</value>
      <value type="QString">ROS_VERSION=1</value>
      <value type="QString">SHLVL=2</value>
      <value type="QString">TERM=xterm</value>
+     <value type="QString">TURTLEBOT_3D_SENSOR=astra</value>
+     <value type="QString">TURTLEBOT_BASE=kobuki</value>
+     <value type="QString">TURTLEBOT_BATTERY=/sys/class/power_supply/BAT1</value>
+     <value type="QString">TURTLEBOT_GAZEBO_MAP_FILE=/opt/ros/kinetic/share/turtlebot_gazebo/maps/playground.yaml</value>
+     <value type="QString">TURTLEBOT_GAZEBO_WORLD_FILE=/opt/ros/kinetic/share/turtlebot_gazebo/worlds/playground.world</value>
+     <value type="QString">TURTLEBOT_INTERACTIONS_LIST=[turtlebot_bringup/admin.interactions, turtlebot_bringup/documentation.interactions, turtlebot_bringup/pairing.interactions, turtlebot_bringup/visualisation.interactions]</value>
+     <value type="QString">TURTLEBOT_MAP_FILE=/opt/ros/kinetic/share/turtlebot_navigation/maps/willow-2010-02-18-0.10.yaml</value>
+     <value type="QString">TURTLEBOT_NAME=turtlebot</value>
+     <value type="QString">TURTLEBOT_RAPP_PACKAGE_BLACKLIST=[]</value>
+     <value type="QString">TURTLEBOT_RAPP_PACKAGE_WHITELIST=[rocon_apps, turtlebot_rapps]</value>
+     <value type="QString">TURTLEBOT_SERIAL_PORT=/dev/kobuki</value>
+     <value type="QString">TURTLEBOT_SIMULATION=false</value>
+     <value type="QString">TURTLEBOT_STACKS=hexagons</value>
+     <value type="QString">TURTLEBOT_STAGE_MAP_FILE=/opt/ros/kinetic/share/turtlebot_stage/maps/maze.yaml</value>
+     <value type="QString">TURTLEBOT_STAGE_WORLD_FILE=/opt/ros/kinetic/share/turtlebot_stage/maps/stage/maze.world</value>
+     <value type="QString">TURTLEBOT_STDR_MAP_FILE=/opt/ros/kinetic/share/turtlebot_stdr/maps/sparse_obstacles.yaml</value>
+     <value type="QString">TURTLEBOT_TYPE=turtlebot</value>
      <value type="QString">_=/usr/bin/env</value>
     </valuelist>
     <value type="QString" key="ProjectExplorer.ProjectConfiguration.DefaultDisplayName">Release</value>

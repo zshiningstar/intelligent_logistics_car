@@ -10,3 +10,6 @@ float32 yaw_error
 float32 vehicle_speed
 float32 roadwheel_angle
 
+float32 nearest_object_distance
+float32 command_speed
+

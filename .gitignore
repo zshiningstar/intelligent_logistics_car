@@ -12,5 +12,5 @@ el
 
 el_isolated
 
-	
+av_console.workspace.user*
 src/driver/sensor/livox/livox_ros_driver/Livox-SDK
