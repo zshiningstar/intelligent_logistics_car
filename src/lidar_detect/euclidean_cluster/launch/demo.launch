@@ -1,0 +1,24 @@
+<!-- -->
+
+<launch>
+	
+	<node name="euclidean_cluster" pkg="euclidean_cluster" type="euclidean_cluster_node">
+
+		<param name="obj_pub"  type="string"  value="/detected_bounding_boxs"/> 
+		
+		<param name="y_max"  type="double"  value="6.0"/>
+		<param name="y_min"  type="double"  value="-4.0"/>
+
+		<param name="x_max"  type="double"  value="35.0"/>
+		<param name="x_min"  type="double"  value="-15.0"/>
+
+		<param name="z_max"  type="double"  value="0.3"/>
+		<param name="z_min"  type="double"  value="-1.64"/>
+
+		<param name="pose_estimation"  type="bool"  value="true"/>  <!--估计位姿-->
+
+	</node>
+
+</launch>
+
+

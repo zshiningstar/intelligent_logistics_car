@@ -7,3 +7,9 @@
 [submodule "src/av_op"]
 	path = src/av_op
 	url = https://github.com/CastielLiu/av_console.git
+[submodule "src/driver/sensor/livox_ros_driver"]
+	path = src/driver/sensor/livox_ros_driver
+	url = https://github.com/zsx-star/livox_ros_driver.git
+[submodule "src/driver/sensor/lslidar_c16"]
+	path = src/driver/sensor/lslidar_c16
+	url = https://github.com/zsx-star/lslidar_c16.git
