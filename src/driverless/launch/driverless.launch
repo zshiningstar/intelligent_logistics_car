@@ -26,7 +26,7 @@
 		
 		<!-- path_tracking -->
 		<param name="min_foresight_distance" value="2.5"/>
-		<param name="max_side_accel" value="1"/>
+		<param name="max_side_accel" value="0.5"/>
 		<param name="foreSightDis_speedCoefficient" value = "1.0"/>
 		<param name="foreSightDis_latErrCoefficient" value = "0.5"/>
 		<param name="car_state" value="/car_state"/>

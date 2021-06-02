@@ -296,11 +296,11 @@ float PathTracking::limitRoadwheelAngleBySpeed(const float& angle, const float& 
  *@param curvature 路径曲率
  *@param max_accel 最大允许侧向加速度
  *
- *@return 最大车速 km/h
+ *@return 最大车速 m/s
  */
 float PathTracking::generateMaxTolarateSpeedByCurvature(const float& curvature, const float& max_accel)
 {
-	return sqrt(1.0/fabs(curvature)*max_accel) *3.6;
+	return sqrt(1.0/fabs(curvature)*max_accel);
 }
 
 /*@brief 利用路径曲率限制最大车速
