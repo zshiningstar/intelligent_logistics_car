@@ -13,3 +13,6 @@
 [submodule "src/driver/sensor/lslidar_c16"]
 	path = src/driver/sensor/lslidar_c16
 	url = https://github.com/zsx-star/lslidar_c16.git
+[submodule "src/lidar_detect"]
+	path = src/lidar_detect
+	url = https://github.com/zsx-star/lidar_detect.git
