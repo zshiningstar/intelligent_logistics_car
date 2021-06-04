@@ -202,11 +202,12 @@ void AutoDrive::workingThread()
 		int state = system_state_;
 		ROS_INFO("[%s] Current system_state: %d", __NAME__, state);
 		
-		if(state == State_Drive)
-			doDriveWork();
-		else if(state == State_Reverse)
+		/*if(state == State_Drive)*/
+		doWork();
+		/*else if(state == State_Reverse)
 			doReverseWork();
-		else
+		else*/
+		if(state!=State_Drive && state!=State_Reverse)
 			ROS_ERROR("[%s] Unknown task type in current state: %d.", __NAME__, state);
 			
 		std::unique_lock<std::mutex> lck(listen_cv_mutex_);
@@ -221,10 +222,17 @@ void AutoDrive::workingThread()
 		 *2. 被新任务打断，切换系统为指定状态
 		 *因此！此处不能再切换系统状态，否则状态机制将被打破，导致任务无法正常运行！
 		 */
+
+		//Add by zsx on 2021/6/4
+		//因为物流车的前进后退都为工作状态，因此前进后退任务分开写维护较为麻烦，此处按照师兄指导将其合并，
+		//修改地方有：
+		/*1. 进入工作线程函数后，直接启动doWork() [函数名字从doDriveWork修改为doWork]
+		 *2. 将decisionMaking(bool)函数修改为decisionMaking()无参类型函数
+		*/
 	}
 }
 
-void AutoDrive::doDriveWork()
+void AutoDrive::doWork()
 {
 	//配置路径跟踪控制器
 	tracker_.setExpectSpeed(expect_speed_);
@@ -233,7 +241,7 @@ void AutoDrive::doDriveWork()
 
 	ros::Rate loop_rate(1.0/decisionMakingDuration_);
 	
-	ROS_ERROR("NOT ERROR: doDriveWork-> task_running_= true");
+	ROS_ERROR("NOT ERROR: doWork-> task_running_= true");
 	task_running_ = true;
 
 	while(ros::ok() && system_state_ != State_Stop && tracker_.isRunning())
@@ -241,7 +249,7 @@ void AutoDrive::doDriveWork()
 		tracker_cmd_ = tracker_.getControlCmd();
 		follower_cmd_= car_follower_.getControlCmd();
 		
-		auto cmd = this->decisionMaking(true);
+		auto cmd = this->decisionMaking();
 
 		if(as_->isActive()) //判断action server是否为活动，防止函数的非服务调用导致的错误
 		{
@@ -271,6 +279,7 @@ void AutoDrive::doDriveWork()
 	switchSystemState(State_Stop);
 }
 
+/*
 void AutoDrive::doReverseWork()
 {
 	reverse_controler_.setExpectSpeed(expect_speed_);
@@ -318,6 +327,7 @@ void AutoDrive::doReverseWork()
 	task_running_ = false;
 	switchSystemState(State_Stop);
 }
+*/
 
 /*@brief 前进控制指令决策
  * 指令源包括: 避障控速/跟车控速/路径跟踪控转向和速度
@@ -325,19 +335,19 @@ void AutoDrive::doReverseWork()
                 ②避障速度控制
 				③跟车速度控制
  */
- logistics_msgs::ControlCmd2 AutoDrive::decisionMaking(bool isDrive)
+ logistics_msgs::ControlCmd2 AutoDrive::decisionMaking()
  {
  	std::lock_guard<std::mutex> lock2(cmd2_mutex_);
- 	if(isDrive)  //drive
- 	{
- 		controlCmd2_.set_roadWheelAngle = tracker_cmd_.roadWheelAngle;//前轮转角
-		controlCmd2_.set_speed = fabs(tracker_cmd_.speed); //优先使用跟踪器速度指令
- 	}
+ 	/*if(isDrive)  //drive
+ 	{*/
+	controlCmd2_.set_roadWheelAngle = tracker_cmd_.roadWheelAngle;//前轮转角
+	controlCmd2_.set_speed = fabs(tracker_cmd_.speed); //优先使用跟踪器速度指令
+ 	/*}
  	else //reverse
  	{
  		controlCmd2_.set_speed = fabs(reverse_cmd_.speed);
 		controlCmd2_.set_roadWheelAngle = reverse_cmd_.roadWheelAngle;
- 	}
+ 	}*/
  	
 	//若当前状态为强制使用外部控制指令，则忽悠其他指令源
 	if(system_state_ == State_ForceExternControl)
@@ -382,8 +392,8 @@ void AutoDrive::doReverseWork()
 	controlCmd2_.set_speed = expectSpeed;
 	lastCtrlSpeed = controlCmd2_.set_speed;
 
-	if(isDrive) controlCmd2_.set_speed = fabs(controlCmd2_.set_speed);
-	else controlCmd2_.set_speed = -fabs(controlCmd2_.set_speed);
+	if(system_state_ == State_Drive) controlCmd2_.set_speed = fabs(controlCmd2_.set_speed);
+	else if(system_state_ == State_Reverse) controlCmd2_.set_speed = -fabs(controlCmd2_.set_speed);
 
 	//std::cout << controlCmd2_.set_speed << "\t" << expectSpeed << "\t" << deltaT << "\t" << expectAccel << std::endl;
 

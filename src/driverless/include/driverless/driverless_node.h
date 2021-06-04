@@ -51,7 +51,7 @@ private:
     bool handleNewGoal(const driverless::DoDriverlessTaskGoalConstPtr& goal);
    	float steerPidCtrl(float expectAngle);
 
-    logistics_msgs::ControlCmd2 decisionMaking(bool isDrive);
+    logistics_msgs::ControlCmd2 decisionMaking();
     
 
     bool isReverseGear();
@@ -59,8 +59,8 @@ private:
     bool isNeutralGear();
 
     void workingThread();
-    void doDriveWork();
-    void doReverseWork();
+    void doWork();
+    //void doReverseWork();
 
     void waitGearOk(int gear);
     void waitSpeedZero();
