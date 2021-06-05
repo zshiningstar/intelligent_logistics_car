@@ -16,3 +16,6 @@
 [submodule "src/lidar_detect"]
 	path = src/lidar_detect
 	url = https://github.com/zsx-star/lidar_detect.git
+[submodule "src/msgs/pathplan_msgs"]
+	path = src/msgs/pathplan_msgs
+	url = https://github.com/zsx-star/pathplan_msgs.git
