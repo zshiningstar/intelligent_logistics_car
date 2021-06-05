@@ -1,0 +1,12 @@
+[submodule "src/sensor/gps_driver"]
+	path = src/sensor/gps_driver
+	url = https://github.com/zsx-star/gps_driver.git
+[submodule "src/sensor/livox_ros_driver"]
+	path = src/sensor/livox_ros_driver
+	url = https://github.com/zsx-star/livox_ros_driver.git
+[submodule "src/sensor/lslidar_c16_driver"]
+	path = src/sensor/lslidar_c16_driver
+	url = https://github.com/zsx-star/lslidar_c16_driver.git
+[submodule "src/sensor/lidar_detect"]
+	path = src/sensor/lidar_detect
+	url = https://github.com/zsx-star/lidar_detect.git
