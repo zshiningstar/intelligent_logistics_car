@@ -10,3 +10,6 @@
 [submodule "src/sensor/lidar_detect"]
 	path = src/sensor/lidar_detect
 	url = https://github.com/zsx-star/lidar_detect.git
+[submodule "src/sensor/rtcm3.2"]
+	path = src/sensor/rtcm3.2
+	url = https://github.com/CastielLiu/rtcm3.2.git
