@@ -22,7 +22,7 @@
 		<!-- main -->
 		<param name="is_offline_debug" value="false"/>
 		<param name="max_speed" value="$(arg max_speed)"/>
-		<param name="odom_topic" value="/slam_fused_odom"/>  #slam_fused_odom gps_odom
+		<param name="odom_topic" value="/gps_odom"/>  #slam_fused_odom gps_odom
 		
 		<!-- path_tracking -->
 		<param name="min_foresight_distance" value="2.5"/>
@@ -58,14 +58,12 @@
 		<param name="reverse_path_file" value="$(arg roadnet_file)"/>
 	</node>
 	
-	<!-- rtk -->
-	<node name="rtk_node" pkg="rtk" type="rtk_node" output="screen"/>
-	
 	<!--slam location -->
 	<include file="$(find lego_loam_bor)/launch/c16/location_c16.launch"/>
 	
 	<!-- 导远GPS -->
 	<include file="$(find daoyuan)/launch/daoyuan.launch"/>
+	<include file="$(find rtk)/launch/rtk.launch"/>
 	
 	<!-- 镭神雷达 -->
 	<include file="$(find lslidar_c16_decoder)/launch/lslidar_c16.launch"/>

@@ -15,6 +15,7 @@ AutoDrive::AutoDrive():
 	has_new_task_(false),
 	request_listen_(false),
 	as_(nullptr),
+	avoid_min_obj_distance_(2000),
 	decisionMakingDuration_(0.05)
 {
 	controlCmd2_.set_speed = 0.0;
@@ -128,44 +129,11 @@ bool AutoDrive::init(ros::NodeHandle nh,ros::NodeHandle nh_private)
 		capture_extern_cmd_timer_ = nh_.createTimer(ros::Duration(0.05), &AutoDrive::captureExernCmd_callback, this);
 	}
 
-    //初始化倒车控制器
-    if(!reverse_controler_.init(nh_, nh_private_))
-	{
-		ROS_ERROR("[%s] Initial reverse controller failed!", __NAME__);
-		return false;
-	}
-    ROS_INFO("[%s] reverse controller init ok",__NAME__);
-
     switchSystemState(State_Idle);
 	//启动工作线程，等待新任务唤醒
 	std::thread t(&AutoDrive::workingThread, this);
 	t.detach();
 
-	if(nh_private_.param<bool>("reverse_test", false))   //倒车测试
-	{
-        if(!reverse_controler_.loadReversePath(nh_private_.param<std::string>("reverse_path_file",""),
-                                               nh_private_.param<bool>("reverse_path_flip",false)))
-        {
-            ROS_ERROR("[%s] load reverse path failed!", __NAME__);
-            return false;
-        }
-
-        switchSystemState(State_Reverse);
-		has_new_task_ = true;
-		work_cv_.notify_one();
-	}
-	else if(nh_private_.param<bool>("drive_test", false)) //前进测试
-	{
-        if(!loadDriveTaskFile(nh_private_.param<std::string>("drive_path_file", "")))
-        {
-            ROS_ERROR("[%s] Load drive path file failed!", __NAME__);
-            return false;
-        }
-
-        switchSystemState(State_Drive);
-		has_new_task_ = true;
-		work_cv_.notify_one();
-	}
 	
 	is_initialed_ = true;
 	return true;
@@ -428,7 +396,7 @@ bool AutoDrive::loadVehicleParams()
 /*@brief 载入前进任务文件，路径点位信息/停车点信息/拓展路径
 		 若路径附加信息文件不存在，不返回错误，以应对非常规路线
 */
-bool AutoDrive::loadDriveTaskFile(const std::string& file)
+bool AutoDrive::loadDriveTaskFile(const std::string& file, bool flip)
 {
 	//载入路网文件
 	if(! loadPathPoints(file, global_path_))
@@ -436,6 +404,21 @@ bool AutoDrive::loadDriveTaskFile(const std::string& file)
 	    ROS_ERROR("[%s] Load path file failed!",__NAME__);
 		publishDiagnosticMsg(diagnostic_msgs::DiagnosticStatus::ERROR,"Load path file failed!");
 		return false;
+	}
+	
+	if(flip)
+	{
+		Path temp_path;
+        temp_path.points.reserve(global_path_.points.size());
+
+        for(int i=global_path_.points.size()-1; i >0; --i)
+        {
+            GpsPoint& point = global_path_.points[i];
+            //point.yaw += M_PI;
+            //if(point.yaw > 2*M_PI) point.yaw -= 2*M_PI;
+            temp_path.points.push_back(point);
+        }
+        global_path_.points.swap(temp_path.points);
 	}
 
 	//载入路径附加信息
@@ -448,6 +431,7 @@ bool AutoDrive::loadDriveTaskFile(const std::string& file)
 	}
 	return extendPath(global_path_, 20.0); //路径拓展延伸
 }
+
 
 /*@brief 设置前进任务目标路径点集， 自行计算路径曲率信息
  */

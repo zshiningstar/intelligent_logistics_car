@@ -34,7 +34,7 @@ public:
 
 private:
     bool loadVehicleParams();
-    bool loadDriveTaskFile(const std::string& file);
+    bool loadDriveTaskFile(const std::string& file, bool flip=false);
     bool setDriveTaskPathPoints(const driverless::DoDriverlessTaskGoalConstPtr& goal);
 	void publishPathTrackingState();
     bool isGpsPointValid(const GpsPoint& point);
