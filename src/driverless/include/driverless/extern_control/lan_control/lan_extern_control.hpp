@@ -89,7 +89,7 @@ private:
 			ROS_INFO("convert socket ip complete .");
 		
 		//UDP
-		udp_fd_ = socket(PF_INET,SOCK_DGRAM , 0);
+		udp_fd_ = socket(PF_INET,SOCK_DGRAM , 0);//UDP套接字的名字：SOCK_DGRAM;PF_INET：代表应用于网络端
 		if(udp_fd_ < 0)
 		{
 			ROS_ERROR("build socket error");
@@ -99,6 +99,7 @@ private:
 			ROS_INFO("build socket ok .");
 		
 		//设置端口复用
+		
 		int udo_opt = 1;
 		setsockopt(udp_fd_, SOL_SOCKET, SO_REUSEADDR, &udo_opt, sizeof(udo_opt));
 		
