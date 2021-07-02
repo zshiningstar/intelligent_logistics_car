@@ -126,6 +126,7 @@ bool AutoDrive::init(ros::NodeHandle nh,ros::NodeHandle nh_private)
 			ROS_ERROR("[%s] Initial or Start extern controller failed!", __NAME__);
 			return false;
 		}
+		//定时捕获外部控制指令
 		capture_extern_cmd_timer_ = nh_.createTimer(ros::Duration(0.05), &AutoDrive::captureExernCmd_callback, this);
 	}
 
@@ -203,6 +204,7 @@ void AutoDrive::captureExernCmd_callback(const ros::TimerEvent&)
 	extern_cmd_mutex_.unlock();
 }
 
+//车辆工作状态转换函数
 void AutoDrive::switchSystemState(int state)
 {
 	ROS_ERROR("[%s] NOT ERROR switchSystemState: %s", __NAME__, StateName[state].c_str());

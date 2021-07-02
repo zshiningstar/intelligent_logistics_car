@@ -9,7 +9,7 @@
 class ExternControlBase
 {
 public:
-    ExternControlBase() = delete;//禁用构造函数
+    ExternControlBase() = delete;//禁用默认构造函数
 	ExternControlBase(const ExternControlBase& ) = delete;//禁用复制构造函数
 
 	explicit ExternControlBase(const std::string& name)

@@ -211,76 +211,17 @@ void AutoDrive::doWork()
 	switchSystemState(State_Stop);
 }
 
-/*
-void AutoDrive::doReverseWork()
-{
-	reverse_controler_.setExpectSpeed(expect_speed_);
-	reverse_controler_.start();
-	
-	ros::Rate loop_rate(1.0/decisionMakingDuration_);
-	
-	ROS_ERROR("NOT ERROR: doReverseWork-> task_running_= true");
-	task_running_ = true;
-	while(ros::ok() && system_state_ != State_Stop && reverse_controler_.isRunning())
-	{
-		//ROS_INFO("[%s] new cycle.", __NAME__);
-		reverse_cmd_ = reverse_controler_.getControlCmd();
-		
-		//ROS_INFO("[%s] speed: %.2f\t angle: %.2f", __NAME__, reverse_cmd_.speed, reverse_cmd_.roadWheelAngle);
-		
-		if(reverse_cmd_.validity)
-			decisionMaking(false);
-		
-		//如果actionlib服务器处于活跃状态，则进行状态反馈并判断是否外部请求中断
-		//如果actionlib服务器未active表明是其他方式请求的工作，比如测试例
-		if(as_->isActive())
-		{
-			driverless::DoDriverlessTaskFeedback feedback;
-			feedback.speed = reverse_cmd_.speed;
-			feedback.steer_angle = reverse_cmd_.roadWheelAngle;
-			as_->publishFeedback(feedback);
-			
-			if(as_->isPreemptRequested())  //外部请求中断
-			{
-				ROS_INFO("[%s] isPreemptRequested.", __NAME__);
-				as_->setPreempted(); //自主中断当前任务
-				break;
-			}
-		}
-
-		loop_rate.sleep();
-	}
-	reverse_controler_.stop();
-	ROS_INFO("[%s] reverse work complete.", __NAME__);
-	if(as_->isActive())
-	{
-		as_->setSucceeded(driverless::DoDriverlessTaskResult(), "drive work  completed");
-	}
-	task_running_ = false;
-	switchSystemState(State_Stop);
-}
-*/
-
 /*@brief 前进控制指令决策
  * 指令源包括: 避障控速/跟车控速/路径跟踪控转向和速度
  * 控制指令优先级 ①外部控制指令
-                ②避障速度控制
-				③跟车速度控制
+        ②避障速度控制
+        ③跟车速度控制
  */
  logistics_msgs::ControlCmd2 AutoDrive::decisionMaking()
  {
  	std::lock_guard<std::mutex> lock2(cmd2_mutex_);
- 	/*if(isDrive)  //drive
- 	{*/
 	controlCmd2_.set_roadWheelAngle = tracker_cmd_.roadWheelAngle;//前轮转角
 	controlCmd2_.set_speed = fabs(tracker_cmd_.speed); //优先使用跟踪器速度指令
- 	/*}
- 	else //reverse
- 	{
- 		controlCmd2_.set_speed = fabs(reverse_cmd_.speed);
-		controlCmd2_.set_roadWheelAngle = reverse_cmd_.roadWheelAngle;
- 	}*/
- 	
 	//若当前状态为强制使用外部控制指令，则忽悠其他指令源
 	if(system_state_ == State_ForceExternControl)
 	{
@@ -384,7 +325,4 @@ int main(int argc, char *argv[])
     if(auto_drive.init(nh, nh_private))
     	ros::waitForShutdown();
     return 0;
-}  
-
-
-	
+}
