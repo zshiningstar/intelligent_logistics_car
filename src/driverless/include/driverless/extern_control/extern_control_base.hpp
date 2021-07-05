@@ -9,8 +9,8 @@
 class ExternControlBase
 {
 public:
-    ExternControlBase() = delete;//禁用默认构造函数
-	ExternControlBase(const ExternControlBase& ) = delete;//禁用复制构造函数
+    ExternControlBase() = delete;
+	ExternControlBase(const ExternControlBase& ) = delete;
 
 	explicit ExternControlBase(const std::string& name)
 	{
@@ -30,7 +30,7 @@ public:
 		return cmd_;
 	}
 
-    virtual bool init(ros::NodeHandle nh,ros::NodeHandle nh_private) = 0;//纯虚函数
+    virtual bool init(ros::NodeHandle nh,ros::NodeHandle nh_private) = 0;
 	virtual bool start() {is_running_ = true;}
 	virtual void stop() {is_running_ = false;}
 	virtual bool isRunning() {return is_running_;}

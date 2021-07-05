@@ -50,7 +50,7 @@ bool AutoDrive::init(ros::NodeHandle nh,ros::NodeHandle nh_private)
 	nh_private_.param<bool>("use_car_follower", use_car_follower_, false);
 	std::string odom_topic = nh_private_.param<std::string>("odom_topic","/ll2utm_odom");
 	std::string tracking_info_topic = nh_private.param<std::string>("tracking_info_topic","/driverless/state");
-	pub_driverless_state_ = nh.advertise<driverless::State>(tracking_info_topic,1);
+	pub_driverless_state_ = nh.advertise<driverless_common::SystemState>(tracking_info_topic,1);
 
 	initDiagnosticPublisher(nh_,__NAME__);
 
@@ -69,7 +69,7 @@ bool AutoDrive::init(ros::NodeHandle nh,ros::NodeHandle nh_private)
 
 	//发布
 	pub_cmd2_ = nh_.advertise<logistics_msgs::ControlCmd2>("/controlCmd2",1);
-	pub_new_goal_ = nh_.advertise<driverless::DoDriverlessTaskActionGoal>("/do_driverless_task/goal", 1);
+	pub_new_goal_ = nh_.advertise<driverless_common::DoDriverlessTaskActionGoal>("/do_driverless_task/goal", 1);
 	
 	//定时器                                                                           one_shot, auto_start
 	cmd2_timer_ = nh_.createTimer(ros::Duration(0.05), &AutoDrive::sendCmd2_callback,this, false, false);
@@ -126,7 +126,6 @@ bool AutoDrive::init(ros::NodeHandle nh,ros::NodeHandle nh_private)
 			ROS_ERROR("[%s] Initial or Start extern controller failed!", __NAME__);
 			return false;
 		}
-		//定时捕获外部控制指令
 		capture_extern_cmd_timer_ = nh_.createTimer(ros::Duration(0.05), &AutoDrive::captureExernCmd_callback, this);
 	}
 
@@ -204,7 +203,6 @@ void AutoDrive::captureExernCmd_callback(const ros::TimerEvent&)
 	extern_cmd_mutex_.unlock();
 }
 
-//车辆工作状态转换函数
 void AutoDrive::switchSystemState(int state)
 {
 	ROS_ERROR("[%s] NOT ERROR switchSystemState: %s", __NAME__, StateName[state].c_str());
@@ -305,11 +303,11 @@ void AutoDrive::odom_callback(const nav_msgs::Odometry::ConstPtr& msg)
 
 void AutoDrive::goal_callback(const pathplaning_msgs::expected_path::ConstPtr& msg)
 {
-	driverless::DoDriverlessTaskActionGoal::Ptr  actionGoal = 
-		driverless::DoDriverlessTaskActionGoal::Ptr(new driverless::DoDriverlessTaskActionGoal);
+	driverless_common::DoDriverlessTaskActionGoal::Ptr  actionGoal = 
+		driverless_common::DoDriverlessTaskActionGoal::Ptr(new driverless_common::DoDriverlessTaskActionGoal);
 	actionGoal->header.stamp = ros::Time::now();
 
-	driverless::DoDriverlessTaskGoal& goal = actionGoal->goal;
+	driverless_common::DoDriverlessTaskGoal& goal = actionGoal->goal;
 	if(msg->direction == msg->DIRECTION_DRIVE)
 		goal.task = goal.DRIVE_TASK;
 	else if(msg->direction == msg->DIRECTION_REVERSE)
@@ -330,8 +328,9 @@ void AutoDrive::vehicleSpeed_callback(const logistics_msgs::RealState::ConstPtr&
 		vehicle_state_.speed_validity = false;
 		return;
 	}
+	float _vehicle_speed = msg->real_speed * 3.6;  //km/h->m/s
 	vehicle_state_.setSteerAngle(msg->real_angle);
-	vehicle_state_.setSpeed(msg->real_speed); //  m/s
+	vehicle_state_.setSpeed(_vehicle_speed); //  km/h
 	vehicle_state_.speed_validity = true;
 	vehicle_state_.steer_validity = true;
 }
@@ -373,7 +372,7 @@ bool AutoDrive::loadVehicleParams()
 	}
 	if(vehicle_params_.wheel_base == 0.0)
 	{
-		ROS_ERROR("[%s] No parameter %s/vehicle/wheel_base.",__NAME__,node.c_str());
+		ROS_ERROR("[%s] No parameter %s/vehice/wheel_base.",__NAME__,node.c_str());
 		ok = false;
 	}
 	if(vehicle_params_.wheel_track == 0.0)
@@ -437,7 +436,7 @@ bool AutoDrive::loadDriveTaskFile(const std::string& file, bool flip)
 
 /*@brief 设置前进任务目标路径点集， 自行计算路径曲率信息
  */
-bool AutoDrive::setDriveTaskPathPoints(const driverless::DoDriverlessTaskGoalConstPtr& goal)
+bool AutoDrive::setDriveTaskPathPoints(const driverless_common::DoDriverlessTaskGoalConstPtr& goal)
 {
 	size_t len = goal->target_path.size();
 	if(len == 0) 

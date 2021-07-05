@@ -15,7 +15,6 @@ PathTracking::~PathTracking()
 bool PathTracking::setExpectSpeed(float speed)
 {
 	expect_speed_ = fabs(speed);
-	return true;
 }
 
 bool PathTracking::init(ros::NodeHandle nh,ros::NodeHandle nh_private)
