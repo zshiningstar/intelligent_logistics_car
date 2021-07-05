@@ -15,17 +15,17 @@
 #include <ant_msgs/State4.h>  //steerAngle
 #include "auto_drive_base.h"
 #include <condition_variable>
-#include <driverless/State.h>
+#include <driverless_common/SystemState.h>
 #include <actionlib/client/simple_action_client.h>
 #include <actionlib/server/simple_action_server.h>
-#include <driverless/DoDriverlessTaskAction.h>   // Note: "Action" is appended
+#include <driverless_common/DoDriverlessTaskAction.h>   // Note: "Action" is appended
 
 
 class AutoDrive : public AutoDriveBase
 {
 public:
-    typedef actionlib::SimpleActionClient<driverless::DoDriverlessTaskAction> DoDriverlessTaskClient;
-    typedef actionlib::SimpleActionServer<driverless::DoDriverlessTaskAction> DoDriverlessTaskServer;
+    typedef actionlib::SimpleActionClient<driverless_common::DoDriverlessTaskAction> DoDriverlessTaskClient;
+    typedef actionlib::SimpleActionServer<driverless_common::DoDriverlessTaskAction> DoDriverlessTaskServer;
 
     AutoDrive();
     ~AutoDrive();
@@ -35,7 +35,7 @@ public:
 private:
     bool loadVehicleParams();
     bool loadDriveTaskFile(const std::string& file, bool flip=false);
-    bool setDriveTaskPathPoints(const driverless::DoDriverlessTaskGoalConstPtr& goal);
+    bool setDriveTaskPathPoints(const driverless_common::DoDriverlessTaskGoalConstPtr& goal);
 	void publishPathTrackingState();
     bool isGpsPointValid(const GpsPoint& point);
     void vehicleSpeed_callback(const logistics_msgs::RealState::ConstPtr& msg);
@@ -47,8 +47,8 @@ private:
     void captureExernCmd_callback(const ros::TimerEvent&);
     void setSendControlCmdEnable(bool flag);
     void goal_callback(const pathplaning_msgs::expected_path::ConstPtr& msg);
-    void executeDriverlessCallback(const driverless::DoDriverlessTaskGoalConstPtr& goal);
-    bool handleNewGoal(const driverless::DoDriverlessTaskGoalConstPtr& goal);
+    void executeDriverlessCallback(const driverless_common::DoDriverlessTaskGoalConstPtr& goal);
+    bool handleNewGoal(const driverless_common::DoDriverlessTaskGoalConstPtr& goal);
    	float steerPidCtrl(float expectAngle);
 
     logistics_msgs::ControlCmd2 decisionMaking();
@@ -157,8 +157,8 @@ private:
     controlCmd_t avoid_cmd_;
     
     float steer_offset_;
-
-    driverless::State driverless_state_;
+    
+    driverless_common::SystemState driverless_state_;
     float decisionMakingDuration_;
 };
 
