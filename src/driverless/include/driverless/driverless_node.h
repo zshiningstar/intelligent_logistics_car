@@ -138,7 +138,7 @@ private:
     DoDriverlessTaskServer* as_;
     
     float avoid_offset_;
-    PathTracking tracker_;
+    PathPlanning tracker_;
     controlCmd_t tracker_cmd_;
 
     bool use_car_follower_;
