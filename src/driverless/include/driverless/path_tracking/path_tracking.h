@@ -10,23 +10,28 @@
 #include "driverless/structs.h"
 #include "driverless/utils.hpp"
 #include "driverless/auto_drive_base.h"
+#include "pure_tracking/pure_tracking.hpp"
 
-class PathPlanning : public AutoDriveBase
+class PathTracking : public AutoDriveBase
 {
 public:
-	PathPlanning();
-	~PathPlanning();
+	PathTracking();
+	~PathTracking();
 	
 	virtual bool init(ros::NodeHandle nh,ros::NodeHandle nh_private) override;
 	virtual bool start() override;
 	virtual void stop()  override;
 	virtual bool isRunning() override;
 	virtual controlCmd_t getControlCmd() override;
+	float setExpectSpeed(float speed);
+	void setGlobalPath(Path &path_);
+	void setVehicleParams(VehicleParams temp_params_);
+	std::pair <float, float> getTrackingErr();
 	
 private:
 	ros::Timer update_timer_;
 	ros::NodeHandle nh_, nh_private_;
-	PathPlanningBase* path_planning_controler_;
+	PathTrackingBase* path_tracking_controller_;
 };
 
 

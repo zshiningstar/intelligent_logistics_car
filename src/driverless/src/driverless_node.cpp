@@ -355,7 +355,7 @@ float AutoDrive::steerPidCtrl(float expectAngle)
 	static float sumErr = 0.0;
 	
 	float angle_now = vehicle_state_.getSteerAngle(LOCK);
-	float err = g_lateral_err_; //from global var
+	float err = g_trackingError.first; //from global var
 	
 	if(fabs(err) > tolerateLatErr)		//横向偏差较小时不修正,因为稳态误差不能全部消除,否则会转向激进
 		sumErr = sumErr + err;

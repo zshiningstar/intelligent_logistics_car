@@ -5,6 +5,7 @@
 	<arg name="max_speed" default="1" />
 	<arg name="use_extern_controller" default="true"/>
 	<arg name="which_extern_controller" default="lan_controller"/>
+	<arg name="which_path_tracking_controller" default="pure_tracking_controller"/>
 	
 	<arg name="rate" default="30" />
 	<arg name="delay_time" default="0.3" />
@@ -30,6 +31,7 @@
 		<param name="foreSightDis_speedCoefficient" value = "1.0"/>
 		<param name="foreSightDis_latErrCoefficient" value = "0.5"/>
 		<param name="car_state" value="/car_state"/>
+		<param name="which_path_tracking_controller" value="$(arg which_extern_controller)"/>
 		
 		<!-- extern_control -->
 		<param name="use_extern_controller" value="$(arg use_extern_controller)"/>

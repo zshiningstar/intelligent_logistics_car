@@ -6,6 +6,7 @@
 #include <ros/ros.h>
 #include "structs.h"
 #include "utils.hpp"
+#include <utility>
 #include <diagnostic_msgs/DiagnosticStatus.h>
 
 /*@brief 自动驾驶子模块基类
@@ -20,9 +21,11 @@ protected://子类可访问,实例不可访问
 	static Path local_path_;              //局部路径
 	static VehicleState vehicle_state_;   //汽车状态
 	static VehicleParams vehicle_params_;
-	static std::atomic<float> g_lateral_err_;//横向偏差
-	static std::atomic<float> g_yaw_err_;    //航向偏差
-
+//	static std::atomic<float> g_lateral_err_;//横向偏差
+//	static std::atomic<float> g_yaw_err_;    //航向偏差
+	
+    static std::pair <std::atomic<float>,std::atomic<float>> g_trackingError;//1横向2航向
+	
 	std::mutex cmd_mutex_;
 	controlCmd_t cmd_;
 

@@ -1,7 +1,7 @@
 
 #include <ros/ros.h>
 #include <memory>
-#include "path_tracking.h"
+#include "path_tracking/path_tracking.h"
 #include "car_following.h"
 #include "reverse_drive.h"
 #include "extern_control/extern_control.h"

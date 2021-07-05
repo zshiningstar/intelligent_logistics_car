@@ -1,6 +1,8 @@
 #ifndef _PURE_TRACKING_H_
 #define _PURE_TRACKING_H_
 
+#define __NAME__ "pure_tracking"
+
 #include <ros/ros.h>
 #include <fstream>
 #include <vector>
@@ -10,19 +12,19 @@
 #include <atomic>
 
 #include <nav_msgs/Path.h>
-#include "../../auto_drive_base.h"
 #include <std_msgs/UInt32.h>
 #include <nav_msgs/Odometry.h>
 #include <geometry_msgs/Quaternion.h>
 #include <tf/transform_datatypes.h>
-#include "../../utils.hpp"
+#include "driverless/utils.hpp"
 #include <std_msgs/Float32.h>
+#include "driverless/path_tracking/path_tracking_base.hpp"
+#include "driverless/auto_drive_base.h"
 
-
-class PureTracking : public PathPlanningBase
+class PureTracking : public PathTrackingBase
 {
 public:
-	PureTracking() : PathPlanningBase("PureTracking"), 
+	PureTracking() : PathTrackingBase("PureTracking"), 
 					 expect_speed_(1.0),
 					 is_ready_(false),
 					 is_running_(false) {}
@@ -40,7 +42,6 @@ public:
 		max_target_yaw_err_ = nh_private.param<float>("max_target_yaw_err",50.0)*M_PI/180.0;
 		pub_nearest_index_  = nh.advertise<std_msgs::UInt32>("/driverless/nearest_index",1);
 		pub_local_path_ = nh_private_.advertise<nav_msgs::Path>("/local_path",2);
-		initDiagnosticPublisher(nh,__NAME__);
 		is_ready_ = true;
 		return true;
 	}
@@ -70,7 +71,7 @@ public:
 		}
 
 		is_running_ = true;
-		std::thread t(&trackingThread,this);
+		std::thread t(&PureTracking::trackingThread,this);
 		t.detach();
 		return true;
 	}
@@ -84,11 +85,6 @@ public:
 		cmd_mutex_.unlock();
 	}
 	
-	bool setExpectSpeed(float speed)
-	{
-		expect_speed_ = fabs(speed);
-		return true;
-	}
 private:
 	void trackingThread()
 	{
@@ -98,7 +94,7 @@ private:
 		if(nearest_index > global_path_.size() - 3)
 		{
 			ROS_ERROR("Remaind target path is too short! nearest_point_index:%lu", nearest_index);
-			publishDiagnosticMsg(diagnostic_msgs::DiagnosticStatus::ERROR,"Remaind target path is too short!");
+//			publishDiagnosticMsg(diagnostic_msgs::DiagnosticStatus::ERROR,"Remaind target path is too short!");
 			is_running_ = false;
 			return ;
 		}
@@ -159,9 +155,9 @@ private:
 			float max_curvature = maxCurvatureInRange(global_path_, nearest_index, curvature_search_distance);
 
 			float max_speed_by_curve = generateMaxTolarateSpeedByCurvature(max_curvature, max_side_accel_);
-			float max_speed_by_park =  limitSpeedByParkingPoint(max_speed_by_curve);
-			float max_speed = max_speed_by_park;
-
+//			float max_speed_by_park =  limitSpeedByParkingPoint(max_speed_by_curve);
+//			float max_speed = max_speed_by_park;
+			float max_speed = max_speed_by_curve;
 			cmd_mutex_.lock();
 			cmd_.validity = true;
 			cmd_.speed = (goal_speed>max_speed) ? max_speed : goal_speed;
@@ -172,12 +168,12 @@ private:
 		
 			if((++cnt)%10==1)
 			{
-				ROS_INFO("max_v: expect:%.1f curve:%.1f  park:%.1f",expect_speed_, max_speed_by_curve, max_speed_by_park);
+				ROS_INFO("max_v: expect:%.1f curve:%.1f  park:%.1f",expect_speed_, max_speed_by_curve, max_speed_by_curve);
 				ROS_INFO("set_v:%f m/s\t true_v:%f m/s",cmd_.speed ,vehicle_speed);
 				ROS_INFO("yaw: %.2f\t targetYaw:%.2f", pose.yaw*180.0/M_PI , dis_yaw.second *180.0/M_PI);
 				ROS_INFO("dis2target:%.2f  yaw_err:%.2f  lat_err:%.2f",dis_yaw.first,yaw_err_*180.0/M_PI,lat_err);
 				ROS_INFO("disThreshold:%f   expect angle:%.2f",disThreshold_,t_roadWheelAngle);
-				publishDiagnosticMsg(diagnostic_msgs::DiagnosticStatus::OK,"Running");
+//				publishDiagnosticMsg(diagnostic_msgs::DiagnosticStatus::OK,"Running");
 				publishLocalPath();
 				ROS_INFO("near_index:%lu\t goal_index:%lu\t final_index:%lu",
 					nearest_index,target_index, global_path_.final_index);
@@ -187,7 +183,7 @@ private:
 			loop_rate.sleep();
 		}
 	
-		publishDiagnosticMsg(diagnostic_msgs::DiagnosticStatus::OK,"Arrived at the destination.");
+//		publishDiagnosticMsg(diagnostic_msgs::DiagnosticStatus::OK,"Arrived at the destination.");
 		ROS_INFO("[%s] path_tracking completed...", __NAME__);
 	
 		cmd_mutex_.lock();
@@ -312,7 +308,6 @@ private:
 	 *@brief 保证车辆侧向加速度在一定范围
 	 *@param curvature 路径曲率
 	 *@param max_accel 最大允许侧向加速度
-	 *
 	 *@return 最大车速 m/s
 	 */
 	float generateMaxTolarateSpeedByCurvature(const float& curvature, const float& max_accel)
@@ -392,19 +387,16 @@ private:
 private:
 	bool is_ready_;
 	bool is_running_;
-
+	
+	ros::NodeHandle nh_private_, nh_;
 	ros::Timer timer_;
 	ros::Publisher pub_nearest_index_;
 	ros::Publisher pub_local_path_;
-	
-	ros::Subscriber sub_is_object;
-	ros::Subscriber sub_utm_odom;
 	
 	//state
 	float expect_speed_;
 	std::atomic<float> lat_err_;
 	std::atomic<float> yaw_err_;
-	size_t target_point_index_;
 	
 	//param
 	float foreSightDis_speedCoefficient_;
@@ -413,7 +405,6 @@ private:
 	float max_target_yaw_err_; //车辆沿圆弧到达预瞄点时的航向与预瞄点航向的偏差最大值
 	float disThreshold_;
 	float max_side_accel_;
-	float control_rate_;
 
 	float safety_distance_;
 	float timeout_;

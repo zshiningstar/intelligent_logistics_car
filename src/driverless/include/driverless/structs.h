@@ -2,6 +2,7 @@
 #define STRUCTS_H_
 
 #include <atomic>
+#include <utility>
 #include <boost/thread/locks.hpp>    
 #include <boost/thread/shared_mutex.hpp>    
 
@@ -234,6 +235,7 @@ public:
 	float width;
 	float length;
 	float steer_clearance;
+	float steer_offset;
 
 	bool validity;
 	VehicleParams()

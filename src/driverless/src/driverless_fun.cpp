@@ -347,7 +347,9 @@ bool AutoDrive::loadVehicleParams()
 	vehicle_params_.width = nh_private_.param<float>("vehicle/width",0.0);
 	vehicle_params_.length = nh_private_.param<float>("vehicle/length",0.0);
 	vehicle_params_.steer_clearance = nh_private_.param<float>("vehicle/steer_clearance",0.0);
-	steer_offset_ = nh_private_.param<float>("vehicle/steer_offset", 0.0);
+	vehicle_params_.steer_offset = nh_private_.param<float>("vehicle/steer_offset", 0.0);
+	
+	tracker_.setVehicleParams(vehicle_params_);
 	
 	std::string node = ros::this_node::getName();
 	if(vehicle_params_.max_roadwheel_angle == 0.0)
@@ -430,7 +432,9 @@ bool AutoDrive::loadDriveTaskFile(const std::string& file, bool flip)
 		publishDiagnosticMsg(diagnostic_msgs::DiagnosticStatus::ERROR,"Load path infomation failed!");
 		//return false;
 	}
-	return extendPath(global_path_, 20.0); //路径拓展延伸
+	extendPath(global_path_, 20.0);
+	tracker_.setGlobalPath(global_path_);
+	return true; //路径拓展延伸
 }
 
 
@@ -473,6 +477,7 @@ void AutoDrive::waitSpeedZero()
 */
 void AutoDrive::publishDriverlessState()
 {
+	g_trackingError = tracker_.getTrackingErr();
 	if(pub_driverless_state_.getNumSubscribers())
 	{
 		const Pose pose = vehicle_state_.getPose(LOCK);
@@ -483,8 +488,8 @@ void AutoDrive::publishDriverlessState()
 		driverless_state_.yaw = pose.yaw;
 		driverless_state_.vehicle_speed =  speed;
 		driverless_state_.roadwheel_angle = vehicle_state_.getSteerAngle(LOCK);
-		driverless_state_.lateral_error = g_lateral_err_;
-		driverless_state_.yaw_error = g_yaw_err_;
+		driverless_state_.lateral_error = g_trackingError.first;
+		driverless_state_.yaw_error = g_trackingError.second;
 		driverless_state_.task_state = StateName[system_state_];
 		driverless_state_.nearest_object_distance = avoid_min_obj_distance_;
 		driverless_state_.command_speed = controlCmd2_.set_speed;
