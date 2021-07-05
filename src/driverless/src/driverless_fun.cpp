@@ -75,7 +75,13 @@ bool AutoDrive::init(ros::NodeHandle nh,ros::NodeHandle nh_private)
 	cmd2_timer_ = nh_.createTimer(ros::Duration(0.05), &AutoDrive::sendCmd2_callback,this, false, false);
 	timer_100ms_ = nh_.createTimer(ros::Duration(0.1), &AutoDrive::timer100ms_callback,this);
 	
-		
+
+	/*+初始化自动驾驶请求服务器*/
+	as_  = new DoDriverlessTaskServer(nh_, "do_driverless_task", 
+                              boost::bind(&AutoDrive::executeDriverlessCallback,this, _1), false);
+    as_->start();
+	/*-初始化自动驾驶请求服务器*/
+	
 	// 车辆状态检查，等待初始化
 	while(ros::ok() && !is_offline_debug_ ) //若离线调试,无需系统检查
 	{
@@ -89,12 +95,6 @@ bool AutoDrive::init(ros::NodeHandle nh,ros::NodeHandle nh_private)
 		else
 			break;
 	}
-
-	/*+初始化自动驾驶请求服务器*/
-	as_  = new DoDriverlessTaskServer(nh_, "do_driverless_task", 
-                              boost::bind(&AutoDrive::executeDriverlessCallback,this, _1), false);
-    as_->start();
-	/*-初始化自动驾驶请求服务器*/
 
     //初始化路径跟踪控制器
     if(!tracker_.init(nh_, nh_private_))

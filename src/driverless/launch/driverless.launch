@@ -59,7 +59,7 @@
 	</node>
 	
 	<!--slam location -->
-	<include file="$(find lego_loam_bor)/launch/c16/location_c16.launch"/>
+<!--	<include file="$(find lego_loam_bor)/launch/c16/location_c16.launch"/>-->
 	
 	<!-- 导远GPS -->
 	<include file="$(find daoyuan)/launch/daoyuan.launch"/>

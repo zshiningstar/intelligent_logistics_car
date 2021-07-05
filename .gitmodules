@@ -19,3 +19,6 @@
 [submodule "src/msgs/PathPlanMsgs"]
 	path = src/msgs/PathPlanMsgs
 	url = https://github.com/zsx-star/pathplan_msgs.git
+[submodule "src/av_console_app"]
+	path = src/av_console_app
+	url = https://github.com.cnpmjs.org/CastielLiu/av_console_app
