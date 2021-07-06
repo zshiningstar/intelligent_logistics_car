@@ -14,24 +14,24 @@
 	<node name="lslidar_in_base" pkg="tf" type="static_transform_publisher" args="0 0 1.6 0 0 0 50 base_link  laser_link 20"/>
 	
 	<!-- 底层控制 -->
-	<include file="$(find pc_stm32)/launch/pc_stm.launch" />
+<!--	<include file="$(find pc_stm32)/launch/pc_stm.launch" />-->
 	
 	<!-- 上层控制 -->
-	<node name="driverless_node" pkg="driverless" type="driverless_node" output="screen" launch-prefix="gnome-terminal -x"> <!-- launch-prefix="gnome-terminal -x" -->
+	<node name="driverless_node" pkg="driverless" type="driverless_node" output="screen" > <!-- launch-prefix="gnome-terminal -x" -->
 		
 		<rosparam file="$(find driverless)/config/vehicle_params.yaml" command="load"/>
 		<!-- main -->
-		<param name="is_offline_debug" value="false"/>
+		<param name="is_offline_debug" value="true"/>
 		<param name="max_speed" value="$(arg max_speed)"/>
-		<param name="odom_topic" value="/gps_odom"/>  #slam_fused_odom gps_odom
-		
+		<param name="odom_topic" value="/gps_odom"/>  
+<!--	#slam_fused_odom gps_odom	-->
 		<!-- path_tracking -->
 		<param name="min_foresight_distance" value="2.5"/>
 		<param name="max_side_accel" value="0.5"/>
 		<param name="foreSightDis_speedCoefficient" value = "1.0"/>
 		<param name="foreSightDis_latErrCoefficient" value = "0.5"/>
 		<param name="car_state" value="/car_state"/>
-		<param name="which_path_tracking_controller" value="$(arg which_extern_controller)"/>
+		<param name="which_path_tracking_controller" value="$(arg which_path_tracking_controller)"/>
 		
 		<!-- extern_control -->
 		<param name="use_extern_controller" value="$(arg use_extern_controller)"/>
@@ -59,19 +59,19 @@
 		<param name="reverse_path_flip" value="false"/>
 		<param name="reverse_path_file" value="$(arg roadnet_file)"/>
 	</node>
-	
+
 	<!--slam location -->
-	<include file="$(find lego_loam_bor)/launch/c16/location_c16.launch"/>
+<!--	<include file="$(find lego_loam_bor)/launch/c16/location_c16.launch"/>-->
 	
 	<!-- 导远GPS -->
-	<include file="$(find daoyuan)/launch/daoyuan.launch"/>
-	<include file="$(find rtk)/launch/rtk.launch"/>
+<!--	<include file="$(find daoyuan)/launch/daoyuan.launch"/>-->
+<!--	<include file="$(find rtk)/launch/rtk.launch"/>-->
 	
 	<!-- 镭神雷达 -->
-	<include file="$(find lslidar_c16_decoder)/launch/lslidar_c16.launch"/>
+<!--	<include file="$(find lslidar_c16_decoder)/launch/lslidar_c16.launch"/>-->
 
 	<!-- 大疆雷达 聚类-->
-	<include file="$(find livox_ros_driver)/launch/livox_lidar_rviz.launch"/>
-	<include file="$(find euclidean_cluster)/launch/euclidean_cluster.launch"/>
+<!--	<include file="$(find livox_ros_driver)/launch/livox_lidar_rviz.launch"/>-->
+<!--	<include file="$(find euclidean_cluster)/launch/euclidean_cluster.launch"/>-->
 
 </launch>

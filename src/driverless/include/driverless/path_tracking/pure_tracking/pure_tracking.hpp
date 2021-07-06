@@ -43,6 +43,7 @@ public:
 		pub_nearest_index_  = nh.advertise<std_msgs::UInt32>("/driverless/nearest_index",1);
 		pub_local_path_ = nh_private_.advertise<nav_msgs::Path>("/local_path",2);
 		is_ready_ = true;
+		std::cout << "初始化纯追踪控制器完毕!" << std::endl;
 		return true;
 	}
 	
@@ -64,7 +65,7 @@ public:
 			return false;
 		}
 
-		if(vehicle_params_.validity == false)
+		if(_vehicle_params.validity == false)
 		{
 			ROS_ERROR("[%s] Vehicle parameters is invalid, please set them firstly.",__NAME__);
 			return false;
@@ -146,7 +147,7 @@ private:
 		
 			float turning_radius = (0.5 * dis_yaw.first)/sin(theta);
 
-			float t_roadWheelAngle = generateRoadwheelAngleByRadius(vehicle_params_.wheel_base, turning_radius);
+			float t_roadWheelAngle = generateRoadwheelAngleByRadius(_vehicle_params.wheel_base, turning_radius);
 		
 			t_roadWheelAngle = limitRoadwheelAngleBySpeed(t_roadWheelAngle, vehicle_speed);
 	
@@ -297,9 +298,9 @@ private:
 		if(min_steering_radius < 1.0)
 			return angle;
 	
-		float max_angle = fabs(generateRoadwheelAngleByRadius(vehicle_params_.wheel_base, min_steering_radius));
-		if(max_angle > vehicle_params_.max_roadwheel_angle)
-		   max_angle = vehicle_params_.max_roadwheel_angle;
+		float max_angle = fabs(generateRoadwheelAngleByRadius(_vehicle_params.wheel_base, min_steering_radius));
+		if(max_angle > _vehicle_params.max_roadwheel_angle)
+		   max_angle = _vehicle_params.max_roadwheel_angle;
 		//ROS_INFO("max_angle:%f\t angle:%f",max_angle,angle);
 		return saturationEqual(angle,max_angle);
 	}
@@ -345,7 +346,7 @@ private:
 	 */
 	float limitSpeedByCurrentRoadwheelAngle(float speed,float angle)
 	{
-		float steering_radius = fabs(vehicle_params_.wheel_base/tan(angle*M_PI/180.0));
+		float steering_radius = fabs(_vehicle_params.wheel_base/tan(angle*M_PI/180.0));
 		float max_speed =  sqrt(steering_radius*max_side_accel_);
 	
 		return (speed>max_speed? max_speed: speed)*3.6;

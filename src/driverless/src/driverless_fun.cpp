@@ -51,15 +51,16 @@ bool AutoDrive::init(ros::NodeHandle nh,ros::NodeHandle nh_private)
 	std::string odom_topic = nh_private_.param<std::string>("odom_topic","/ll2utm_odom");
 	std::string tracking_info_topic = nh_private.param<std::string>("tracking_info_topic","/driverless/state");
 	pub_driverless_state_ = nh.advertise<driverless_common::SystemState>(tracking_info_topic,1);
-
+	
 	initDiagnosticPublisher(nh_,__NAME__);
-
+	
 	if(!loadVehicleParams())
 	{
 		ROS_ERROR("[%s] Load vehicle parameters failed!", __NAME__);
 		return false;
 	}
-
+	
+//	std::cout << "获取初步参数成功 !"<< std::endl;
 	//订阅公用传感器数据
 	sub_odom_ = nh_.subscribe(odom_topic, 1,&AutoDrive::odom_callback,this);
 	sub_vehicle_speed_ = nh_.subscribe("/car_state",1,&AutoDrive::vehicleSpeed_callback,this);
@@ -75,8 +76,13 @@ bool AutoDrive::init(ros::NodeHandle nh,ros::NodeHandle nh_private)
 	cmd2_timer_ = nh_.createTimer(ros::Duration(0.05), &AutoDrive::sendCmd2_callback,this, false, false);
 	timer_100ms_ = nh_.createTimer(ros::Duration(0.1), &AutoDrive::timer100ms_callback,this);
 	
-		
-	// 车辆状态检查，等待初始化
+	/*+初始化自动驾驶请求服务器*/
+	as_  = new DoDriverlessTaskServer(nh_, "do_driverless_task", 
+                              boost::bind(&AutoDrive::executeDriverlessCallback,this, _1), false);
+    as_->start();
+	/*-初始化自动驾驶请求服务器*/
+	std::cout << "初始化自动驾驶服务器！" << std::endl;
+		// 车辆状态检查，等待初始化
 	while(ros::ok() && !is_offline_debug_ ) //若离线调试,无需系统检查
 	{
 		std::string info;
@@ -89,13 +95,7 @@ bool AutoDrive::init(ros::NodeHandle nh,ros::NodeHandle nh_private)
 		else
 			break;
 	}
-
-	/*+初始化自动驾驶请求服务器*/
-	as_  = new DoDriverlessTaskServer(nh_, "do_driverless_task", 
-                              boost::bind(&AutoDrive::executeDriverlessCallback,this, _1), false);
-    as_->start();
-	/*-初始化自动驾驶请求服务器*/
-
+	std::cout << "车辆状态检查完成!" << std::endl;
     //初始化路径跟踪控制器
     if(!tracker_.init(nh_, nh_private_))
 	{
@@ -104,6 +104,8 @@ bool AutoDrive::init(ros::NodeHandle nh,ros::NodeHandle nh_private)
 		return false;
 	}
     ROS_INFO("[%s] path tracker init ok",__NAME__);
+	tracker_.setVehicleParams(vehicle_params_);//初始化完毕跟踪控制器之后,才可传入参数
+	
     //初始化跟车行驶控制器
     if(use_car_follower_)
 	{
@@ -133,7 +135,6 @@ bool AutoDrive::init(ros::NodeHandle nh,ros::NodeHandle nh_private)
 	//启动工作线程，等待新任务唤醒
 	std::thread t(&AutoDrive::workingThread, this);
 	t.detach();
-
 	
 	is_initialed_ = true;
 	return true;
@@ -205,7 +206,7 @@ void AutoDrive::captureExernCmd_callback(const ros::TimerEvent&)
 
 void AutoDrive::switchSystemState(int state)
 {
-	ROS_ERROR("[%s] NOT ERROR switchSystemState: %s", __NAME__, StateName[state].c_str());
+	ROS_ERROR("[%s] NOT ERROR switchSystemState: %s", __NAME__, StateName[state].c_str());//
 	if(system_state_ == state) return; //防止重复操作
 	
 	last_system_state_ = system_state_;
@@ -349,8 +350,6 @@ bool AutoDrive::loadVehicleParams()
 	vehicle_params_.steer_clearance = nh_private_.param<float>("vehicle/steer_clearance",0.0);
 	vehicle_params_.steer_offset = nh_private_.param<float>("vehicle/steer_offset", 0.0);
 	
-	tracker_.setVehicleParams(vehicle_params_);
-	
 	std::string node = ros::this_node::getName();
 	if(vehicle_params_.max_roadwheel_angle == 0.0)
 	{
@@ -393,6 +392,8 @@ bool AutoDrive::loadVehicleParams()
 		ok = false;
 	}
 	if(ok) vehicle_params_.validity = true;
+
+	std::cout << "载入车辆自身参数成功！" << std::endl;
 	return ok;
 }
 

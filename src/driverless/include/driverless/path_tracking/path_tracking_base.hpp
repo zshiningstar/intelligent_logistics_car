@@ -31,10 +31,11 @@ public:
 		return cmd_;
 	}
 	
-	virtual void setGlobalPath(Path &temp_path)
+	virtual bool setGlobalPath(Path &temp_path)
 	{
 		for(int i = 0;i++;i<temp_path.size())
 			global_path_[i] = temp_path[i];
+		return true;
 	}
 	
 	virtual float setExpectSpeed(float speed)
@@ -42,18 +43,22 @@ public:
 		return fabs(speed);
 	}
 
-	virtual void setVehicleParams(VehicleParams temp_params_)
+	virtual bool setVehicleParams(VehicleParams &temp_params_)
 	{
-		vehicle_params_.max_roadwheel_angle = temp_params_.max_roadwheel_angle;
-		vehicle_params_.min_roadwheel_angle = temp_params_.min_roadwheel_angle;
-		vehicle_params_.min_radius 			= temp_params_.min_radius;
-		vehicle_params_.max_speed 			= temp_params_.max_speed;
-		vehicle_params_.wheel_base 			= temp_params_.wheel_base;
-		vehicle_params_.wheel_track 		= temp_params_.wheel_track;
-		vehicle_params_.width 				= temp_params_.width;
-		vehicle_params_.length 				= temp_params_.length;
-		vehicle_params_.steer_clearance 	= temp_params_.steer_clearance;
-		vehicle_params_.steer_offset 		= temp_params_.steer_offset;
+		_vehicle_params.max_roadwheel_angle = temp_params_.max_roadwheel_angle;
+		_vehicle_params.min_roadwheel_angle = temp_params_.min_roadwheel_angle;
+		_vehicle_params.min_radius 			= temp_params_.min_radius;
+		_vehicle_params.max_speed 			= temp_params_.max_speed;
+		_vehicle_params.wheel_base 			= temp_params_.wheel_base;
+		_vehicle_params.wheel_track 		= temp_params_.wheel_track;
+		_vehicle_params.width 				= temp_params_.width;
+		_vehicle_params.length 				= temp_params_.length;
+		_vehicle_params.steer_clearance 	= temp_params_.steer_clearance;
+		_vehicle_params.steer_offset 		= temp_params_.steer_offset;
+		_vehicle_params.validity			= temp_params_.validity;
+		std::cout << "车辆自身参数传入成功!" << std::endl;
+//		std::cout << "validity: " << _vehicle_params.validity << std::endl;
+		return true;
 	}
 	
 	virtual std::pair <float, float> getTrackingErr()
@@ -79,7 +84,7 @@ protected: //子类可以访问
 	
 	Path global_path_;
 	VehicleState vehicle_state_;
-	VehicleParams vehicle_params_;
+	VehicleParams _vehicle_params;
 	
 	std::atomic<float> g_lateral_err_;//横向偏差
 	std::atomic<float> g_yaw_err_;    //航向偏差

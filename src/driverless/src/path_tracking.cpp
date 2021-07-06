@@ -28,6 +28,7 @@ bool PathTracking::init(ros::NodeHandle nh,ros::NodeHandle nh_private)
 		ROS_ERROR("[%s] Unknown path_planning controller: %s!", __NAME__, which.c_str());
 		return false;
 	}
+	std::cout << "初始化路径跟踪控制器开始!" << std::endl;
 	is_initialed_ = path_tracking_controller_->init(nh, nh_private);
 	return is_initialed_;
 }
@@ -37,7 +38,7 @@ std::pair <float, float> PathTracking::getTrackingErr()
 	return path_tracking_controller_->getTrackingErr();
 }
 
-void PathTracking::setVehicleParams(VehicleParams temp_params_)
+bool PathTracking::setVehicleParams(VehicleParams temp_params_)
 {
 	return path_tracking_controller_->setVehicleParams(temp_params_);
 }
@@ -47,7 +48,7 @@ float PathTracking::setExpectSpeed(float speed)
 	return path_tracking_controller_->setExpectSpeed(speed);
 }
 
-void PathTracking::setGlobalPath(Path &path_)
+bool PathTracking::setGlobalPath(Path &path_)
 {
 	return path_tracking_controller_->setGlobalPath(path_);
 }

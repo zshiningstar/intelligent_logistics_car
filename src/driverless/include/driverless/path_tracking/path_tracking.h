@@ -24,8 +24,8 @@ public:
 	virtual bool isRunning() override;
 	virtual controlCmd_t getControlCmd() override;
 	float setExpectSpeed(float speed);
-	void setGlobalPath(Path &path_);
-	void setVehicleParams(VehicleParams temp_params_);
+	bool setGlobalPath(Path &path_);
+	bool setVehicleParams(VehicleParams temp_params_);
 	std::pair <float, float> getTrackingErr();
 	
 private:

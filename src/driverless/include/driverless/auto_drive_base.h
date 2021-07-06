@@ -85,6 +85,7 @@ protected:
 	{ 
 		diagnostic_msg_.hardware_id = module_id;
 		pub_diagnostic_ = nh.advertise<diagnostic_msgs::DiagnosticStatus>("driverless/diagnostic",1);
+		std::cout << "初始化故障诊断发布器完毕!" << std::endl;
 		diagnostic_inited_ = true;
 	}
 	/*@brief 发布故障诊断消息
