@@ -17,7 +17,8 @@ PathTracking::~PathTracking()
 		path_tracking_controller_ = nullptr;
 	}
 }
-
+//在init中对跟踪器基类指针进行分配内存,其他函数中操作此指针
+//所以init函数必须在其他函数调用之前被执行,否则肯定出现问题
 bool PathTracking::init(ros::NodeHandle nh,ros::NodeHandle nh_private)
 {
 	std::string which = nh_private.param<std::string>("which_path_tracking_controller", "");

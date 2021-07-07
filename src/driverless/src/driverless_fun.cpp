@@ -478,6 +478,7 @@ void AutoDrive::waitSpeedZero()
 */
 void AutoDrive::publishDriverlessState()
 {
+	//定时发布函数,使用tracker_,所以务必需要确保函数执行前,tracker_已经准备好
 	g_trackingError = tracker_.getTrackingErr();
 	if(pub_driverless_state_.getNumSubscribers())
 	{
