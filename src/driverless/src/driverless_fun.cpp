@@ -60,6 +60,27 @@ bool AutoDrive::init(ros::NodeHandle nh,ros::NodeHandle nh_private)
 		return false;
 	}
 	
+	std::string which_tracker = nh_private.param<std::string>("which_path_tracking_controller", "");
+	if(which_tracker == "pure_tracking_controller")
+	{
+		tracker_ = new PureTracking();
+		//初始化路径跟踪控制器
+		if(!tracker_->init(nh_, nh_private_))
+		{
+			ROS_ERROR("[%s] path tracker init false!",__NAME__);
+			publishDiagnosticMsg(diagnostic_msgs::DiagnosticStatus::ERROR,"Init path tracker failed!");
+			return false;
+		}
+		ROS_INFO("[%s] path tracker init ok",__NAME__);
+		tracker_->setVehicleParams(vehicle_params_);//初始化完毕跟踪控制器之后,才可传入参数
+	}
+	else
+	{
+		ROS_ERROR("[%s] Unknown path_planning controller: %s!", __NAME__, which_tracker.c_str());
+		return false;
+	}
+	std::cout << "初始化路径跟踪控制器开始!" << std::endl;
+	
 //	std::cout << "获取初步参数成功 !"<< std::endl;
 	//订阅公用传感器数据
 	sub_odom_ = nh_.subscribe(odom_topic, 1,&AutoDrive::odom_callback,this);
@@ -96,15 +117,6 @@ bool AutoDrive::init(ros::NodeHandle nh,ros::NodeHandle nh_private)
 			break;
 	}
 	std::cout << "车辆状态检查完成!" << std::endl;
-    //初始化路径跟踪控制器
-    if(!tracker_.init(nh_, nh_private_))
-	{
-		ROS_ERROR("[%s] path tracker init false!",__NAME__);
-		publishDiagnosticMsg(diagnostic_msgs::DiagnosticStatus::ERROR,"Init path tracker failed!");
-		return false;
-	}
-    ROS_INFO("[%s] path tracker init ok",__NAME__);
-	tracker_.setVehicleParams(vehicle_params_);//初始化完毕跟踪控制器之后,才可传入参数
 	
     //初始化跟车行驶控制器
     if(use_car_follower_)
@@ -300,6 +312,7 @@ void AutoDrive::odom_callback(const nav_msgs::Odometry::ConstPtr& msg)
 	pose.y =  msg->pose.pose.position.y;
 	pose.yaw = msg->pose.covariance[0];
 	vehicle_state_.setPose(pose);
+	
 }
 
 void AutoDrive::goal_callback(const pathplaning_msgs::expected_path::ConstPtr& msg)
@@ -348,7 +361,6 @@ bool AutoDrive::loadVehicleParams()
 	vehicle_params_.width = nh_private_.param<float>("vehicle/width",0.0);
 	vehicle_params_.length = nh_private_.param<float>("vehicle/length",0.0);
 	vehicle_params_.steer_clearance = nh_private_.param<float>("vehicle/steer_clearance",0.0);
-	vehicle_params_.steer_offset = nh_private_.param<float>("vehicle/steer_offset", 0.0);
 	
 	std::string node = ros::this_node::getName();
 	if(vehicle_params_.max_roadwheel_angle == 0.0)
@@ -433,9 +445,9 @@ bool AutoDrive::loadDriveTaskFile(const std::string& file, bool flip)
 		publishDiagnosticMsg(diagnostic_msgs::DiagnosticStatus::ERROR,"Load path infomation failed!");
 		//return false;
 	}
-	extendPath(global_path_, 20.0);
-	tracker_.setGlobalPath(global_path_);
-	return true; //路径拓展延伸
+	
+	std::cout <<  "global_path_.size(): " << global_path_.size() << std::endl;
+	return extendPath(global_path_, 20.0); //路径拓展延伸
 }
 
 
@@ -471,7 +483,7 @@ bool AutoDrive::setDriveTaskPathPoints(const driverless_common::DoDriverlessTask
 void AutoDrive::waitSpeedZero()
 {
     while(ros::ok() && vehicle_state_.getSpeed(LOCK)!=0.0)
-            ros::Duration(0.2).sleep();
+		ros::Duration(0.2).sleep();
 }
 
 /*@brief 发布自动驾驶状态信息
@@ -479,7 +491,7 @@ void AutoDrive::waitSpeedZero()
 void AutoDrive::publishDriverlessState()
 {
 	//定时发布函数,使用tracker_,所以务必需要确保函数执行前,tracker_已经准备好
-	g_trackingError = tracker_.getTrackingErr();
+	g_trackingError = tracker_->getTrackingErr();
 	if(pub_driverless_state_.getNumSubscribers())
 	{
 		const Pose pose = vehicle_state_.getPose(LOCK);

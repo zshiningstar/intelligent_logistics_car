@@ -22,3 +22,6 @@
 [submodule "src/av_console_app"]
 	path = src/av_console_app
 	url = https://github.com.cnpmjs.org/CastielLiu/av_console_app.git
+[submodule "src/driverless_common"]
+	path = src/driverless_common
+	url = https://github.com.cnpmjs.org/CastielLiu/driverless_common.git

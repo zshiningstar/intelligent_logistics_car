@@ -1,14 +1,14 @@
 
 #include <ros/ros.h>
 #include <memory>
-#include "path_tracking/path_tracking.h"
 #include "car_following.h"
 #include "reverse_drive.h"
 #include "extern_control/extern_control.h"
 #include <pathplaning_msgs/expected_path.h>
-
 #include <logistics_msgs/ControlCmd2.h>
 #include <logistics_msgs/RealState.h>
+#include <std_msgs/Float32.h>
+#include <nav_msgs/Odometry.h>
 #include <ant_msgs/State1.h>  //gear
 #include <ant_msgs/State3.h>  //
 #include <ant_msgs/State2.h>  //speed
@@ -19,6 +19,7 @@
 #include <actionlib/client/simple_action_client.h>
 #include <actionlib/server/simple_action_server.h>
 #include <driverless_common/DoDriverlessTaskAction.h>   // Note: "Action" is appended
+#include "driverless/path_tracking/pure_tracking/pure_tracking.hpp"
 
 
 class AutoDrive : public AutoDriveBase
@@ -138,7 +139,7 @@ private:
     DoDriverlessTaskServer* as_;
     
     float avoid_offset_;
-    PathTracking tracker_;
+    PathTrackingBase*  tracker_;
     controlCmd_t tracker_cmd_;
 
     bool use_car_follower_;
@@ -160,5 +161,8 @@ private:
     
     driverless_common::SystemState driverless_state_;
     float decisionMakingDuration_;
+    
+	VehicleState vehicle_state_;   //汽车状态
+    SharedMutex  vehicle_state_shared_mutex_; // 汽车状态读写锁
 };
 

@@ -88,6 +88,7 @@ bool AutoDrive::handleNewGoal(const driverless_common::DoDriverlessTaskGoalConst
             as_->setSucceeded(res, "Aborting on drive task, because load drive path file failed! ");
             return false;
         }
+        tracker_->setPath(global_path_);
     }
     else
     {
@@ -166,8 +167,8 @@ void AutoDrive::workingThread()
 void AutoDrive::doWork()
 {
 	//配置路径跟踪控制器
-	tracker_.setExpectSpeed(expect_speed_);
-	tracker_.start();//路径跟踪控制器
+	tracker_->setExpectSpeed(expect_speed_);
+	tracker_->start();//路径跟踪控制器
 	//配置跟车控制器
 
 	ros::Rate loop_rate(1.0/decisionMakingDuration_);
@@ -175,9 +176,13 @@ void AutoDrive::doWork()
 	ROS_ERROR("NOT ERROR: doWork-> task_running_= true");
 	task_running_ = true;
 
-	while(ros::ok() && system_state_ != State_Stop && tracker_.isRunning())
+	while(ros::ok() && system_state_ != State_Stop && tracker_->isRunning())
 	{
-		tracker_cmd_ = tracker_.getControlCmd();
+		ReadLock lck(vehicle_state_shared_mutex_);
+		tracker_->updataVehicleState(vehicle_state_);
+		lck.unlock();
+		
+		tracker_cmd_ = tracker_->getControlCmd();
 		follower_cmd_= car_follower_.getControlCmd();
 		
 		auto cmd = this->decisionMaking();
@@ -200,7 +205,7 @@ void AutoDrive::doWork()
 		loop_rate.sleep();
 	}
 	ROS_INFO("[%s] drive work  completed...", __NAME__); 
-	tracker_.stop();
+	tracker_->stop();
 	car_follower_.stop();
 	if(as_->isActive())
 	{
@@ -262,7 +267,7 @@ void AutoDrive::doReverseWork()
 
 /*@brief 前进控制指令决策
  * 指令源包括: 避障控速/跟车控速/路径跟踪控转向和速度
- * 控制指令优先级 ①外部控制指令
+ * 控制指令优先级 ①外部控制指令gv
                 ②避障速度控制
 				③跟车速度控制
  */
@@ -296,7 +301,7 @@ void AutoDrive::doReverseWork()
 		controlCmd2_.set_speed = 0;
 	}
 	
-	controlCmd2_.set_roadWheelAngle = steerPidCtrl(controlCmd2_.set_roadWheelAngle) + steer_offset_;
+//	controlCmd2_.set_roadWheelAngle = steerPidCtrl(controlCmd2_.set_roadWheelAngle) + 0.0;
 
 	static float lastCtrlSpeed = controlCmd2_.set_speed;
 	float speed_now = vehicle_state_.getSpeed(LOCK);
@@ -305,7 +310,7 @@ void AutoDrive::doReverseWork()
 
 	float maxAccel = 1.0;
 	float minAccel = -2.0;
-	float expectAccel = 0.0; //m/s
+	float expectAccel = 0.0; //m/s2
 
 	int accelSign = sign(avoid_min_obj_distance_- safety_distance_ - speed_now*speed_now/(2*maxAccel));
 	
@@ -315,7 +320,7 @@ void AutoDrive::doReverseWork()
 		expectAccel = minAccel;
 	
 	float expectSpeed = lastCtrlSpeed + expectAccel*deltaT;
-	std::cout << expectSpeed << "  " << lastCtrlSpeed << "  " << expectAccel << std::endl;
+//	std::cout << expectSpeed << "  " << lastCtrlSpeed << "  " << expectAccel << std::endl;
 
 	if(expectSpeed <= 0) 
 		expectSpeed = 0;
@@ -327,10 +332,10 @@ void AutoDrive::doReverseWork()
 
 	if(system_state_ == State_Drive) 
 		controlCmd2_.set_speed = fabs(controlCmd2_.set_speed);
-	else if(system_state_ == State_Reverse) 
+	else if(system_state_ == State_Reverse)
 	{
 		controlCmd2_.set_speed = -fabs(controlCmd2_.set_speed);
-		//controlCmd2_.set_roadWheelAngle = -controlCmd2_.set_roadWheelAngle;
+//		controlCmd2_.set_roadWheelAngle = -controlCmd2_.set_roadWheelAngle;
 	}
 
 	//std::cout << controlCmd2_.set_speed << "\t" << expectSpeed << "\t" << deltaT << "\t" << expectAccel << std::endl;

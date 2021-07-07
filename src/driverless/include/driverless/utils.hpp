@@ -1,7 +1,7 @@
 #ifndef UTILS_H_
 #define UTILS_H_
 
-#include "structs.h"
+#include <driverless_common/structs.h>
 #include<cstring>
 #include<cmath>
 #include<assert.h>

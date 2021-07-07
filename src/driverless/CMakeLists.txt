@@ -73,7 +73,6 @@ include_directories(
 add_executable(${PROJECT_NAME}_node src/auto_drive_base.cpp 
                                     src/driverless_node.cpp 
                                     src/driverless_fun.cpp
-                                    src/path_tracking.cpp
                                     src/car_following.cpp
                                     src/extern_control.cpp
                                     src/reverse_drive.cpp)

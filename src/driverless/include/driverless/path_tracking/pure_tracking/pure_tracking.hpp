@@ -19,21 +19,21 @@
 #include "driverless/utils.hpp"
 #include <std_msgs/Float32.h>
 #include "driverless/path_tracking/path_tracking_base.hpp"
-#include "driverless/auto_drive_base.h"
 
 class PureTracking : public PathTrackingBase
 {
 public:
 	PureTracking() : PathTrackingBase("PureTracking"), 
 					 expect_speed_(1.0),
-					 is_ready_(false),
-					 is_running_(false) {}
+					 is_ready_(false)
+	{}
 					 
 	~PureTracking() {}
 	
 	virtual bool init(ros::NodeHandle nh,ros::NodeHandle nh_private) override
 	{
-		nh_private.param<float>("foreSightDis_speedCoefficient", foreSightDis_speedCoefficient_,1.8);
+		
+		nh_private.param<float>("foreSightDis_speedCoefficient", foreSightDis_speedCoefficient_,0.5);
 		nh_private.param<float>("foreSightDis_latErrCoefficient", foreSightDis_latErrCoefficient_,-1.0);
 		nh_private.param<float>("min_foresight_distance",min_foresight_distance_,5.0);
 		nh_private.param<float>("max_side_accel",max_side_accel_,1.0);
@@ -54,18 +54,18 @@ public:
 			ROS_ERROR("[%s] System is not ready!",__NAME__);
 			return false;
 		}
-		if(global_path_.size()==0)
+		if(path_.size()==0)
 		{
 			ROS_ERROR("[%s] No global path!",__NAME__);
 			return false;
 		}
-		if(global_path_.park_points.size()==0)
+		if(path_.park_points.size()==0)
 		{
 			ROS_ERROR("[%s] No parking points!",__NAME__);
 			return false;
 		}
 
-		if(_vehicle_params.validity == false)
+		if(vehicle_params_.validity == false)
 		{
 			ROS_ERROR("[%s] Vehicle parameters is invalid, please set them firstly.",__NAME__);
 			return false;
@@ -80,7 +80,6 @@ public:
 	virtual void stop() override
 	{
 		is_running_ = false;
-		is_ready_ = false;
 		cmd_mutex_.lock();
 		cmd_.validity = false;
 		cmd_mutex_.unlock();
@@ -89,10 +88,16 @@ public:
 private:
 	void trackingThread()
 	{
-		global_path_.pose_index = findNearestPoint(global_path_, vehicle_state_.getPose(LOCK)); 
-		size_t nearest_index = global_path_.pose_index;
+		while(!vehicle_state_.getPoseValid())
+		{
+			ROS_INFO("[%s] wait vehice pose valid...",__NAME__);
+			ros::Duration(0.1).sleep();
+		}
+		
+		path_.pose_index = findNearestPoint(path_, vehicle_state_.getPose(LOCK)); 
+		size_t nearest_index = path_.pose_index;
 
-		if(nearest_index > global_path_.size() - 3)
+		if(nearest_index > path_.size() - 3)
 		{
 			ROS_ERROR("Remaind target path is too short! nearest_point_index:%lu", nearest_index);
 //			publishDiagnosticMsg(diagnostic_msgs::DiagnosticStatus::ERROR,"Remaind target path is too short!");
@@ -103,23 +108,16 @@ private:
 		ros::Rate loop_rate(30);
 	
 		size_t cnt =0;
-		while(ros::ok() && is_running_ && !global_path_.finish())
+		while(ros::ok() && is_running_ && !path_.finish())
 		{
 			float goal_speed = expect_speed_;
 			const Pose pose = vehicle_state_.getPose(LOCK);
 			const float vehicle_speed = vehicle_state_.getSpeed(LOCK);
 
 			//横向偏差,左偏为负,右偏为正
-			float lat_err = calculateDis2path(pose.x, pose.y, global_path_, nearest_index, &nearest_index);
+			float lat_err = calculateDis2path(pose.x, pose.y, path_, nearest_index, &nearest_index);
 			/**************PID-Kp*****************/
-			global_path_.pose_index = nearest_index; //更新到基类公用变量
-			//航向偏差,左偏为正,右偏为负
-			float yaw_err = global_path_[nearest_index].yaw - pose.yaw;
-			if(yaw_err > M_PI)       yaw_err -= 2*M_PI;
-			else if(yaw_err < -M_PI) yaw_err += 2*M_PI;
-
-			g_lateral_err_ = lat_err; //更新到基类公用变量
-			g_yaw_err_ = yaw_err; //更新到基类公用变量
+			path_.pose_index = nearest_index; //更新到基类公用变量
 		
 			disThreshold_ = foreSightDis_speedCoefficient_ * vehicle_speed 
 				          + foreSightDis_latErrCoefficient_ * fabs(lat_err)
@@ -129,16 +127,23 @@ private:
 				disThreshold_  = min_foresight_distance_;
 			size_t target_index = nearest_index+1;//跟踪目标点索引
 	
-			GpsPoint target_point = global_path_[target_index];
+			GpsPoint target_point = path_[target_index];
 			//获取当前点到目标点的距离和航向
 			std::pair<float, float> dis_yaw = getDisAndYaw(target_point, pose);
 
 			//循环查找满足disThreshold_的目标点
 			while(dis_yaw.first < disThreshold_)
 			{
-				target_point = global_path_[++target_index];
+				target_point = path_[++target_index];
 				dis_yaw = getDisAndYaw(target_point, pose);
 			}
+			
+			//航向偏差,左偏为正,右偏为负
+			float yaw_err = (dis_yaw.second-pose.yaw);
+			
+			if(yaw_err > M_PI)       yaw_err -= 2*M_PI;
+			else if(yaw_err < -M_PI) yaw_err += 2*M_PI;
+			yaw_err_ = yaw_err;
 
 			float theta = dis_yaw.second - pose.yaw;
 			float sin_theta = sin(theta);
@@ -147,13 +152,14 @@ private:
 		
 			float turning_radius = (0.5 * dis_yaw.first)/sin(theta);
 
-			float t_roadWheelAngle = generateRoadwheelAngleByRadius(_vehicle_params.wheel_base, turning_radius);
-		
-			t_roadWheelAngle = limitRoadwheelAngleBySpeed(t_roadWheelAngle, vehicle_speed);
+			float t_roadWheelAngle = generateRoadwheelAngleByRadius(vehicle_params_.wheel_base, turning_radius);
+			
+			
+			t_roadWheelAngle = limitRoadwheelAngleBySpeed(t_roadWheelAngle, vehicle_speed/3.6);
 	
 			//float curvature_search_distance = disThreshold_ + 13; //曲率搜索距离
 			float curvature_search_distance = vehicle_speed * vehicle_speed/(2 * 1);
-			float max_curvature = maxCurvatureInRange(global_path_, nearest_index, curvature_search_distance);
+			float max_curvature = maxCurvatureInRange(path_, nearest_index, curvature_search_distance);
 
 			float max_speed_by_curve = generateMaxTolarateSpeedByCurvature(max_curvature, max_side_accel_);
 //			float max_speed_by_park =  limitSpeedByParkingPoint(max_speed_by_curve);
@@ -165,21 +171,21 @@ private:
 			cmd_.roadWheelAngle = t_roadWheelAngle;
 			cmd_mutex_.unlock();
 		
-			publishNearestIndex();
-		
 			if((++cnt)%10==1)
 			{
 				ROS_INFO("max_v: expect:%.1f curve:%.1f  park:%.1f",expect_speed_, max_speed_by_curve, max_speed_by_curve);
 				ROS_INFO("set_v:%f m/s\t true_v:%f m/s",cmd_.speed ,vehicle_speed);
 				ROS_INFO("yaw: %.2f\t targetYaw:%.2f", pose.yaw*180.0/M_PI , dis_yaw.second *180.0/M_PI);
-				ROS_INFO("dis2target:%.2f  yaw_err:%.2f  lat_err:%.2f",dis_yaw.first,yaw_err_*180.0/M_PI,lat_err);
+				ROS_INFO("dis2target:%.2f  yaw2target:%.2f  lat_err:%.2f  yaw_err:%.2f",
+					dis_yaw.first,dis_yaw.second*180.0/M_PI,lat_err, yaw_err_*180.0/M_PI);
 				ROS_INFO("disThreshold:%f   expect angle:%.2f",disThreshold_,t_roadWheelAngle);
 //				publishDiagnosticMsg(diagnostic_msgs::DiagnosticStatus::OK,"Running");
 				publishLocalPath();
 				ROS_INFO("near_index:%lu\t goal_index:%lu\t final_index:%lu",
-					nearest_index,target_index, global_path_.final_index);
-				printf("now:(%.2f,%.2f)\tnear:(%.2f,%.2f)\tgoal:(%.2f,%.2f)",
-					pose.x, pose.y, global_path_[nearest_index].x, global_path_[nearest_index].y, target_point.x, target_point.y);
+					nearest_index,target_index, path_.final_index);
+				printf("now:(%.2f,%.2f,%.2f)\tnear:(%.2f,%.2f,%.2f)\tgoal:(%.2f,%.2f,%.2f)",
+					pose.x, pose.y,pose.yaw, path_[nearest_index].x, path_[nearest_index].y,path_[nearest_index].yaw,
+					 target_point.x, target_point.y,target_point.yaw);
 			}
 			loop_rate.sleep();
 		}
@@ -195,16 +201,6 @@ private:
 		is_running_ = false;
 	}
 	
-	void publishNearestIndex()
-	{
-		static std_msgs::UInt32 msg;
-		if(pub_nearest_index_.getNumSubscribers())
-		{
-			msg.data = global_path_.pose_index;
-			pub_nearest_index_.publish(msg);
-		}
-	}
-	
 	GpsPoint pointOffset(const GpsPoint& point,float offset)
 	{
 		GpsPoint result = point;
@@ -215,11 +211,11 @@ private:
 
 	float disToParkingPoint(const ParkingPoint& parking_point)
 	{
-		if(global_path_.pose_index >=  parking_point.index) //当前位置已经超过停车点
+		if(path_.pose_index >=  parking_point.index) //当前位置已经超过停车点
 			return 0;
 	
-		float dis1 = global_path_.resolution * (parking_point.index-global_path_.pose_index); //估计路程
-		float dis2 = disBetweenPoints(global_path_[parking_point.index], global_path_[global_path_.pose_index]);//直线距离
+		float dis1 = path_.resolution * (parking_point.index-path_.pose_index); //估计路程
+		float dis2 = disBetweenPoints(path_[parking_point.index], path_[path_.pose_index]);//直线距离
 		float dis2end = dis1 > dis2 ? dis1 : dis2;
 		return dis2end;
 	
@@ -229,7 +225,7 @@ private:
 	*/
 	float limitSpeedByParkingPoint(const float& speed,const float& acc)
 	{
-		ParkingPoints& parking_points = global_path_.park_points;
+		ParkingPoints& parking_points = path_.park_points;
 		//初始化时parking_points至少有一个点(终点)
 		//每到达一个停车点并完成停车后,更新下一个停车点
 		//程序初始化时,应将停车点由近及远排序,并将位于当前位置之后的停车点复位
@@ -246,7 +242,7 @@ private:
 			return 0.0;
 		}
 	
-		while(parking_points.next().index < global_path_.pose_index)
+		while(parking_points.next().index < path_.pose_index)
 		{//更新停车点
 			++ parking_points.next_index;
 			if(!parking_points.available())
@@ -298,9 +294,9 @@ private:
 		if(min_steering_radius < 1.0)
 			return angle;
 	
-		float max_angle = fabs(generateRoadwheelAngleByRadius(_vehicle_params.wheel_base, min_steering_radius));
-		if(max_angle > _vehicle_params.max_roadwheel_angle)
-		   max_angle = _vehicle_params.max_roadwheel_angle;
+		float max_angle = fabs(generateRoadwheelAngleByRadius(vehicle_params_.wheel_base, min_steering_radius));
+		if(max_angle > vehicle_params_.max_roadwheel_angle)
+		   max_angle = vehicle_params_.max_roadwheel_angle;
 		//ROS_INFO("max_angle:%f\t angle:%f",max_angle,angle);
 		return saturationEqual(angle,max_angle);
 	}
@@ -346,7 +342,7 @@ private:
 	 */
 	float limitSpeedByCurrentRoadwheelAngle(float speed,float angle)
 	{
-		float steering_radius = fabs(_vehicle_params.wheel_base/tan(angle*M_PI/180.0));
+		float steering_radius = fabs(vehicle_params_.wheel_base/tan(angle*M_PI/180.0));
 		float max_speed =  sqrt(steering_radius*max_side_accel_);
 	
 		return (speed>max_speed? max_speed: speed)*3.6;
@@ -358,8 +354,8 @@ private:
 		nav_msgs::Path path;
 		path.header.stamp=ros::Time::now();
 		path.header.frame_id="base_link";
-		size_t startIndex = global_path_.pose_index;
-		size_t endIndex   = global_path_.final_index;
+		size_t startIndex = path_.pose_index;
+		size_t endIndex   = path_.final_index;
 		if(endIndex <= startIndex)
 			return;
 
@@ -367,11 +363,11 @@ private:
 
 		path.poses.reserve(endIndex-startIndex+1);
 	
-		std::cout << origin_point.x << "\t" << origin_point.y << "\t" << origin_point.yaw << std::endl;
+//		std::cout << origin_point.x << "\t" << origin_point.y << "\t" << origin_point.yaw << std::endl;
 	
 		for(size_t i=startIndex; i<endIndex; ++i)
 		{
-			const auto& global_point = global_path_[i];
+			const auto& global_point = path_[i];
 			std::pair<float,float> local_point = 
 				global2local(origin_point.x,origin_point.y,origin_point.yaw, global_point.x,global_point.y);
 		
@@ -387,7 +383,6 @@ private:
 
 private:
 	bool is_ready_;
-	bool is_running_;
 	
 	ros::NodeHandle nh_private_, nh_;
 	ros::Timer timer_;
