@@ -1,4 +1,4 @@
-## 0 新电脑
+## 0、新电脑
 
 ### dependencies
 
@@ -16,7 +16,9 @@ cd build && cmake ..
 make
 sudo make install
 ```
+
 * 编译
+```
 cd logistics_ws/
 rosdep install --from-paths src --ignore-src -r -y
 sudo apt-get install libpcap-dev
@@ -49,6 +51,7 @@ roslaunch driver path_track.launch
 * 每次GPS上电之后,需要在上位机标定软件里面进行cool reset,保证其有正确的航向角度
 * GPS主机固定后,其坐标系和车辆载体坐标系并不重合,通过启动以下节点进行标定,并将终端上打印的数值大户入GPS标定上位机软件之中(Head ..参数)
 *  **标定过程中,除非将要发生安全问题,否则不要打方向,让其沿着直线往前行走**
+
 ```
 roslaunch driver calibrate_gps.launch 
 ```
