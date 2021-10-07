@@ -23,11 +23,13 @@ sudo apt-get install libpcap-dev
 sudo ln -s /usr/include/eigen3/Eigen /usr/include/Eigen
 catkin_make
 ```
+
 ## 1、记录一段路经
 * 启动记录路径节点:记录一段路经，保存为txt文件
 ```
 roslaunch driver path_recorder.launch
 ```
+
 ## 2、启动循迹节点
 
 * 按照刚才记录的路径进行循迹
